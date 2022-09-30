@@ -4,7 +4,7 @@ a tool to assist in the decision-making process by adding ranking criteria that 
 ## **use case:** determining which television to purchase
 
 ### 1) setup the criteria used in the rankings:
-> determine which criteria is important to you and create a new `criteria` entry picking a `name`, set of `values` and a `type` _(see [criteria types](#-criteria-types) section below for more information on the possible types and their meanings)_
+> determine which criteria is important to you and create a new `criteria` entry picking a `name`, set of `values` and a `type` _(see [criteria types](#criteria-types) section below for more information on the possible types and their meanings)_
 
 | criteria name | criteria values | criteria type |
 |---|---|---|
@@ -33,7 +33,7 @@ a tool to assist in the decision-making process by adding ranking criteria that 
 
 ## **use case:** determining which friends to invest your time in
 ### 1) setup the criteria used in the rankings:
-> determine which criteria is important to you and create a new `criteria` entry picking a `name`, set of `values` and a `type` _(see [criteria types](#-criteria-types) section below for more information on the possible types and their meanings)_
+> determine which criteria is important to you and create a new `criteria` entry picking a `name`, set of `values` and a `type` _(see [criteria types](#criteria-types) section below for more information on the possible types and their meanings)_
 
 | criteria name | criteria values | criteria type |
 |---|---|---|
