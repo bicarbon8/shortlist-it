@@ -68,8 +68,5 @@ the following types can be used when adding `criteria` used in the rankings:
 | `negatives` | a `multi-select` list where each item selected subtracts 1 point and the overall value for this `criteria` is determined by the sum of values selected as a negative number applied to the overall total |
 
 # UX Mockups
-## Web Browser
-![Browser Mockup](./design/mocks/Share-It_web_UX.png)
-
-## Mobile Device
-![Mobile Device Mockup](./design/mocks/Share-It_mobile_UX.png)
+## Interactions and Layout
+![UX Interactions](./design/mocks/Share-It_UX.png)
