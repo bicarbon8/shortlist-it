@@ -10,9 +10,9 @@ export class ShortlistBody extends React.Component<{entries: Array<Entry>}> {
                 {this.props.entries.map((entry: Entry, i: number) => 
                     <ShortlistEntry entry={entry} ranking={i+1} />
                 )}
-                <ListGroupItem>
-                    <Row className="justify-content-md-center">
-                        <Col xs={2}><Button variant="outline-primary" size="lg" onClick={() => this.displayAddEntryModal()}>+</Button></Col>
+                <ListGroupItem key="add_new_entry">
+                    <Row className="justify-content-lg-center">
+                        <Col xs="auto"><Button variant="outline-primary" size="lg" onClick={() => this.displayAddEntryModal()}>+</Button></Col>
                     </Row>
                 </ListGroupItem>
             </ListGroup>

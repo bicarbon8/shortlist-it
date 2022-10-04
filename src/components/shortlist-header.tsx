@@ -6,7 +6,7 @@ export class ShortlistHeader extends React.Component<Shortlist> {
     render() {
         return (
             <Container>
-                <Row><Col xs={10}>{this.props.title}</Col><Col><CloseButton></CloseButton></Col></Row>
+                <Row><Col xs={10}>{this.props.title}</Col><Col className="text-center"><CloseButton></CloseButton></Col></Row>
             </Container>
         );
     }
