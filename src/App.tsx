@@ -1,14 +1,9 @@
 import React from "react";
 import ReactDOM from "react-dom";
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 import "./index.css";
+import { ShortlistItApp } from "./components/shortlist-it-app";
 
-const App = () => (
-  <div className="container">
-    <div>Name: shortlist-it</div>
-    <div>Framework: react</div>
-    <div>Language: TypeScript</div>
-    <div>CSS: Empty CSS</div>
-  </div>
-);
+const App = () => <ShortlistItApp />;
 ReactDOM.render(<App />, document.getElementById("app"));
