@@ -1,11 +1,17 @@
 import React from "react";
-import { Badge, CloseButton, ListGroup } from "react-bootstrap";
+import { Badge, CloseButton, Col, ListGroupItem, Row } from "react-bootstrap";
 import { Entry } from "../types/entries/entry";
 
-export class ShortlistEntry extends React.Component<{entry: Entry}> {
+export class ShortlistEntry extends React.Component<{entry: Entry, ranking: number}> {
     render() {
         return (
-            <ListGroup.Item><Badge></Badge> {this.props.entry.description} <CloseButton /></ListGroup.Item>
+            <ListGroupItem variant="primary">
+                <Row>
+                    <Col><Badge pill={true}>{this.props.ranking}</Badge></Col>
+                    <Col xs="8">{this.props.entry.description}</Col>
+                    <Col><CloseButton /></Col>
+                </Row>
+            </ListGroupItem>
         );
     }
 }
