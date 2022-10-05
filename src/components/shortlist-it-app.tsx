@@ -18,25 +18,29 @@ export class ShortlistItApp extends React.Component {
                 entries: new Array<Entry>(
                     {
                         description: 'JVC LT-40CA790 Android TV 40" Smart Full HD LED TV with Google Assistant', 
+                        ranking: 1,
                         values: new Map<string, string | Array<string>>([
                             ['cost', '$$'],
                             ['size', 'M'],
                             ['audio ports', ['3.5mm', 'optical']]
                         ])
                     }, {
-                        description: 'TCL 32RS520K Roku 32" Smart HD Ready LED TV', 
+                        description: 'TCL 32RS520K Roku 32" Smart HD Ready LED TV',
+                        ranking: 2,
                         values: new Map<string, string | Array<string>>([
                             ['cost', '$'],
                             ['size', 'S']
                         ])
                     }, {
-                        description: 'LG 28TN515S 28" Smart HD Ready LED TV', 
+                        description: 'LG 28TN515S 28" Smart HD Ready LED TV',
+                        ranking: 3,
                         values: new Map<string, string | Array<string>>([
                             ['cost', '$$'],
                             ['size', 'XS']
                         ])
                     }, {
-                        description: 'SAMSUNG UE50TU7020KXXU 50" Smart 4K Ultra HD HDR LED TV', 
+                        description: 'SAMSUNG UE50TU7020KXXU 50" Smart 4K Ultra HD HDR LED TV',
+                        ranking: 3,
                         values: new Map<string, string | Array<string>>([
                             ['cost', '$$$$'],
                             ['size', 'L']
