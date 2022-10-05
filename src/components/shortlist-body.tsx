@@ -8,7 +8,7 @@ export class ShortlistBody extends React.Component<{entries: Array<Entry>}> {
         return (
             <ListGroup>
                 {this.props.entries.map((entry: Entry, i: number) => 
-                    <ShortlistEntry entry={entry} ranking={i+1} />
+                    <ShortlistEntry key={i} entry={entry} ranking={i+1} />
                 )}
                 <ListGroupItem key="add_new_entry">
                     <Row className="justify-content-lg-center">
