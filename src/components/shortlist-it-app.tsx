@@ -48,6 +48,6 @@ export class ShortlistItApp extends React.Component {
             {title: 'The Third List Example - this is fun!', criteria: new Array<Criteria>(), entries: new Array<Entry>()}
         ]);
 
-        return (<>{lists.map((list, i) => <ShortlistContainer key={i} data={list} />)}</>);
+        return (<>{lists.map((list) => <ShortlistContainer key={list.title} data={list} />)}</>);
     }
 }

@@ -19,7 +19,7 @@ module.exports = {
 
   devServer: {
     port: 4200,
-    historyApiFallback: true,
+    historyApiFallback: true
   },
 
   module: {
@@ -32,8 +32,11 @@ module.exports = {
         },
       },
       { 
-        test: /\.(jpe?g|gif|png|svg|woff|ttf|wav|mp3)$/, 
-        loader: "file-loader"
+        test: /\.(jpe?g|gif|png|svg|woff|ttf|wav|mp3|ico)$/, 
+        loader: "file-loader",
+        options: {
+          name: '[name].[ext]'
+        }
       },
       { 
         test: /(\.nojekyll)$/, 
