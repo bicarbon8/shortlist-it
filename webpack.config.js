@@ -26,6 +26,17 @@ module.exports = {
           fullySpecified: false,
         },
       },
+      { 
+        test: /\.(jpe?g|gif|png|svg|woff|ttf|wav|mp3)$/, 
+        loader: "file-loader"
+      },
+      { 
+        test: /(\.nojekyll)$/, 
+        loader: "file-loader",
+        options: {
+          name: '.nojekyll',
+        }
+      },
       {
         test: /\.(css|s[ac]ss)$/i,
         use: ["style-loader", "css-loader", "postcss-loader"],
