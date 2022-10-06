@@ -37,6 +37,7 @@ export class ShortlistMenu extends React.Component<ShortlistMenuProps> {
             <OverlayTrigger
                 trigger="click"
                 placement="auto"
+                rootClose
                 overlay={this.popover}>
                 <span>{this.props.children}</span>
             </OverlayTrigger>
