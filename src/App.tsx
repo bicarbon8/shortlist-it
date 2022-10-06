@@ -4,8 +4,8 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import "./index.css";
 import "./.nojekyll";
-import { ShortlistItApp } from "./components/shortlist-it-app";
+import { ShortlistIt } from "./components/shortlist-it";
 import "./favicon.ico";
 
-const App = () => <ShortlistItApp />;
+const App = () => <ShortlistIt />;
 ReactDOM.render(<App />, document.getElementById("app"));

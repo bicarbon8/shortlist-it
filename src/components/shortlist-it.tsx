@@ -3,11 +3,12 @@ import { Shortlist } from "../types/shortlist";
 import { Entry } from "../types/entries/entry";
 import { Criteria } from "../types/criteria/criteria";
 import { CriteriaType } from "../types/criteria/criteria-type";
-import { Container, Row, Col, ListGroup, ListGroupItem, Badge, Collapse } from "react-bootstrap";
+import { Container, Row, Col, ListGroup, ListGroupItem, Badge, Collapse, OverlayTrigger } from "react-bootstrap";
 import { ShortlistTooltip } from "./shortlist-tooltip";
 import { BootstrapIcon } from "./bootstrap-icon";
+import { ShortlistMenu } from "./shortlist-menu";
 
-export class ShortlistItApp extends React.Component<never, {lists: Array<Shortlist>, showMap: Map<string, boolean>}> {
+export class ShortlistIt extends React.Component<never, {lists: Array<Shortlist>, showMap: Map<string, boolean>}> {
     constructor(props: never) {
         super(props);
         this.state = {
@@ -80,10 +81,17 @@ export class ShortlistItApp extends React.Component<never, {lists: Array<Shortli
                 <Row>
                     <Col xs={10}>{title}</Col>
                     <Col className="text-center">
-                        <ShortlistTooltip id={title} text="delete list">
-                            <BootstrapIcon icon="trash" style={{ fontSize: '14pt' }} />
-                            {/* TODO: await fix for: https://github.com/ismamz/react-bootstrap-icons/issues/39 */}
-                            {/* <Icon.List color="royalBlue" size={40} title="toggle display of list" /> */}
+                        <ShortlistTooltip id={title} text="open list menu">
+                            <ShortlistMenu 
+                                id={title}
+                                headerText="List Menu"
+                                menuItems={[
+                                    {text: 'edit', icon: 'pencil-square', action: () => null},
+                                    {text: 'archive', icon: 'archive', action: () => null},
+                                    {text: 'delete', icon: 'trash', action: () => null}
+                                ]}>
+                                <BootstrapIcon icon="list" style={{ fontSize: '14pt' }} />
+                            </ShortlistMenu>
                         </ShortlistTooltip>
                     </Col>
                 </Row>
@@ -123,17 +131,31 @@ export class ShortlistItApp extends React.Component<never, {lists: Array<Shortli
 
     getShortlistEntry(listTitle: string, entry: Entry, criteria: Array<Criteria>) {
         const key = `${listTitle} - ${entry.description}`; // TODO: need the list title too
+        const show = this.shouldShow(key);
         return (
             <ListGroupItem key={entry.description} variant="primary">
                 <Row>
                     <Col><Badge pill={true}>{entry.ranking}</Badge></Col>
-                    <Col xs="8" onClick={() => this.setShow(key, !this.shouldShow(key))} aria-expanded={this.shouldShow(key)}>{entry.description}</Col>
+                    <Col xs="8">{entry.description}</Col>
                     <Col className="text-center">
-                        <ShortlistTooltip id={entry.description} text="delete entry">
-                            <BootstrapIcon icon="trash" style={{ fontSize: '14pt' }} />
+                        <ShortlistTooltip id={entry.description} text="open entry menu">
+                            <ShortlistMenu 
+                                id={entry.description}
+                                headerText="Entry Options"
+                                menuItems={[
+                                    {
+                                        text: (show) ? 'contract' : 'expand', 
+                                        icon: (show) ? 'chevron-bar-contract' : 'chevron-bar-expand',
+                                        action: () => this.setShow(key, !show)
+                                    },
+                                    {text: 'edit', icon: 'pencil-square', action: () => null},
+                                    {text: 'delete', icon: 'trash', action: () => null}
+                                ]}>
+                                <BootstrapIcon icon="list" style={{ fontSize: '14pt' }} />
+                            </ShortlistMenu>
                         </ShortlistTooltip>
                     </Col>
-                    <Collapse in={this.shouldShow(key)}>
+                    <Collapse in={show}>
                         <ListGroup>
                             {this.getValuesListItems(entry, criteria)}
                             <ListGroupItem variant="dark" key="add_new_criteria">
