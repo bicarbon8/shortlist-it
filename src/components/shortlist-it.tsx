@@ -3,15 +3,16 @@ import { Shortlist } from "../types/shortlist";
 import { Entry } from "../types/entries/entry";
 import { Criteria } from "../types/criteria/criteria";
 import { CriteriaType } from "../types/criteria/criteria-type";
-import { Container, Row, Col, ListGroup, ListGroupItem, Badge, Collapse, Card } from "react-bootstrap";
+import { Container, Row, Col, ListGroup, ListGroupItem, Badge, Collapse, Card, Navbar, Form, Button, Nav } from "react-bootstrap";
 import { ShortlistTooltip } from "./shortlist-tooltip";
 import { BootstrapIcon } from "./bootstrap-icon";
 import { ShortlistMenu } from "./shortlist-menu";
 
-export class ShortlistIt extends React.Component<{}, {lists: Array<Shortlist>, showMap: Map<string, boolean>}> {
+export class ShortlistIt extends React.Component<{}, {lists: Array<Shortlist>, showMap: Map<string, boolean>, viewArchived: boolean}> {
     constructor(props: never) {
         super(props);
         this.state = {
+            viewArchived: false,
             lists: new Array<Shortlist>(
                 {
                     title: 'Which type of television should I buy?',
@@ -61,12 +62,55 @@ export class ShortlistIt extends React.Component<{}, {lists: Array<Shortlist>, s
     }
 
     render() {
-        const lists: Array<Shortlist> = this.state.lists;
+        const lists: Array<Shortlist> = (this.state.viewArchived) ? this.state.lists.filter(l => !l.archived) : this.state.lists;
 
         return (
-            <div className="d-flex justify-content-evenly align-items-start flex-wrap flex-sm-row flex-column">
-                {lists.map((list) => this.getShortlistContainer(list))}
-            </div>
+            <>
+                {this.getHeaderBar()}
+                <Container className="d-flex justify-content-evenly align-items-start flex-wrap flex-sm-row flex-column">
+                    {lists.map((list) => this.getShortlistContainer(list))}
+                </Container>
+            </>
+        );
+    }
+
+    getHeaderBar() {
+        return (
+            <Navbar sticky="top" collapseOnSelect expand="md" bg="dark" variant="dark">
+                <Container fluid className="d-flex justify-content-between">
+                    <Navbar.Brand href="/">Shortlist-It</Navbar.Brand>
+                    <Navbar.Toggle aria-controls="navbarScroll" />
+                    <Navbar.Collapse id="navbarScroll" className="justify-content-end">
+                        <Nav>
+                            <Nav.Item>
+                                <ShortlistTooltip id="add_entry" text="add new list">
+                                    <Button variant="outline-success"><BootstrapIcon icon="plus-lg" /> Add New List</Button>
+                                </ShortlistTooltip>
+                            </Nav.Item>
+                        </Nav>
+                        <Navbar.Text className="px-1">
+                            <Form.Check 
+                                type="switch"
+                                id="display-archived"
+                                label="View Archived Lists"
+                            />
+                        </Navbar.Text>
+                        <Nav>
+                            <Nav.Item>
+                                <Form className="d-flex">
+                                    <Form.Control
+                                        type="search"
+                                        placeholder="enter search term(s)"
+                                        className="me-2"
+                                        aria-label="Search"
+                                    />
+                                    <Button variant="outline-success">Search</Button>
+                                </Form>
+                            </Nav.Item>
+                        </Nav>
+                    </Navbar.Collapse>
+                </Container>
+            </Navbar>
         );
     }
 

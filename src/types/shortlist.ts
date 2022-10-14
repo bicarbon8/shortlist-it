@@ -5,4 +5,5 @@ export type Shortlist = {
     title: string;
     criteria: Array<Criteria>;
     entries: Array<Entry>;
+    archived?: boolean;
 }

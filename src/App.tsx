@@ -11,5 +11,5 @@ ReactDOM.render(
     <React.StrictMode>
         <ShortlistIt />
     </React.StrictMode>,
-    document.getElementById("app")
+    document.querySelector("#app")
 );
