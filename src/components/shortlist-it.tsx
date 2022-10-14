@@ -6,14 +6,15 @@ import { CriteriaType } from "../types/criteria/criteria-type";
 import { Container, Row, Col, ListGroup, ListGroupItem, Badge, Collapse, Card, Navbar, Form, Button, Nav } from "react-bootstrap";
 import { ShortlistTooltip } from "./shortlist-tooltip";
 import { BootstrapIcon } from "./bootstrap-icon";
-import { ShortlistMenu } from "./shortlist-menu";
+import { ShortlistMenu, ShortlistMenuItem } from "./shortlist-menu";
+import { store } from "../utilities/store";
 
-export class ShortlistIt extends React.Component<{}, {lists: Array<Shortlist>, showMap: Map<string, boolean>, viewArchived: boolean}> {
+export class ShortlistIt extends React.Component<{}, {lists: Array<Shortlist>, showMap: Map<string, boolean>, showArchived: boolean}> {
     constructor(props: never) {
         super(props);
         this.state = {
-            viewArchived: false,
-            lists: new Array<Shortlist>(
+            showArchived: store.get('showArchived', false),
+            lists: store.get('lists', new Array<Shortlist>(
                 {
                     title: 'Which type of television should I buy?',
                     criteria: new Array<Criteria>(
@@ -56,13 +57,20 @@ export class ShortlistIt extends React.Component<{}, {lists: Array<Shortlist>, s
                 },
                 {title: 'A Second List - why use it?', criteria: new Array<Criteria>(), entries: new Array<Entry>()},
                 {title: 'The Third List Example - this is fun!', criteria: new Array<Criteria>(), entries: new Array<Entry>()}
-            ),
-            showMap: new Map<string, boolean>()
+            )),
+            showMap: store.get('showMap', new Map<string, boolean>())
         };
     }
 
+    getLists(): Array<Shortlist> {
+        if (this.getShowArchived()) {
+            return this.state.lists;
+        }
+        return this.state.lists.filter(l => l.archived !== true);
+    }
+
     render() {
-        const lists: Array<Shortlist> = (this.state.viewArchived) ? this.state.lists.filter(l => !l.archived) : this.state.lists;
+        const lists: Array<Shortlist> = this.getLists();
 
         return (
             <>
@@ -74,6 +82,15 @@ export class ShortlistIt extends React.Component<{}, {lists: Array<Shortlist>, s
         );
     }
 
+    getShowArchived(): boolean {
+        return this.state.showArchived ?? false;
+    }
+
+    setShowArchived(show: boolean) {
+        this.setState({showArchived: show});
+        store.set('showArchived', show);
+    }
+
     getHeaderBar() {
         return (
             <Navbar sticky="top" collapseOnSelect expand="md" bg="dark" variant="dark">
@@ -83,9 +100,7 @@ export class ShortlistIt extends React.Component<{}, {lists: Array<Shortlist>, s
                     <Navbar.Collapse id="navbarScroll" className="justify-content-end">
                         <Nav>
                             <Nav.Item>
-                                <ShortlistTooltip id="add_entry" text="add new list">
-                                    <Button variant="outline-success"><BootstrapIcon icon="plus-lg" /> Add New List</Button>
-                                </ShortlistTooltip>
+                                <Button variant="outline-success"><BootstrapIcon icon="plus-lg" /> Add New List</Button>
                             </Nav.Item>
                         </Nav>
                         <Navbar.Text className="px-1">
@@ -93,6 +108,8 @@ export class ShortlistIt extends React.Component<{}, {lists: Array<Shortlist>, s
                                 type="switch"
                                 id="display-archived"
                                 label="View Archived Lists"
+                                checked={this.getShowArchived()}
+                                onChange={e => this.setShowArchived(e.target.checked)}
                             />
                         </Navbar.Text>
                         <Nav>
@@ -119,7 +136,7 @@ export class ShortlistIt extends React.Component<{}, {lists: Array<Shortlist>, s
             <Card key={list.title} className="m-1 px-0 min-width-500 max-width-700">
                 <Card.Body className="px-0">
                     <Container>
-                        <Row><Col>{this.getShortlistHeader(list.title)}</Col></Row>
+                        <Row><Col>{this.getShortlistHeader(list)}</Col></Row>
                         <Row><Col>{this.getShortlistBody(list.title, list.entries, list.criteria)}</Col></Row>
                     </Container>
                 </Card.Body>
@@ -127,28 +144,40 @@ export class ShortlistIt extends React.Component<{}, {lists: Array<Shortlist>, s
         );
     }
 
-    getShortlistHeader(title: string) {
+    getShortlistHeader(list: Shortlist) {
+        const menuItems = new Array<ShortlistMenuItem>();
+        if (list.archived) {
+            menuItems.push({text: 'restore', icon: 'arrow-counterclockwise', action: () => this.setArchivedState(list.title, false)});
+        } else {
+            menuItems.push({text: 'edit', icon: 'pencil-square', action: () => null});
+            menuItems.push({text: 'archive', icon: 'archive', action: () => this.setArchivedState(list.title, true)});
+        }
+        menuItems.push({text: 'delete', icon: 'trash', action: () => null});
         return (
             <Container>
                 <Row>
-                    <Col xs={10}>{title}</Col>
+                    <Col xs={10}>{list.title}</Col>
                     <Col className="text-center">
-                        <ShortlistTooltip id={title} text="open list menu">
-                            <ShortlistMenu 
-                                id={title}
-                                headerText="List Menu"
-                                menuItems={[
-                                    {text: 'edit', icon: 'pencil-square', action: () => null},
-                                    {text: 'archive', icon: 'archive', action: () => null},
-                                    {text: 'delete', icon: 'trash', action: () => null}
-                                ]}>
-                                <BootstrapIcon icon="list" style={{ fontSize: '14pt' }} />
-                            </ShortlistMenu>
-                        </ShortlistTooltip>
+                        <ShortlistMenu 
+                            id={list.title}
+                            headerText="List Menu"
+                            menuItems={menuItems}>
+                            <BootstrapIcon icon="list" style={{ fontSize: '14pt' }} />
+                        </ShortlistMenu>
                     </Col>
                 </Row>
             </Container>
         );
+    }
+
+    setArchivedState(title: string, archived: boolean) {
+        const listIndex = this.state.lists.findIndex(l => l.title === title);
+        if (listIndex >= 0) {
+            const lists = this.state.lists;
+            lists[listIndex].archived = archived;
+            this.setState({lists: lists});
+            store.set('lists', lists);
+        }
     }
 
     getShortlistBody(listTitle: string, entries: Array<Entry>, criteria: Array<Criteria>) {
@@ -169,16 +198,14 @@ export class ShortlistIt extends React.Component<{}, {lists: Array<Shortlist>, s
     }
 
     shouldShow(key: string): boolean {
-        if (!this.state.showMap.has(key)) {
-            this.state.showMap.set(key, false);
-        }
         return this.state.showMap.get(key) || false;
     }
 
     setShow(key: string, show: boolean): void {
-        const state = {...this.state};
-        state.showMap.set(key, show);
-        this.setState(state);
+        const showMap = this.state.showMap;
+        showMap.set(key, show);
+        this.setState({showMap: showMap});
+        store.set('showMap', this.state.showMap);
     }
 
     getShortlistEntry(listTitle: string, entry: Entry, criteria: Array<Criteria>) {
@@ -190,22 +217,20 @@ export class ShortlistIt extends React.Component<{}, {lists: Array<Shortlist>, s
                     <Col><Badge pill={true}>{entry.ranking}</Badge></Col>
                     <Col xs="8">{entry.description}</Col>
                     <Col className="text-center">
-                        <ShortlistTooltip id={entry.description} text="open entry menu">
-                            <ShortlistMenu 
-                                id={entry.description}
-                                headerText="Entry Options"
-                                menuItems={[
-                                    {
-                                        text: (show) ? 'contract' : 'expand', 
-                                        icon: (show) ? 'chevron-bar-contract' : 'chevron-bar-expand',
-                                        action: () => this.setShow(key, !show)
-                                    },
-                                    {text: 'edit', icon: 'pencil-square', action: () => null},
-                                    {text: 'delete', icon: 'trash', action: () => null}
-                                ]}>
-                                <BootstrapIcon icon="list" style={{ fontSize: '14pt' }} />
-                            </ShortlistMenu>
-                        </ShortlistTooltip>
+                        <ShortlistMenu 
+                            id={entry.description}
+                            headerText="Entry Options"
+                            menuItems={[
+                                {
+                                    text: (show) ? 'contract' : 'expand', 
+                                    icon: (show) ? 'chevron-bar-contract' : 'chevron-bar-expand',
+                                    action: () => this.setShow(key, !show)
+                                },
+                                {text: 'edit', icon: 'pencil-square', action: () => null},
+                                {text: 'delete', icon: 'trash', action: () => null}
+                            ]}>
+                            <BootstrapIcon icon="list" style={{ fontSize: '14pt' }} />
+                        </ShortlistMenu>
                     </Col>
                     <Collapse in={show}>
                         <ListGroup>
