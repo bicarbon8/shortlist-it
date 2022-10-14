@@ -3,12 +3,12 @@ import { Shortlist } from "../types/shortlist";
 import { Entry } from "../types/entries/entry";
 import { Criteria } from "../types/criteria/criteria";
 import { CriteriaType } from "../types/criteria/criteria-type";
-import { Container, Row, Col, ListGroup, ListGroupItem, Badge, Collapse, OverlayTrigger } from "react-bootstrap";
+import { Container, Row, Col, ListGroup, ListGroupItem, Badge, Collapse, Card } from "react-bootstrap";
 import { ShortlistTooltip } from "./shortlist-tooltip";
 import { BootstrapIcon } from "./bootstrap-icon";
 import { ShortlistMenu } from "./shortlist-menu";
 
-export class ShortlistIt extends React.Component<never, {lists: Array<Shortlist>, showMap: Map<string, boolean>}> {
+export class ShortlistIt extends React.Component<{}, {lists: Array<Shortlist>, showMap: Map<string, boolean>}> {
     constructor(props: never) {
         super(props);
         this.state = {
@@ -63,15 +63,23 @@ export class ShortlistIt extends React.Component<never, {lists: Array<Shortlist>
     render() {
         const lists: Array<Shortlist> = this.state.lists;
 
-        return (<>{lists.map((list) => this.getShortlistContainer(list))}</>);
+        return (
+            <div className="d-flex justify-content-evenly align-items-start flex-wrap flex-sm-row flex-column">
+                {lists.map((list) => this.getShortlistContainer(list))}
+            </div>
+        );
     }
 
     getShortlistContainer(list: Shortlist) {
         return (
-            <Container key={list.title} className="col-lg-6 pb-4">
-                <Row><Col>{this.getShortlistHeader(list.title)}</Col></Row>
-                <Row><Col>{this.getShortlistBody(list.title, list.entries, list.criteria)}</Col></Row>
-            </Container>
+            <Card key={list.title} className="m-1 px-0 min-width-500 max-width-700">
+                <Card.Body className="px-0">
+                    <Container>
+                        <Row><Col>{this.getShortlistHeader(list.title)}</Col></Row>
+                        <Row><Col>{this.getShortlistBody(list.title, list.entries, list.criteria)}</Col></Row>
+                    </Container>
+                </Card.Body>
+            </Card>
         );
     }
 

@@ -1,5 +1,5 @@
 import React, { MouseEventHandler } from "react";
-import { Col, ListGroup, ListGroupItem, OverlayTrigger, Popover, Row } from "react-bootstrap";
+import { Col, ListGroup, ListGroupItem, OverlayTrigger, Popover, PopoverProps, Row } from "react-bootstrap";
 import { BootstrapIcon } from "./bootstrap-icon";
 
 type ShortlistMenuProps = {
@@ -16,7 +16,7 @@ export type ShortlistMenuItem = {
 };
 
 export class ShortlistMenu extends React.Component<ShortlistMenuProps> {
-    popover = (props) => {
+    popover = (props: JSX.IntrinsicAttributes & PopoverProps & React.RefAttributes<HTMLDivElement>) => {
         const id = this.props.id;
         const head = (this.props.headerText) ? this.renderHeader(this.props.headerText) : <></>;
         const menuItems = this.props.menuItems || new Array<ShortlistMenuItem>();

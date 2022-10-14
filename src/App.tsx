@@ -7,5 +7,9 @@ import "./.nojekyll";
 import { ShortlistIt } from "./components/shortlist-it";
 import "./favicon.ico";
 
-const App = () => <ShortlistIt />;
-ReactDOM.render(<App />, document.getElementById("app"));
+ReactDOM.render(
+    <React.StrictMode>
+        <ShortlistIt />
+    </React.StrictMode>,
+    document.getElementById("app")
+);
