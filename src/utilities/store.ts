@@ -18,15 +18,15 @@ function reviver(key: string, value: any) {
     return value;
 }
 
-class StorageHelper {
-    get<T>(key: string, defaultVal: T): T {
-        const store = localStorage.getItem(key);
+export class StorageHelper<T extends {}> {
+    get<Tkey extends keyof T, Tval = T[Tkey]>(key: Tkey, defaultVal: Tval): Tval {
+        const store = localStorage.getItem(key.toString());
         return (store) ? JSON.parse(store, reviver) : defaultVal;
     }
-
-    set(key: string, val: any): void {
-        localStorage.setItem(key, JSON.stringify(val, replacer));
+    set<Tkey extends keyof T, Tval = T[Tkey]>(key: Tkey, val: Tval): void {
+        localStorage.setItem(key.toString(), JSON.stringify(val, replacer));
+    }
+    delete<Tkey extends keyof T>(key: Tkey): void {
+        localStorage.removeItem(key.toString());
     }
 }
-
-export const store = new StorageHelper();

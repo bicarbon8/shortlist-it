@@ -1,5 +1,5 @@
 import React, { MouseEventHandler } from "react";
-import { Col, ListGroup, ListGroupItem, OverlayTrigger, Popover, PopoverProps, Row } from "react-bootstrap";
+import { ListGroup, ListGroupItem, OverlayTrigger, Popover, PopoverProps } from "react-bootstrap";
 import { BootstrapIcon } from "./bootstrap-icon";
 
 type ShortlistMenuProps = {
@@ -50,14 +50,12 @@ export class ShortlistMenu extends React.Component<ShortlistMenuProps> {
 
     renderListItem(item: ShortlistMenuItem) {
         return (
-            <ListGroupItem key={item.text} onClick={(evt) => {
-                item.action(evt);
+            <ListGroupItem key={item.text} className="d-flex clickable" onClick={(evt) => {
                 document.body.click();
+                item.action(evt);
             }}>
-                <Row>
-                    <Col>{item.text}:</Col>
-                    <Col><BootstrapIcon icon={item.icon} /></Col>
-                </Row>
+                <div className="w-100">{item.text}: &nbsp;</div>
+                <div className="flex-shrink-0"><BootstrapIcon icon={item.icon} /></div>
             </ListGroupItem>
         );
     }

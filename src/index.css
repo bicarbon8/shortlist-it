@@ -19,3 +19,21 @@ body {
 .max-width-700 {
   max-width: 700px;
 }
+
+.clickable {
+  cursor: pointer;
+}
+
+.overlay {
+  z-index: 100000;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  justify-content: center;
+  align-items: center;
+}
+
+.fill-screen-99 {
+  width: calc(100vw - 32px);
+  height: calc(100vh - 32px);
+}

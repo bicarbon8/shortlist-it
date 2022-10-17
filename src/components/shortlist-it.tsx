@@ -3,18 +3,28 @@ import { Shortlist } from "../types/shortlist";
 import { Entry } from "../types/entries/entry";
 import { Criteria } from "../types/criteria/criteria";
 import { CriteriaType } from "../types/criteria/criteria-type";
-import { Container, Row, Col, ListGroup, ListGroupItem, Badge, Collapse, Card, Navbar, Form, Button, Nav } from "react-bootstrap";
+import { Container, Row, Col, ListGroup, ListGroupItem, Badge, Collapse, Card, Navbar, Form, Button, Nav, Alert } from "react-bootstrap";
 import { ShortlistTooltip } from "./shortlist-tooltip";
 import { BootstrapIcon } from "./bootstrap-icon";
 import { ShortlistMenu, ShortlistMenuItem } from "./shortlist-menu";
-import { store } from "../utilities/store";
+import { StorageHelper } from "../utilities/store";
 
-export class ShortlistIt extends React.Component<{}, {lists: Array<Shortlist>, showMap: Map<string, boolean>, showArchived: boolean}> {
+type ShortlistItState = {
+    lists: Array<Shortlist>,
+    showMap: Map<string, boolean>,
+    showArchived: boolean,
+    toBeDeleted?: string;
+};
+
+export class ShortlistIt extends React.Component<{}, ShortlistItState> {
+    private store: StorageHelper<ShortlistItState>;
+    
     constructor(props: never) {
         super(props);
+        this.store = new StorageHelper<ShortlistItState>();
         this.state = {
-            showArchived: store.get('showArchived', false),
-            lists: store.get('lists', new Array<Shortlist>(
+            showArchived: this.store.get('showArchived', false),
+            lists: this.store.get('lists', new Array<Shortlist>(
                 {
                     title: 'Which type of television should I buy?',
                     criteria: new Array<Criteria>(
@@ -113,7 +123,7 @@ export class ShortlistIt extends React.Component<{}, {lists: Array<Shortlist>, s
                 },
                 {title: 'The Third List Example - this is fun!', criteria: new Array<Criteria>(), entries: new Array<Entry>()}
             )),
-            showMap: store.get('showMap', new Map<string, boolean>())
+            showMap: this.store.get('showMap', new Map<string, boolean>())
         };
     }
 
@@ -129,6 +139,7 @@ export class ShortlistIt extends React.Component<{}, {lists: Array<Shortlist>, s
 
         return (
             <>
+                {this.getDeleteConfirmation()}
                 {this.getHeaderBar()}
                 <Container className="d-flex justify-content-evenly align-items-start flex-wrap flex-sm-row flex-column">
                     {lists.map((list) => this.getShortlistContainer(list))}
@@ -142,8 +153,8 @@ export class ShortlistIt extends React.Component<{}, {lists: Array<Shortlist>, s
     }
 
     setShowArchived(show: boolean) {
+        this.store.set('showArchived', show);
         this.setState({showArchived: show});
-        store.set('showArchived', show);
     }
 
     getHeaderBar() {
@@ -192,7 +203,7 @@ export class ShortlistIt extends React.Component<{}, {lists: Array<Shortlist>, s
                 <Card.Body className="px-0">
                     <Container>
                         <Row><Col>{this.getShortlistHeader(list)}</Col></Row>
-                        <Row><Col>{this.getShortlistBody(list.title, list.entries, list.criteria)}</Col></Row>
+                        <Row><Col>{this.getShortlistBody(list, list.entries, list.criteria)}</Col></Row>
                     </Container>
                 </Card.Body>
             </Card>
@@ -204,7 +215,8 @@ export class ShortlistIt extends React.Component<{}, {lists: Array<Shortlist>, s
         if (list.archived) {
             menuItems.push({text: 'restore', icon: 'arrow-counterclockwise', action: () => this.setArchivedState(list.title, false)});
         } else {
-            menuItems.push({text: 'edit', icon: 'pencil-square', action: () => null});
+            menuItems.push({text: 'edit title', icon: 'pencil-square', action: () => null});
+            menuItems.push({text: 'edit criteria', icon: 'card-list', action: () => null});
             menuItems.push({text: 'archive', icon: 'archive', action: () => this.setArchivedState(list.title, true)});
         }
         menuItems.push(
@@ -212,11 +224,11 @@ export class ShortlistIt extends React.Component<{}, {lists: Array<Shortlist>, s
                 const key = `${list.title} - ${e.description}`;
                 this.setShow(key, true);
             })},
-            {text: 'collaps all', icon: 'chevron-bar-contract', action: () => list.entries.forEach(e => {
+            {text: 'collapse all', icon: 'chevron-bar-contract', action: () => list.entries.forEach(e => {
                 const key = `${list.title} - ${e.description}`;
                 this.setShow(key, false);
             })},
-            {text: 'delete', icon: 'trash', action: () => null}
+            {text: 'delete', icon: 'trash', action: () => this.showDeleteConfirmation(list.title)}
         );
         return (
             <Container>
@@ -240,15 +252,80 @@ export class ShortlistIt extends React.Component<{}, {lists: Array<Shortlist>, s
         if (listIndex >= 0) {
             const lists = this.state.lists;
             lists[listIndex].archived = archived;
+            this.store.set('lists', lists);
             this.setState({lists: lists});
-            store.set('lists', lists);
         }
     }
 
-    getShortlistBody(listTitle: string, entries: Array<Entry>, criteria: Array<Criteria>) {
-        return (
-            <ListGroup>
-                {entries.map((entry: Entry) => this.getShortlistEntry(listTitle, entry, criteria))}
+    showDeleteConfirmation(listTitle: string) {
+        const html = document.querySelector("html");
+        if (html) {
+            html.style.overflow = "hidden";
+        }
+        this.store.set('toBeDeleted', listTitle);
+        this.setState({toBeDeleted: listTitle});
+    }
+
+    hideDeleteConfirmation() {
+        this.setState({toBeDeleted: undefined});
+        this.store.delete('toBeDeleted');
+        const html = document.querySelector("html");
+        if (html) {
+            html.style.overflow = "auto";
+        }
+    }
+
+    getDeleteConfirmation() {
+        const listTitle = this.store.get('toBeDeleted', null);
+        if (listTitle) {
+            return (
+                <div className="overlay d-flex justify-content-center align-content-center">
+                    <Alert className="fill-screen-99 mt-3" id={`delete-${listTitle}`} variant="danger" dismissible onClose={() => this.hideDeleteConfirmation()}>
+                        <Alert.Heading>Warning!</Alert.Heading>
+                        <p>
+                        are you certain you want to delete list titled: <i>{listTitle}</i> a deleted list can not be recovered. 
+                        would you rather archive this list instead?
+                        </p>
+                        <hr />
+                        <div className="d-flex justify-content-between">
+                            <Button onClick={() => this.archiveList(listTitle)} variant="outline-dark">
+                                Archive
+                            </Button>
+                            <Button onClick={() => this.deleteList(listTitle)} variant="outline-danger">
+                                DELETE
+                            </Button>
+                        </div>
+                    </Alert>
+                </div>
+            );
+        } else {
+            return <></>;
+        }
+    }
+
+    archiveList(listTitle: string): void {
+        this.hideDeleteConfirmation();
+        this.setArchivedState(listTitle, true);
+    }
+
+    deleteList(listTitle: string): void {
+        this.hideDeleteConfirmation();
+
+        const listIndex = this.state.lists.findIndex(l => l.title === listTitle);
+        if (listIndex >= 0) {
+            const tmp = this.state.lists;
+            tmp.splice(listIndex, 1);
+            this.store.set('lists', tmp);
+            this.setState({lists: tmp});
+        }
+    }
+
+    getShortlistBody(list: Shortlist, entries: Array<Entry>, criteria: Array<Criteria>) {
+        let addEntry;
+        if (list.archived) {
+            addEntry = <></>;
+        } else {
+            addEntry = (
                 <ListGroupItem variant="dark" key="add_new_entry">
                     <Row className="justify-content-lg-center">
                         <Col xs="auto">
@@ -258,6 +335,12 @@ export class ShortlistIt extends React.Component<{}, {lists: Array<Shortlist>, s
                         </Col>
                     </Row>
                 </ListGroupItem>
+            );
+        }
+        return (
+            <ListGroup>
+                {entries.map((entry: Entry) => this.getShortlistEntry(list, entry))}
+                {addEntry}
             </ListGroup>
         );
     }
@@ -269,15 +352,30 @@ export class ShortlistIt extends React.Component<{}, {lists: Array<Shortlist>, s
     setShow(key: string, show: boolean): void {
         const showMap = this.state.showMap;
         showMap.set(key, show);
+        this.store.set('showMap', showMap);
         this.setState({showMap: showMap});
-        store.set('showMap', this.state.showMap);
     }
 
-    getShortlistEntry(listTitle: string, entry: Entry, criteria: Array<Criteria>) {
-        const key = `${listTitle} - ${entry.description}`; // TODO: need the list title too
+    getShortlistEntry(list: Shortlist, entry: Entry) {
+        const key = `${list.title} - ${entry.description}`; // TODO: need the list title too
         const show = this.shouldShow(key);
+        const variant = (list.archived) ? 'secondary' : 'primary';
+        const menuItems = new Array<ShortlistMenuItem>(
+            {
+                text: (show) ? 'collapse' : 'expand', 
+                icon: (show) ? 'chevron-bar-contract' : 'chevron-bar-expand',
+                action: () => this.setShow(key, !show)
+            }
+        );
+        if (!list.archived) {
+            menuItems.push(
+                {text: 'edit', icon: 'pencil-square', action: () => null},
+                {text: 'delete', icon: 'trash', action: () => null}
+            );
+        }
+
         return (
-            <ListGroupItem key={entry.description} variant="primary">
+            <ListGroupItem key={entry.description} variant={variant}>
                 <Row>
                     <Col><Badge pill={true}>{entry.ranking}</Badge></Col>
                     <Col xs="8">{entry.description}</Col>
@@ -285,30 +383,13 @@ export class ShortlistIt extends React.Component<{}, {lists: Array<Shortlist>, s
                         <ShortlistMenu 
                             id={entry.description}
                             headerText="Entry Options"
-                            menuItems={[
-                                {
-                                    text: (show) ? 'collapse' : 'expand', 
-                                    icon: (show) ? 'chevron-bar-contract' : 'chevron-bar-expand',
-                                    action: () => this.setShow(key, !show)
-                                },
-                                {text: 'edit', icon: 'pencil-square', action: () => null},
-                                {text: 'delete', icon: 'trash', action: () => null}
-                            ]}>
+                            menuItems={menuItems}>
                             <BootstrapIcon icon="list" style={{ fontSize: '14pt' }} />
                         </ShortlistMenu>
                     </Col>
                     <Collapse in={show}>
                         <ListGroup>
-                            {this.getValuesListItems(entry, criteria)}
-                            <ListGroupItem variant="dark" key="add_new_criteria">
-                                <Row className="justify-content-lg-center">
-                                    <Col xs="auto">
-                                        <ShortlistTooltip id="add_entry" text="add new entry">
-                                            <BootstrapIcon icon="plus-lg" onClick={() => this.displayAddCriteriaModal()} />
-                                        </ShortlistTooltip>
-                                    </Col>
-                                </Row>
-                            </ListGroupItem>
+                            {this.getValuesListItems(list, entry)}
                         </ListGroup>
                     </Collapse>
                 </Row>
@@ -316,15 +397,16 @@ export class ShortlistIt extends React.Component<{}, {lists: Array<Shortlist>, s
         );
     }
 
-    getValuesListItems(entry: Entry, criteria: Array<Criteria>) {
-        const criteriaNames = criteria.map(c => c.name);
+    getValuesListItems(list: Shortlist, entry: Entry) {
+        const criteriaNames = list.criteria.map(c => c.name);
+        const variant = 'outline-primary';
         
         return criteriaNames.map((criteriaName: string) => (
-            <ListGroupItem variant="outline-primary" key={criteriaName}>
+            <ListGroupItem variant={variant} key={criteriaName}>
                 <Container fluid>
                     <Row>
                         <Col xs={3} className="min-width-200">{criteriaName}:</Col>
-                        <Col>{this.getValuesColumns(entry.values.get(criteriaName), criteria.find(c => c.name === criteriaName)?.values)}</Col>
+                        <Col>{this.getValuesColumns(entry.values.get(criteriaName), list.criteria.find(c => c.name === criteriaName)?.values)}</Col>
                     </Row>
                 </Container>
             </ListGroupItem>
