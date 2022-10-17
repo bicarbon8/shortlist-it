@@ -50,7 +50,10 @@ export class ShortlistMenu extends React.Component<ShortlistMenuProps> {
 
     renderListItem(item: ShortlistMenuItem) {
         return (
-            <ListGroupItem key={item.text} onClick={item.action}>
+            <ListGroupItem key={item.text} onClick={(evt) => {
+                item.action(evt);
+                document.body.click();
+            }}>
                 <Row>
                     <Col>{item.text}:</Col>
                     <Col><BootstrapIcon icon={item.icon} /></Col>

@@ -55,7 +55,62 @@ export class ShortlistIt extends React.Component<{}, {lists: Array<Shortlist>, s
                         }
                     )
                 },
-                {title: 'A Second List - why use it?', criteria: new Array<Criteria>(), entries: new Array<Entry>()},
+                {
+                    title: 'Which friends should I invest my time in?', 
+                    criteria: new Array<Criteria>(
+                        {name: 'giver or taker', criteriaType: 'worst-to-best' as CriteriaType, values: ['taker', 'both', 'giver']},
+                        {name: 'feeling when with them', criteriaType: 'worst-to-best' as CriteriaType, values: ['anger', 'agitation', 'sadness', 'nothingness', 'warmth', 'joy', 'elation']},
+                        {name: 'activity level', criteriaType: 'worst-to-best' as CriteriaType, values: ['none', 'extreme', 'low', 'moderate']}, 
+                        {name: 'makes me a better person', criteriaType: 'boolean' as CriteriaType, values: ['true', 'false']},
+                        {name: 'good features', criteriaType: 'positives' as CriteriaType, values: ['tidy', 'fashionable', 'kind', 'athletic', 'attractive', 'intelligent']}
+                    ), 
+                    entries: new Array<Entry>(
+                        {
+                            description: 'Mark',
+                            ranking: 1,
+                            values: new Map<string, Array<string>>([
+                                ['giver or taker', ['giver']],
+                                ['feeling when with them', ['joy']],
+                                ['activity level', ['moderate']],
+                                ['makes me a better person', ['false']],
+                                ['good features', ['kind', 'athletic', 'intelligent']]
+                            ])
+                        },
+                        {
+                            description: 'Carl',
+                            ranking: 2,
+                            values: new Map<string, Array<string>>([
+                                ['giver or taker', ['giver']],
+                                ['feeling when with them', ['joy']],
+                                ['activity level', ['low']],
+                                ['makes me a better person', ['true']],
+                                ['good features', ['kind', 'intelligent']]
+                            ])
+                        },
+                        {
+                            description: 'Sophie',
+                            ranking: 3,
+                            values: new Map<string, Array<string>>([
+                                ['giver or taker', ['both']],
+                                ['feeling when with them', ['warmth']],
+                                ['activity level', ['low']],
+                                ['makes me a better person', ['false']],
+                                ['good features', ['tidy', 'attractive']]
+                            ])
+                        },
+                        {
+                            description: 'Roger',
+                            ranking: 4,
+                            values: new Map<string, Array<string>>([
+                                ['giver or taker', ['taker']],
+                                ['feeling when with them', ['nothingness']],
+                                ['activity level', ['moderate']],
+                                ['makes me a better person', ['true']],
+                                ['good features', ['athletic', 'intelligent']]
+                            ])
+                        }
+                    )
+                },
                 {title: 'The Third List Example - this is fun!', criteria: new Array<Criteria>(), entries: new Array<Entry>()}
             )),
             showMap: store.get('showMap', new Map<string, boolean>())
@@ -133,7 +188,7 @@ export class ShortlistIt extends React.Component<{}, {lists: Array<Shortlist>, s
 
     getShortlistContainer(list: Shortlist) {
         return (
-            <Card key={list.title} className="m-1 px-0 min-width-500 max-width-700">
+            <Card key={list.title} className="m-1 px-0 min-width-300 max-width-700">
                 <Card.Body className="px-0">
                     <Container>
                         <Row><Col>{this.getShortlistHeader(list)}</Col></Row>
@@ -152,7 +207,17 @@ export class ShortlistIt extends React.Component<{}, {lists: Array<Shortlist>, s
             menuItems.push({text: 'edit', icon: 'pencil-square', action: () => null});
             menuItems.push({text: 'archive', icon: 'archive', action: () => this.setArchivedState(list.title, true)});
         }
-        menuItems.push({text: 'delete', icon: 'trash', action: () => null});
+        menuItems.push(
+            {text: 'expand all', icon: 'chevron-bar-expand', action: () => list.entries.forEach(e => {
+                const key = `${list.title} - ${e.description}`;
+                this.setShow(key, true);
+            })},
+            {text: 'collaps all', icon: 'chevron-bar-contract', action: () => list.entries.forEach(e => {
+                const key = `${list.title} - ${e.description}`;
+                this.setShow(key, false);
+            })},
+            {text: 'delete', icon: 'trash', action: () => null}
+        );
         return (
             <Container>
                 <Row>
@@ -222,7 +287,7 @@ export class ShortlistIt extends React.Component<{}, {lists: Array<Shortlist>, s
                             headerText="Entry Options"
                             menuItems={[
                                 {
-                                    text: (show) ? 'contract' : 'expand', 
+                                    text: (show) ? 'collapse' : 'expand', 
                                     icon: (show) ? 'chevron-bar-contract' : 'chevron-bar-expand',
                                     action: () => this.setShow(key, !show)
                                 },
@@ -258,7 +323,7 @@ export class ShortlistIt extends React.Component<{}, {lists: Array<Shortlist>, s
             <ListGroupItem variant="outline-primary" key={criteriaName}>
                 <Container fluid>
                     <Row>
-                        <Col xs={3}>{criteriaName}:</Col>
+                        <Col xs={3} className="min-width-200">{criteriaName}:</Col>
                         <Col>{this.getValuesColumns(entry.values.get(criteriaName), criteria.find(c => c.name === criteriaName)?.values)}</Col>
                     </Row>
                 </Container>
