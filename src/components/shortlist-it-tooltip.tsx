@@ -1,8 +1,8 @@
 import React from "react";
-import { OverlayTrigger, Tooltip } from "react-bootstrap";
+import { OverlayTrigger, Tooltip, TooltipProps } from "react-bootstrap";
 
-export class ShortlistTooltip extends React.Component<{id: string, text: string, children: React.ReactElement}> {
-    tooltip = (props) => (
+export class ShortlistItTooltip extends React.Component<{id: string, text: string, children: React.ReactElement}> {
+    tooltip = (props: JSX.IntrinsicAttributes & TooltipProps & React.RefAttributes<HTMLDivElement>) => (
         <Tooltip id={this.props.id} {...props}>
           {this.props.text}
         </Tooltip>

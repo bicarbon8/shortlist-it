@@ -1,5 +1,6 @@
 export type Entry = {
-    description: string;
+    id: string;
+    description?: string;
     ranking?: number;
     values: Map<string, Array<string>>;
 };

@@ -1,20 +1,21 @@
 import React from "react";
+import { v4 } from "uuid";
 import { Shortlist } from "../types/shortlist";
 import { Entry } from "../types/entries/entry";
 import { Criteria } from "../types/criteria/criteria";
 import { CriteriaType } from "../types/criteria/criteria-type";
-import { Container, Row, Col, ListGroup, ListGroupItem, Badge, Collapse, Card, Navbar, Form, Button, Nav, Alert, FormGroup, InputGroup, FloatingLabel } from "react-bootstrap";
+import { Container, Row, Col, ListGroup, ListGroupItem, Badge, Collapse, Card, Navbar, Form, Button, Nav, Alert, InputGroup, FloatingLabel } from "react-bootstrap";
 import { BootstrapIcon } from "./bootstrap-icon";
-import { ShortlistMenu, ShortlistMenuItem } from "./shortlist-menu";
+import { ShortlistItMenu, ShortlistItMenuItem } from "./shortlist-it-menu";
 import { StorageHelper } from "../utilities/store";
-import { ShortlistTooltip } from "./shortlist-tooltip";
+import { ShortlistItList } from "./shortlist-it-list";
 
 type ShortlistItState = {
     lists: Array<Shortlist>,
     expandedStateMap: Map<string, boolean>,
     showArchived: boolean,
-    toBeDeleted?: string;
-    editing?: string;
+    listToBeDeleted?: string;
+    listBeingEdited?: string;
 };
 
 export class ShortlistIt extends React.Component<{}, ShortlistItState> {
@@ -27,14 +28,16 @@ export class ShortlistIt extends React.Component<{}, ShortlistItState> {
             showArchived: this.store.get('showArchived', false),
             lists: this.store.get('lists', new Array<Shortlist>(
                 {
+                    id: v4(),
                     title: 'Which type of television should I buy?',
                     criteria: new Array<Criteria>(
-                        {name: 'cost', type: 'worst-to-best' as CriteriaType, values: ['$$$$', '$$$', '$$', '$']},
-                        {name: 'size', type: 'worst-to-best' as CriteriaType, values: ['XS', 'S', 'M', 'L', 'XL']},
-                        {name: 'audio ports', type: 'worst-to-best' as CriteriaType, values: ['3.5mm', 'RCA', 'optical'], allowMultiple: true}
+                        {id: v4(), name: 'cost', type: 'worst-to-best' as CriteriaType, values: ['$$$$', '$$$', '$$', '$']},
+                        {id: v4(), name: 'size', type: 'worst-to-best' as CriteriaType, values: ['XS', 'S', 'M', 'L', 'XL']},
+                        {id: v4(), name: 'audio ports', type: 'worst-to-best' as CriteriaType, values: ['3.5mm', 'RCA', 'optical'], allowMultiple: true}
                     ), 
                     entries: new Array<Entry>(
                         {
+                            id: v4(),
                             description: 'JVC LT-40CA790 Android TV 40" Smart Full HD LED TV with Google Assistant', 
                             ranking: 1,
                             values: new Map<string, Array<string>>([
@@ -43,6 +46,7 @@ export class ShortlistIt extends React.Component<{}, ShortlistItState> {
                                 ['audio ports', ['3.5mm', 'optical']]
                             ])
                         }, {
+                            id: v4(),
                             description: 'TCL 32RS520K Roku 32" Smart HD Ready LED TV',
                             ranking: 2,
                             values: new Map<string, Array<string>>([
@@ -50,6 +54,7 @@ export class ShortlistIt extends React.Component<{}, ShortlistItState> {
                                 ['size', ['S']]
                             ])
                         }, {
+                            id: v4(),
                             description: 'LG 28TN515S 28" Smart HD Ready LED TV',
                             ranking: 3,
                             values: new Map<string, Array<string>>([
@@ -57,6 +62,7 @@ export class ShortlistIt extends React.Component<{}, ShortlistItState> {
                                 ['size', ['XS']]
                             ])
                         }, {
+                            id: v4(),
                             description: 'SAMSUNG UE50TU7020KXXU 50" Smart 4K Ultra HD HDR LED TV',
                             ranking: 3,
                             values: new Map<string, Array<string>>([
@@ -67,16 +73,18 @@ export class ShortlistIt extends React.Component<{}, ShortlistItState> {
                     )
                 },
                 {
+                    id: v4(),
                     title: 'Which friends should I invest my time in?', 
                     criteria: new Array<Criteria>(
-                        {name: 'giver or taker', type: 'worst-to-best' as CriteriaType, values: ['taker', 'both', 'giver']},
-                        {name: 'feeling when with them', type: 'worst-to-best' as CriteriaType, values: ['anger', 'agitation', 'sadness', 'nothingness', 'warmth', 'joy', 'elation']},
-                        {name: 'activity level', type: 'worst-to-best' as CriteriaType, values: ['none', 'extreme', 'low', 'moderate']}, 
-                        {name: 'makes me a better person', type: 'boolean' as CriteriaType, values: ['true', 'false']},
-                        {name: 'good features', type: 'positives' as CriteriaType, values: ['tidy', 'fashionable', 'kind', 'athletic', 'attractive', 'intelligent']}
+                        {id: v4(), name: 'giver or taker', type: 'worst-to-best' as CriteriaType, values: ['taker', 'both', 'giver']},
+                        {id: v4(), name: 'feeling when with them', type: 'worst-to-best' as CriteriaType, values: ['anger', 'agitation', 'sadness', 'nothingness', 'warmth', 'joy', 'elation']},
+                        {id: v4(), name: 'activity level', type: 'worst-to-best' as CriteriaType, values: ['none', 'extreme', 'low', 'moderate']}, 
+                        {id: v4(), name: 'makes me a better person', type: 'boolean' as CriteriaType, values: ['true', 'false']},
+                        {id: v4(), name: 'good features', type: 'positives' as CriteriaType, values: ['tidy', 'fashionable', 'kind', 'athletic', 'attractive', 'intelligent'], allowMultiple: true}
                     ), 
                     entries: new Array<Entry>(
                         {
+                            id: v4(),
                             description: 'Mark',
                             ranking: 1,
                             values: new Map<string, Array<string>>([
@@ -88,6 +96,7 @@ export class ShortlistIt extends React.Component<{}, ShortlistItState> {
                             ])
                         },
                         {
+                            id: v4(),
                             description: 'Carl',
                             ranking: 2,
                             values: new Map<string, Array<string>>([
@@ -99,6 +108,7 @@ export class ShortlistIt extends React.Component<{}, ShortlistItState> {
                             ])
                         },
                         {
+                            id: v4(),
                             description: 'Sophie',
                             ranking: 3,
                             values: new Map<string, Array<string>>([
@@ -110,6 +120,7 @@ export class ShortlistIt extends React.Component<{}, ShortlistItState> {
                             ])
                         },
                         {
+                            id: v4(),
                             description: 'Roger',
                             ranking: 4,
                             values: new Map<string, Array<string>>([
@@ -122,7 +133,7 @@ export class ShortlistIt extends React.Component<{}, ShortlistItState> {
                         }
                     )
                 },
-                {title: 'The Third List Example - this is fun!', criteria: new Array<Criteria>(), entries: new Array<Entry>()}
+                {id: v4(), title: 'The Third List Example - this is fun!', criteria: new Array<Criteria>(), entries: new Array<Entry>()}
             )),
             expandedStateMap: this.store.get('expandedStateMap', new Map<string, boolean>())
         };
@@ -140,11 +151,11 @@ export class ShortlistIt extends React.Component<{}, ShortlistItState> {
 
         return (
             <>
-                {this.getDeleteConfirmation()}
+                {this.getListDeleteConfirmation()}
                 {this.getNavbar()}
-                <Container className="d-flex justify-content-evenly align-items-start flex-wrap flex-sm-row flex-column">
-                    {lists.map((list) => this.getShortlistContainer(list))}
-                </Container>
+                <div className="d-flex justify-content-evenly align-items-start flex-wrap flex-sm-row flex-column">
+                    {lists.map((list) => <ShortlistItList key={list.id} parent={this} list={list} />)}
+                </div>
             </>
         );
     }
@@ -199,9 +210,9 @@ export class ShortlistIt extends React.Component<{}, ShortlistItState> {
     }
 
     getShortlistContainer(list: Shortlist) {
-        const editing = this.state.editing === list.title;
+        const editing = this.state.listBeingEdited === list.id;
         return (
-            <Card key={list.title} className="m-1 px-0 min-width-300 max-width-700">
+            <Card key={list.id} className="m-1 px-0 min-width-300 max-width-700">
                 <Card.Body className="px-0">
                     <Container>
                         <Row><Col>{this.getShortlistHeader(list, editing)}</Col></Row>
@@ -222,31 +233,31 @@ export class ShortlistIt extends React.Component<{}, ShortlistItState> {
             );
         } else {
             titleOrInput = <>{list.title}</>;
-            const menuItems = new Array<ShortlistMenuItem>();
+            const menuItems = new Array<ShortlistItMenuItem>();
             if (list.archived) {
-                menuItems.push({text: 'restore', icon: 'arrow-counterclockwise', action: () => this.setArchivedState(list.title, false)});
+                menuItems.push({text: 'restore', icon: 'arrow-counterclockwise', action: () => this.setArchivedState(list.id, false)});
             } else {
-                menuItems.push({text: 'edit', icon: 'pencil-square', action: () => this.setEditing(list.title)});
-                menuItems.push({text: 'archive', icon: 'archive', action: () => this.setArchivedState(list.title, true)});
+                menuItems.push({text: 'edit', icon: 'pencil-square', action: () => this.setEditing(list.id)});
+                menuItems.push({text: 'archive', icon: 'archive', action: () => this.setArchivedState(list.id, true)});
             }
             menuItems.push(
                 {text: 'expand all', icon: 'chevron-bar-expand', action: () => list.entries.forEach(e => {
-                    const key = `${list.title} - ${e.description}`;
+                    const key = `${list.id} - ${e.description}`;
                     this.setExpandedState(key, true);
                 })},
                 {text: 'collapse all', icon: 'chevron-bar-contract', action: () => list.entries.forEach(e => {
-                    const key = `${list.title} - ${e.description}`;
+                    const key = `${list.id} - ${e.description}`;
                     this.setExpandedState(key, false);
                 })},
-                {text: 'delete', icon: 'trash', action: () => this.showDeleteConfirmation(list.title)}
+                {text: 'delete', icon: 'trash', action: () => this.showDeleteConfirmation(list.id)}
             );
             menuOrButtonContent = (
-                <ShortlistMenu 
-                    id={list.title}
+                <ShortlistItMenu 
+                    id={list.id}
                     headerText="List Menu"
                     menuItems={menuItems}>
                     <BootstrapIcon icon="list" style={{ fontSize: '14pt' }} />
-                </ShortlistMenu>
+                </ShortlistItMenu>
             );
         }
         return (
@@ -261,12 +272,16 @@ export class ShortlistIt extends React.Component<{}, ShortlistItState> {
         );
     }
 
-    setEditing(id?: string): void {
-        this.setState({editing: id});
+    doneEditing(id?: string): void {
+        this.setState({listBeingEdited: undefined});
     }
 
-    setArchivedState(title: string, archived: boolean) {
-        const listIndex = this.state.lists.findIndex(l => l.title === title);
+    setEditing(id?: string): void {
+        this.setState({listBeingEdited: id});
+    }
+
+    setArchivedState(listId: string, archived: boolean) {
+        const listIndex = this.state.lists.findIndex(l => l.id === listId);
         if (listIndex >= 0) {
             const lists = this.state.lists;
             lists[listIndex].archived = archived;
@@ -275,41 +290,41 @@ export class ShortlistIt extends React.Component<{}, ShortlistItState> {
         }
     }
 
-    showDeleteConfirmation(listTitle: string) {
+    showDeleteConfirmation(listId: string) {
+        // prevent scrolling
         const html = document.querySelector("html");
         if (html) {
             html.style.overflow = "hidden";
         }
-        this.store.set('toBeDeleted', listTitle);
-        this.setState({toBeDeleted: listTitle});
+        this.setState({listToBeDeleted: listId});
     }
 
     hideDeleteConfirmation() {
-        this.setState({toBeDeleted: undefined});
-        this.store.delete('toBeDeleted');
+        this.setState({listToBeDeleted: undefined});
+        // restore scrolling
         const html = document.querySelector("html");
         if (html) {
             html.style.overflow = "auto";
         }
     }
 
-    getDeleteConfirmation() {
-        const listTitle = this.store.get('toBeDeleted', null);
-        if (listTitle) {
+    getListDeleteConfirmation() {
+        const listId = this.state.listToBeDeleted;
+        if (listId) {
             return (
                 <div className="overlay d-flex justify-content-center align-content-center">
-                    <Alert className="fill-screen-99 mt-3" id={`delete-${listTitle}`} variant="danger" dismissible onClose={() => this.hideDeleteConfirmation()}>
+                    <Alert className="fill-screen-99 mt-3" id={`delete-${listId}`} variant="danger" dismissible onClose={() => this.hideDeleteConfirmation()}>
                         <Alert.Heading>Warning!</Alert.Heading>
                         <p>
-                        are you certain you want to delete list titled: <i>{listTitle}</i> a deleted list can not be recovered. 
+                        are you certain you want to delete list titled: <i>{listId}</i> a deleted list can not be recovered. 
                         would you rather archive this list instead?
                         </p>
                         <hr />
                         <div className="d-flex justify-content-between">
-                            <Button onClick={() => this.archiveList(listTitle)} variant="outline-dark">
+                            <Button onClick={() => this.archiveList(listId)} variant="outline-dark">
                                 Archive
                             </Button>
-                            <Button onClick={() => this.deleteList(listTitle)} variant="outline-danger">
+                            <Button onClick={() => this.deleteList(listId)} variant="outline-danger">
                                 DELETE
                             </Button>
                         </div>
@@ -321,15 +336,15 @@ export class ShortlistIt extends React.Component<{}, ShortlistItState> {
         }
     }
 
-    archiveList(listTitle: string): void {
+    archiveList(listId: string): void {
         this.hideDeleteConfirmation();
-        this.setArchivedState(listTitle, true);
+        this.setArchivedState(listId, true);
     }
 
-    deleteList(listTitle: string): void {
+    deleteList(listId: string): void {
         this.hideDeleteConfirmation();
 
-        const listIndex = this.state.lists.findIndex(l => l.title === listTitle);
+        const listIndex = this.state.lists.findIndex(l => l.id === listId);
         if (listIndex >= 0) {
             const tmp = this.state.lists;
             tmp.splice(listIndex, 1);
@@ -341,7 +356,7 @@ export class ShortlistIt extends React.Component<{}, ShortlistItState> {
     getShortlistBody(list: Shortlist, editing: boolean = false) {
         let criteriaList;
         if (editing) {
-            criteriaList = <ListGroupItem>{this.getShortlistCriteria(list)}</ListGroupItem>;
+            criteriaList = <ListGroupItem variant="warning">{this.getShortlistCriteria(list)}</ListGroupItem>;
         } else {
             criteriaList = <></>;
         }
@@ -374,10 +389,10 @@ export class ShortlistIt extends React.Component<{}, ShortlistItState> {
             <ListGroup>
                 {list.criteria.map(c => this.getShortlistCriteriaItem(c))}
                 <ListGroupItem
-                    variant="dark"
+                    variant="info"
                     key="add_new_criteria" 
                     onClick={() => {
-                        list.criteria.push({name: `new criteria ${list.criteria.length + 1}`, type: 'worst-to-best', values: new Array<string>()});
+                        list.criteria.push({id: v4(), values: new Array<string>()});
                         this.forceUpdate();
                     }}
                     className="d-flex justify-content-center clickable">
@@ -390,10 +405,10 @@ export class ShortlistIt extends React.Component<{}, ShortlistItState> {
 
     getShortlistCriteriaItem(criteria: Criteria) {
         return (
-            <ListGroupItem key={criteria.name} className="d-flex flex-column justify-content-evenly">
+            <ListGroupItem id={criteria.id} variant="dark" key={criteria.name} className="d-flex flex-column justify-content-evenly">
                 <InputGroup>
                     <FloatingLabel controlId="criteriaName" label="Criteria Name">
-                        <Form.Control type="text" value={criteria.name} />
+                        <Form.Control type="text" value={criteria.name} onChange={() => null} />
                     </FloatingLabel>
                     <FloatingLabel controlId="criteriaType" label="Criteria Type">
                         <Form.Select aria-label="Default select example">
@@ -404,10 +419,13 @@ export class ShortlistIt extends React.Component<{}, ShortlistItState> {
                         </Form.Select>
                     </FloatingLabel>
                     <FloatingLabel controlId="criteriaValues" label="Criteria Values">
-                        <Form.Control type="text" placeholder="comma separated values" value={criteria.values.join(',')} />
+                        <Form.Control type="text" placeholder="comma separated values" value={criteria.values.join(',')} onChange={() => null} />
                     </FloatingLabel>
                 </InputGroup>
-                <Form.Check type="switch" label="Allow Multiselect?" />
+                <div className="d-flex flex-row justify-content-between">
+                    <Form.Check type="switch" label="Allow Multiselect?" checked={criteria.allowMultiple} /> 
+                    <Button onClick={() => null}><BootstrapIcon icon="trash" /></Button>
+                </div>
             </ListGroupItem>
         );
     }
@@ -424,10 +442,10 @@ export class ShortlistIt extends React.Component<{}, ShortlistItState> {
     }
 
     getShortlistEntry(list: Shortlist, entry: Entry) {
-        const key = `${list.title} - ${entry.description}`; // TODO: need the list title too
+        const key = `${list.id} - ${entry.description}`; // TODO: need the list title too
         const show = this.shouldShow(key);
         const variant = (list.archived) ? 'secondary' : 'primary';
-        const menuItems = new Array<ShortlistMenuItem>(
+        const menuItems = new Array<ShortlistItMenuItem>(
             {
                 text: (show) ? 'collapse' : 'expand', 
                 icon: (show) ? 'chevron-bar-contract' : 'chevron-bar-expand',
@@ -442,17 +460,17 @@ export class ShortlistIt extends React.Component<{}, ShortlistItState> {
         }
 
         return (
-            <ListGroupItem key={entry.description} variant={variant}>
+            <ListGroupItem key={entry.id} variant={variant}>
                 <Row>
                     <Col><Badge pill={true}>{entry.ranking}</Badge></Col>
                     <Col xs="8">{entry.description}</Col>
                     <Col className="text-center">
-                        <ShortlistMenu 
-                            id={entry.description}
+                        <ShortlistItMenu 
+                            id={entry.id}
                             headerText="Entry Options"
                             menuItems={menuItems}>
                             <BootstrapIcon icon="list" style={{ fontSize: '14pt' }} />
-                        </ShortlistMenu>
+                        </ShortlistItMenu>
                     </Col>
                     <Collapse in={show}>
                         <ListGroup>
@@ -465,8 +483,8 @@ export class ShortlistIt extends React.Component<{}, ShortlistItState> {
     }
 
     getValuesListItems(list: Shortlist, entry: Entry) {
-        const criteriaNames = list.criteria.map(c => c.name);
-        const variant = 'outline-primary';
+        const criteriaNames = list.criteria.filter(c => c != null).map(c => c.name ?? '');
+        const variant = 'secondary';
         
         return criteriaNames.map((criteriaName: string) => (
             <ListGroupItem variant={variant} key={criteriaName}>

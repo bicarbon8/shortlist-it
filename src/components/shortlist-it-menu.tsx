@@ -2,24 +2,24 @@ import React, { MouseEventHandler } from "react";
 import { ListGroup, ListGroupItem, OverlayTrigger, Popover, PopoverProps } from "react-bootstrap";
 import { BootstrapIcon } from "./bootstrap-icon";
 
-type ShortlistMenuProps = {
+type ShortlistItMenuProps = {
     id: string,
     headerText?: string,
-    menuItems: Array<ShortlistMenuItem>,
+    menuItems: Array<ShortlistItMenuItem>,
     children: React.ReactElement
 };
 
-export type ShortlistMenuItem = {
+export type ShortlistItMenuItem = {
     text: string,
     icon: string,
     action: MouseEventHandler<Element>,
 };
 
-export class ShortlistMenu extends React.Component<ShortlistMenuProps> {
+export class ShortlistItMenu extends React.Component<ShortlistItMenuProps> {
     popover = (props: JSX.IntrinsicAttributes & PopoverProps & React.RefAttributes<HTMLDivElement>) => {
         const id = this.props.id;
         const head = (this.props.headerText) ? this.renderHeader(this.props.headerText) : <></>;
-        const menuItems = this.props.menuItems || new Array<ShortlistMenuItem>();
+        const menuItems = this.props.menuItems || new Array<ShortlistItMenuItem>();
         return (
             <Popover id={id} {...props}>
                 {head}
@@ -48,7 +48,7 @@ export class ShortlistMenu extends React.Component<ShortlistMenuProps> {
         return (<Popover.Header as="h3">{text}</Popover.Header>);
     }
 
-    renderListItem(item: ShortlistMenuItem) {
+    renderListItem(item: ShortlistItMenuItem) {
         return (
             <ListGroupItem key={item.text} className="d-flex clickable" onClick={(evt) => {
                 document.body.click();

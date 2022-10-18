@@ -1,8 +1,9 @@
 import { CriteriaType } from "./criteria-type";
 
 export type Criteria = {
-    name: string;
-    type: CriteriaType;
+    id: string;
+    name?: string;
+    type?: CriteriaType;
     values: Array<string>;
     allowMultiple?: boolean;
 };
