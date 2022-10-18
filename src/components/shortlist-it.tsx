@@ -3,17 +3,18 @@ import { Shortlist } from "../types/shortlist";
 import { Entry } from "../types/entries/entry";
 import { Criteria } from "../types/criteria/criteria";
 import { CriteriaType } from "../types/criteria/criteria-type";
-import { Container, Row, Col, ListGroup, ListGroupItem, Badge, Collapse, Card, Navbar, Form, Button, Nav, Alert } from "react-bootstrap";
-import { ShortlistTooltip } from "./shortlist-tooltip";
+import { Container, Row, Col, ListGroup, ListGroupItem, Badge, Collapse, Card, Navbar, Form, Button, Nav, Alert, FormGroup, InputGroup, FloatingLabel } from "react-bootstrap";
 import { BootstrapIcon } from "./bootstrap-icon";
 import { ShortlistMenu, ShortlistMenuItem } from "./shortlist-menu";
 import { StorageHelper } from "../utilities/store";
+import { ShortlistTooltip } from "./shortlist-tooltip";
 
 type ShortlistItState = {
     lists: Array<Shortlist>,
-    showMap: Map<string, boolean>,
+    expandedStateMap: Map<string, boolean>,
     showArchived: boolean,
     toBeDeleted?: string;
+    editing?: string;
 };
 
 export class ShortlistIt extends React.Component<{}, ShortlistItState> {
@@ -28,9 +29,9 @@ export class ShortlistIt extends React.Component<{}, ShortlistItState> {
                 {
                     title: 'Which type of television should I buy?',
                     criteria: new Array<Criteria>(
-                        {name: 'cost', criteriaType: 'worst-to-best' as CriteriaType, values: ['$$$$', '$$$', '$$', '$']},
-                        {name: 'size', criteriaType: 'worst-to-best' as CriteriaType, values: ['XS', 'S', 'M', 'L', 'XL']},
-                        {name: 'audio ports', criteriaType: 'worst-to-best' as CriteriaType, values: ['3.5mm', 'RCA', 'optical'], allowMultiple: true}
+                        {name: 'cost', type: 'worst-to-best' as CriteriaType, values: ['$$$$', '$$$', '$$', '$']},
+                        {name: 'size', type: 'worst-to-best' as CriteriaType, values: ['XS', 'S', 'M', 'L', 'XL']},
+                        {name: 'audio ports', type: 'worst-to-best' as CriteriaType, values: ['3.5mm', 'RCA', 'optical'], allowMultiple: true}
                     ), 
                     entries: new Array<Entry>(
                         {
@@ -68,11 +69,11 @@ export class ShortlistIt extends React.Component<{}, ShortlistItState> {
                 {
                     title: 'Which friends should I invest my time in?', 
                     criteria: new Array<Criteria>(
-                        {name: 'giver or taker', criteriaType: 'worst-to-best' as CriteriaType, values: ['taker', 'both', 'giver']},
-                        {name: 'feeling when with them', criteriaType: 'worst-to-best' as CriteriaType, values: ['anger', 'agitation', 'sadness', 'nothingness', 'warmth', 'joy', 'elation']},
-                        {name: 'activity level', criteriaType: 'worst-to-best' as CriteriaType, values: ['none', 'extreme', 'low', 'moderate']}, 
-                        {name: 'makes me a better person', criteriaType: 'boolean' as CriteriaType, values: ['true', 'false']},
-                        {name: 'good features', criteriaType: 'positives' as CriteriaType, values: ['tidy', 'fashionable', 'kind', 'athletic', 'attractive', 'intelligent']}
+                        {name: 'giver or taker', type: 'worst-to-best' as CriteriaType, values: ['taker', 'both', 'giver']},
+                        {name: 'feeling when with them', type: 'worst-to-best' as CriteriaType, values: ['anger', 'agitation', 'sadness', 'nothingness', 'warmth', 'joy', 'elation']},
+                        {name: 'activity level', type: 'worst-to-best' as CriteriaType, values: ['none', 'extreme', 'low', 'moderate']}, 
+                        {name: 'makes me a better person', type: 'boolean' as CriteriaType, values: ['true', 'false']},
+                        {name: 'good features', type: 'positives' as CriteriaType, values: ['tidy', 'fashionable', 'kind', 'athletic', 'attractive', 'intelligent']}
                     ), 
                     entries: new Array<Entry>(
                         {
@@ -123,7 +124,7 @@ export class ShortlistIt extends React.Component<{}, ShortlistItState> {
                 },
                 {title: 'The Third List Example - this is fun!', criteria: new Array<Criteria>(), entries: new Array<Entry>()}
             )),
-            showMap: this.store.get('showMap', new Map<string, boolean>())
+            expandedStateMap: this.store.get('expandedStateMap', new Map<string, boolean>())
         };
     }
 
@@ -140,7 +141,7 @@ export class ShortlistIt extends React.Component<{}, ShortlistItState> {
         return (
             <>
                 {this.getDeleteConfirmation()}
-                {this.getHeaderBar()}
+                {this.getNavbar()}
                 <Container className="d-flex justify-content-evenly align-items-start flex-wrap flex-sm-row flex-column">
                     {lists.map((list) => this.getShortlistContainer(list))}
                 </Container>
@@ -157,7 +158,7 @@ export class ShortlistIt extends React.Component<{}, ShortlistItState> {
         this.setState({showArchived: show});
     }
 
-    getHeaderBar() {
+    getNavbar() {
         return (
             <Navbar sticky="top" collapseOnSelect expand="md" bg="dark" variant="dark">
                 <Container fluid className="d-flex justify-content-between">
@@ -198,53 +199,70 @@ export class ShortlistIt extends React.Component<{}, ShortlistItState> {
     }
 
     getShortlistContainer(list: Shortlist) {
+        const editing = this.state.editing === list.title;
         return (
             <Card key={list.title} className="m-1 px-0 min-width-300 max-width-700">
                 <Card.Body className="px-0">
                     <Container>
-                        <Row><Col>{this.getShortlistHeader(list)}</Col></Row>
-                        <Row><Col>{this.getShortlistBody(list, list.entries, list.criteria)}</Col></Row>
+                        <Row><Col>{this.getShortlistHeader(list, editing)}</Col></Row>
+                        <Row><Col>{this.getShortlistBody(list, editing)}</Col></Row>
                     </Container>
                 </Card.Body>
             </Card>
         );
     }
 
-    getShortlistHeader(list: Shortlist) {
-        const menuItems = new Array<ShortlistMenuItem>();
-        if (list.archived) {
-            menuItems.push({text: 'restore', icon: 'arrow-counterclockwise', action: () => this.setArchivedState(list.title, false)});
+    getShortlistHeader(list: Shortlist, editing: boolean = false) {
+        let titleOrInput;
+        let menuOrButtonContent;
+        if (editing) {
+            titleOrInput = <Form.Control type="text" placeholder="list title"></Form.Control>;
+            menuOrButtonContent = (
+                <Button onClick={() => this.setEditing()}>Done</Button>
+            );
         } else {
-            menuItems.push({text: 'edit title', icon: 'pencil-square', action: () => null});
-            menuItems.push({text: 'edit criteria', icon: 'card-list', action: () => null});
-            menuItems.push({text: 'archive', icon: 'archive', action: () => this.setArchivedState(list.title, true)});
+            titleOrInput = <>{list.title}</>;
+            const menuItems = new Array<ShortlistMenuItem>();
+            if (list.archived) {
+                menuItems.push({text: 'restore', icon: 'arrow-counterclockwise', action: () => this.setArchivedState(list.title, false)});
+            } else {
+                menuItems.push({text: 'edit', icon: 'pencil-square', action: () => this.setEditing(list.title)});
+                menuItems.push({text: 'archive', icon: 'archive', action: () => this.setArchivedState(list.title, true)});
+            }
+            menuItems.push(
+                {text: 'expand all', icon: 'chevron-bar-expand', action: () => list.entries.forEach(e => {
+                    const key = `${list.title} - ${e.description}`;
+                    this.setExpandedState(key, true);
+                })},
+                {text: 'collapse all', icon: 'chevron-bar-contract', action: () => list.entries.forEach(e => {
+                    const key = `${list.title} - ${e.description}`;
+                    this.setExpandedState(key, false);
+                })},
+                {text: 'delete', icon: 'trash', action: () => this.showDeleteConfirmation(list.title)}
+            );
+            menuOrButtonContent = (
+                <ShortlistMenu 
+                    id={list.title}
+                    headerText="List Menu"
+                    menuItems={menuItems}>
+                    <BootstrapIcon icon="list" style={{ fontSize: '14pt' }} />
+                </ShortlistMenu>
+            );
         }
-        menuItems.push(
-            {text: 'expand all', icon: 'chevron-bar-expand', action: () => list.entries.forEach(e => {
-                const key = `${list.title} - ${e.description}`;
-                this.setShow(key, true);
-            })},
-            {text: 'collapse all', icon: 'chevron-bar-contract', action: () => list.entries.forEach(e => {
-                const key = `${list.title} - ${e.description}`;
-                this.setShow(key, false);
-            })},
-            {text: 'delete', icon: 'trash', action: () => this.showDeleteConfirmation(list.title)}
-        );
         return (
             <Container>
                 <Row>
-                    <Col xs={10}>{list.title}</Col>
+                    <Col xs={10}>{titleOrInput}</Col>
                     <Col className="text-center">
-                        <ShortlistMenu 
-                            id={list.title}
-                            headerText="List Menu"
-                            menuItems={menuItems}>
-                            <BootstrapIcon icon="list" style={{ fontSize: '14pt' }} />
-                        </ShortlistMenu>
+                        {menuOrButtonContent}
                     </Col>
                 </Row>
             </Container>
         );
+    }
+
+    setEditing(id?: string): void {
+        this.setState({editing: id});
     }
 
     setArchivedState(title: string, archived: boolean) {
@@ -320,40 +338,89 @@ export class ShortlistIt extends React.Component<{}, ShortlistItState> {
         }
     }
 
-    getShortlistBody(list: Shortlist, entries: Array<Entry>, criteria: Array<Criteria>) {
-        let addEntry;
-        if (list.archived) {
-            addEntry = <></>;
+    getShortlistBody(list: Shortlist, editing: boolean = false) {
+        let criteriaList;
+        if (editing) {
+            criteriaList = <ListGroupItem>{this.getShortlistCriteria(list)}</ListGroupItem>;
         } else {
-            addEntry = (
-                <ListGroupItem variant="dark" key="add_new_entry">
-                    <Row className="justify-content-lg-center">
-                        <Col xs="auto">
-                            <ShortlistTooltip id="add_entry" text="add new entry">
-                                <BootstrapIcon icon="plus-lg" onClick={() => this.displayAddEntryModal()} />
-                            </ShortlistTooltip>
-                        </Col>
-                    </Row>
+            criteriaList = <></>;
+        }
+        let addEntryButton;
+        if (list.archived) {
+            addEntryButton = <></>;
+        } else {
+            addEntryButton = (
+                <ListGroupItem 
+                    variant="dark"
+                    key="add_new_entry" 
+                    onClick={() => this.displayAddEntryModal()}
+                    className="d-flex justify-content-center clickable">
+                    <BootstrapIcon icon="plus-lg" /> 
+                    Add New Entry
                 </ListGroupItem>
             );
         }
         return (
             <ListGroup>
-                {entries.map((entry: Entry) => this.getShortlistEntry(list, entry))}
-                {addEntry}
+                {criteriaList}
+                {list.entries.map((entry: Entry) => this.getShortlistEntry(list, entry))}
+                {addEntryButton}
             </ListGroup>
         );
     }
 
-    shouldShow(key: string): boolean {
-        return this.state.showMap.get(key) || false;
+    getShortlistCriteria(list: Shortlist) {
+        return (
+            <ListGroup>
+                {list.criteria.map(c => this.getShortlistCriteriaItem(c))}
+                <ListGroupItem
+                    variant="dark"
+                    key="add_new_criteria" 
+                    onClick={() => {
+                        list.criteria.push({name: `new criteria ${list.criteria.length + 1}`, type: 'worst-to-best', values: new Array<string>()});
+                        this.forceUpdate();
+                    }}
+                    className="d-flex justify-content-center clickable">
+                    <BootstrapIcon icon="plus-lg" /> 
+                    Add New Criteria
+                </ListGroupItem>
+            </ListGroup>
+        )
     }
 
-    setShow(key: string, show: boolean): void {
-        const showMap = this.state.showMap;
-        showMap.set(key, show);
-        this.store.set('showMap', showMap);
-        this.setState({showMap: showMap});
+    getShortlistCriteriaItem(criteria: Criteria) {
+        return (
+            <ListGroupItem key={criteria.name} className="d-flex flex-column justify-content-evenly">
+                <InputGroup>
+                    <FloatingLabel controlId="criteriaName" label="Criteria Name">
+                        <Form.Control type="text" value={criteria.name} />
+                    </FloatingLabel>
+                    <FloatingLabel controlId="criteriaType" label="Criteria Type">
+                        <Form.Select aria-label="Default select example">
+                            <option value="worst-to-best" selected={criteria.type === 'worst-to-best'}>worst-to-best</option>
+                            <option value="boolean" selected={criteria.type === 'boolean'}>boolean</option>
+                            <option value="positives" selected={criteria.type === 'positives'}>positives</option>
+                            <option value="negatives" selected={criteria.type === 'negatives'}>negatives</option>
+                        </Form.Select>
+                    </FloatingLabel>
+                    <FloatingLabel controlId="criteriaValues" label="Criteria Values">
+                        <Form.Control type="text" placeholder="comma separated values" value={criteria.values.join(',')} />
+                    </FloatingLabel>
+                </InputGroup>
+                <Form.Check type="switch" label="Allow Multiselect?" />
+            </ListGroupItem>
+        );
+    }
+
+    shouldShow(key: string): boolean {
+        return this.state.expandedStateMap.get(key) || false;
+    }
+
+    setExpandedState(key: string, expanded: boolean): void {
+        const expandedStateMap = this.state.expandedStateMap;
+        expandedStateMap.set(key, expanded);
+        this.store.set('expandedStateMap', expandedStateMap);
+        this.setState({expandedStateMap: expandedStateMap});
     }
 
     getShortlistEntry(list: Shortlist, entry: Entry) {
@@ -364,7 +431,7 @@ export class ShortlistIt extends React.Component<{}, ShortlistItState> {
             {
                 text: (show) ? 'collapse' : 'expand', 
                 icon: (show) ? 'chevron-bar-contract' : 'chevron-bar-expand',
-                action: () => this.setShow(key, !show)
+                action: () => this.setExpandedState(key, !show)
             }
         );
         if (!list.archived) {
