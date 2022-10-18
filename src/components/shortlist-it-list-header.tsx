@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, Form } from "react-bootstrap";
+import { Button, FloatingLabel, Form } from "react-bootstrap";
 import { Shortlist } from "../types/shortlist";
 import { BootstrapIcon } from "./bootstrap-icon";
 import { ShortlistItList } from "./shortlist-it-list";
@@ -13,7 +13,7 @@ export class ShortlistItListHeader extends React.Component<ShortlistItListHeader
     render() {
         return (
             <div className="d-flex flex-row justify-content-between">
-                <div className="xs-10">{this.getTitleContent()}</div>
+                <div className="flex-grow-1">{this.getTitleContent()}</div>
                 <div className="px-1"> </div>
                 <div className="text-center">{this.getMenuButtonContent()}</div>
             </div>
@@ -34,7 +34,11 @@ export class ShortlistItListHeader extends React.Component<ShortlistItListHeader
 
     getTitleContent() {
         if (this.editing) {
-            return <Form.Control type="text" placeholder="list title"></Form.Control>;
+            return (
+                <FloatingLabel controlId="listTitle" label="List Title">
+                    <Form.Control type="text" placeholder="enter title or description" value={this.list.title} onChange={() => null}></Form.Control>
+                </FloatingLabel>
+            );
         } else {
             return <>{this.list.title}</>;
         }
@@ -42,7 +46,7 @@ export class ShortlistItListHeader extends React.Component<ShortlistItListHeader
 
     getMenuButtonContent() {
         if (this.editing) {
-            return <Button onClick={this.doneEditing}>Done</Button>;
+            return <Button onClick={() => this.parent.doneEditing()}>Done</Button>;
         } else {
             return (
                 <ShortlistItMenu 
@@ -58,33 +62,17 @@ export class ShortlistItListHeader extends React.Component<ShortlistItListHeader
     getMenuItems(): Array<ShortlistItMenuItem> {
         const items = new Array<ShortlistItMenuItem>();
         if (this.list.archived) {
-            items.push({text: 'restore', icon: 'arrow-counterclockwise', action: this.unarchive});
+            items.push({text: 'restore', icon: 'arrow-counterclockwise', action: () => this.parent.unarchive()});
         } else {
-            items.push({text: 'edit', icon: 'pencil-square', action: this.startEditing});
-            items.push({text: 'archive', icon: 'archive', action: this.archive});
+            items.push({text: 'edit', icon: 'pencil-square', action: () => this.parent.startEditing()});
+            items.push({text: 'archive', icon: 'archive', action: () => this.parent.archive()});
         }
         items.push(
-            {text: 'expand all', icon: 'chevron-bar-expand', action: this.parent.expandAll},
-            {text: 'collapse all', icon: 'chevron-bar-contract', action: this.parent.collapseAll},
-            {text: 'delete', icon: 'trash', action: this.showDeleteConfirmation}
+            {text: 'expand all', icon: 'chevron-bar-expand', action: () => this.parent.expandAll()},
+            {text: 'collapse all', icon: 'chevron-bar-contract', action: () => this.parent.collapseAll()},
+            {text: 'delete', icon: 'trash', action: () => this.showDeleteConfirmation()}
         );
         return items;
-    }
-
-    startEditing(): void {
-
-    }
-
-    doneEditing(): void {
-
-    }
-
-    archive(): void {
-
-    }
-
-    unarchive(): void {
-
     }
 
     showDeleteConfirmation(): void {

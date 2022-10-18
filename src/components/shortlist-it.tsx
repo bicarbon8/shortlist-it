@@ -209,87 +209,6 @@ export class ShortlistIt extends React.Component<{}, ShortlistItState> {
         );
     }
 
-    getShortlistContainer(list: Shortlist) {
-        const editing = this.state.listBeingEdited === list.id;
-        return (
-            <Card key={list.id} className="m-1 px-0 min-width-300 max-width-700">
-                <Card.Body className="px-0">
-                    <Container>
-                        <Row><Col>{this.getShortlistHeader(list, editing)}</Col></Row>
-                        <Row><Col>{this.getShortlistBody(list, editing)}</Col></Row>
-                    </Container>
-                </Card.Body>
-            </Card>
-        );
-    }
-
-    getShortlistHeader(list: Shortlist, editing: boolean = false) {
-        let titleOrInput;
-        let menuOrButtonContent;
-        if (editing) {
-            titleOrInput = <Form.Control type="text" placeholder="list title"></Form.Control>;
-            menuOrButtonContent = (
-                <Button onClick={() => this.setEditing()}>Done</Button>
-            );
-        } else {
-            titleOrInput = <>{list.title}</>;
-            const menuItems = new Array<ShortlistItMenuItem>();
-            if (list.archived) {
-                menuItems.push({text: 'restore', icon: 'arrow-counterclockwise', action: () => this.setArchivedState(list.id, false)});
-            } else {
-                menuItems.push({text: 'edit', icon: 'pencil-square', action: () => this.setEditing(list.id)});
-                menuItems.push({text: 'archive', icon: 'archive', action: () => this.setArchivedState(list.id, true)});
-            }
-            menuItems.push(
-                {text: 'expand all', icon: 'chevron-bar-expand', action: () => list.entries.forEach(e => {
-                    const key = `${list.id} - ${e.description}`;
-                    this.setExpandedState(key, true);
-                })},
-                {text: 'collapse all', icon: 'chevron-bar-contract', action: () => list.entries.forEach(e => {
-                    const key = `${list.id} - ${e.description}`;
-                    this.setExpandedState(key, false);
-                })},
-                {text: 'delete', icon: 'trash', action: () => this.showDeleteConfirmation(list.id)}
-            );
-            menuOrButtonContent = (
-                <ShortlistItMenu 
-                    id={list.id}
-                    headerText="List Menu"
-                    menuItems={menuItems}>
-                    <BootstrapIcon icon="list" style={{ fontSize: '14pt' }} />
-                </ShortlistItMenu>
-            );
-        }
-        return (
-            <Container>
-                <Row>
-                    <Col xs={10}>{titleOrInput}</Col>
-                    <Col className="text-center">
-                        {menuOrButtonContent}
-                    </Col>
-                </Row>
-            </Container>
-        );
-    }
-
-    doneEditing(id?: string): void {
-        this.setState({listBeingEdited: undefined});
-    }
-
-    setEditing(id?: string): void {
-        this.setState({listBeingEdited: id});
-    }
-
-    setArchivedState(listId: string, archived: boolean) {
-        const listIndex = this.state.lists.findIndex(l => l.id === listId);
-        if (listIndex >= 0) {
-            const lists = this.state.lists;
-            lists[listIndex].archived = archived;
-            this.store.set('lists', lists);
-            this.setState({lists: lists});
-        }
-    }
-
     showDeleteConfirmation(listId: string) {
         // prevent scrolling
         const html = document.querySelector("html");
@@ -310,13 +229,14 @@ export class ShortlistIt extends React.Component<{}, ShortlistItState> {
 
     getListDeleteConfirmation() {
         const listId = this.state.listToBeDeleted;
-        if (listId) {
+        const listTitle = this.state.lists.find(l => l.id === listId)?.title;
+        if (listId && listTitle) {
             return (
-                <div className="overlay d-flex justify-content-center align-content-center">
+                <div className="overlay w-100 d-flex justify-content-center align-content-center">
                     <Alert className="fill-screen-99 mt-3" id={`delete-${listId}`} variant="danger" dismissible onClose={() => this.hideDeleteConfirmation()}>
                         <Alert.Heading>Warning!</Alert.Heading>
                         <p>
-                        are you certain you want to delete list titled: <i>{listId}</i> a deleted list can not be recovered. 
+                        are you certain you want to delete list titled: <i>{listTitle}</i> a deleted list can not be recovered. 
                         would you rather archive this list instead?
                         </p>
                         <hr />
@@ -336,6 +256,16 @@ export class ShortlistIt extends React.Component<{}, ShortlistItState> {
         }
     }
 
+    setArchivedState(listId: string, archived: boolean) {
+        const listIndex = this.state.lists.findIndex(l => l.id === listId);
+        if (listIndex >= 0) {
+            const lists = this.state.lists;
+            lists[listIndex].archived = archived;
+            this.store.set('lists', lists);
+            this.setState({lists: lists});
+        }
+    }
+
     archiveList(listId: string): void {
         this.hideDeleteConfirmation();
         this.setArchivedState(listId, true);
@@ -351,176 +281,5 @@ export class ShortlistIt extends React.Component<{}, ShortlistItState> {
             this.store.set('lists', tmp);
             this.setState({lists: tmp});
         }
-    }
-
-    getShortlistBody(list: Shortlist, editing: boolean = false) {
-        let criteriaList;
-        if (editing) {
-            criteriaList = <ListGroupItem variant="warning">{this.getShortlistCriteria(list)}</ListGroupItem>;
-        } else {
-            criteriaList = <></>;
-        }
-        let addEntryButton;
-        if (list.archived) {
-            addEntryButton = <></>;
-        } else {
-            addEntryButton = (
-                <ListGroupItem 
-                    variant="dark"
-                    key="add_new_entry" 
-                    onClick={() => this.displayAddEntryModal()}
-                    className="d-flex justify-content-center clickable">
-                    <BootstrapIcon icon="plus-lg" /> 
-                    Add New Entry
-                </ListGroupItem>
-            );
-        }
-        return (
-            <ListGroup>
-                {criteriaList}
-                {list.entries.map((entry: Entry) => this.getShortlistEntry(list, entry))}
-                {addEntryButton}
-            </ListGroup>
-        );
-    }
-
-    getShortlistCriteria(list: Shortlist) {
-        return (
-            <ListGroup>
-                {list.criteria.map(c => this.getShortlistCriteriaItem(c))}
-                <ListGroupItem
-                    variant="info"
-                    key="add_new_criteria" 
-                    onClick={() => {
-                        list.criteria.push({id: v4(), values: new Array<string>()});
-                        this.forceUpdate();
-                    }}
-                    className="d-flex justify-content-center clickable">
-                    <BootstrapIcon icon="plus-lg" /> 
-                    Add New Criteria
-                </ListGroupItem>
-            </ListGroup>
-        )
-    }
-
-    getShortlistCriteriaItem(criteria: Criteria) {
-        return (
-            <ListGroupItem id={criteria.id} variant="dark" key={criteria.name} className="d-flex flex-column justify-content-evenly">
-                <InputGroup>
-                    <FloatingLabel controlId="criteriaName" label="Criteria Name">
-                        <Form.Control type="text" value={criteria.name} onChange={() => null} />
-                    </FloatingLabel>
-                    <FloatingLabel controlId="criteriaType" label="Criteria Type">
-                        <Form.Select aria-label="Default select example">
-                            <option value="worst-to-best" selected={criteria.type === 'worst-to-best'}>worst-to-best</option>
-                            <option value="boolean" selected={criteria.type === 'boolean'}>boolean</option>
-                            <option value="positives" selected={criteria.type === 'positives'}>positives</option>
-                            <option value="negatives" selected={criteria.type === 'negatives'}>negatives</option>
-                        </Form.Select>
-                    </FloatingLabel>
-                    <FloatingLabel controlId="criteriaValues" label="Criteria Values">
-                        <Form.Control type="text" placeholder="comma separated values" value={criteria.values.join(',')} onChange={() => null} />
-                    </FloatingLabel>
-                </InputGroup>
-                <div className="d-flex flex-row justify-content-between">
-                    <Form.Check type="switch" label="Allow Multiselect?" checked={criteria.allowMultiple} /> 
-                    <Button onClick={() => null}><BootstrapIcon icon="trash" /></Button>
-                </div>
-            </ListGroupItem>
-        );
-    }
-
-    shouldShow(key: string): boolean {
-        return this.state.expandedStateMap.get(key) || false;
-    }
-
-    setExpandedState(key: string, expanded: boolean): void {
-        const expandedStateMap = this.state.expandedStateMap;
-        expandedStateMap.set(key, expanded);
-        this.store.set('expandedStateMap', expandedStateMap);
-        this.setState({expandedStateMap: expandedStateMap});
-    }
-
-    getShortlistEntry(list: Shortlist, entry: Entry) {
-        const key = `${list.id} - ${entry.description}`; // TODO: need the list title too
-        const show = this.shouldShow(key);
-        const variant = (list.archived) ? 'secondary' : 'primary';
-        const menuItems = new Array<ShortlistItMenuItem>(
-            {
-                text: (show) ? 'collapse' : 'expand', 
-                icon: (show) ? 'chevron-bar-contract' : 'chevron-bar-expand',
-                action: () => this.setExpandedState(key, !show)
-            }
-        );
-        if (!list.archived) {
-            menuItems.push(
-                {text: 'edit', icon: 'pencil-square', action: () => null},
-                {text: 'delete', icon: 'trash', action: () => null}
-            );
-        }
-
-        return (
-            <ListGroupItem key={entry.id} variant={variant}>
-                <Row>
-                    <Col><Badge pill={true}>{entry.ranking}</Badge></Col>
-                    <Col xs="8">{entry.description}</Col>
-                    <Col className="text-center">
-                        <ShortlistItMenu 
-                            id={entry.id}
-                            headerText="Entry Options"
-                            menuItems={menuItems}>
-                            <BootstrapIcon icon="list" style={{ fontSize: '14pt' }} />
-                        </ShortlistItMenu>
-                    </Col>
-                    <Collapse in={show}>
-                        <ListGroup>
-                            {this.getValuesListItems(list, entry)}
-                        </ListGroup>
-                    </Collapse>
-                </Row>
-            </ListGroupItem>
-        );
-    }
-
-    getValuesListItems(list: Shortlist, entry: Entry) {
-        const criteriaNames = list.criteria.filter(c => c != null).map(c => c.name ?? '');
-        const variant = 'secondary';
-        
-        return criteriaNames.map((criteriaName: string) => (
-            <ListGroupItem variant={variant} key={criteriaName}>
-                <Container fluid>
-                    <Row>
-                        <Col xs={3} className="min-width-200">{criteriaName}:</Col>
-                        <Col>{this.getValuesColumns(entry.values.get(criteriaName), list.criteria.find(c => c.name === criteriaName)?.values)}</Col>
-                    </Row>
-                </Container>
-            </ListGroupItem>
-        ));
-    }
-
-    getValuesColumns(selectedValues: Array<string> | undefined, allValues: Array<string> | undefined) {
-        const selected = selectedValues || new Array<string>();
-        const all = allValues || new Array<string>();
-        return (
-            <Container>
-                <Row>
-                    {all.map(val => {
-                        if (selected.includes(val)) {
-                            return (<Col key={val}><Badge>{val}</Badge></Col>);
-                        } else {
-                            return (<Col key={val}>{val}</Col>)
-                        }
-                    })}
-                </Row>
-            </Container>
-        );
-    }
-
-    displayAddEntryModal() {
-        
-    }
-
-    displayAddCriteriaModal() {
-
     }
 }

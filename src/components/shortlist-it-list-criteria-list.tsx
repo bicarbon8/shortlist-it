@@ -15,7 +15,7 @@ export class ShortlistItListCriteriaList extends React.Component<ShortlistItList
     render() {
         return (
             <ListGroup>
-                {this.criteria.map(c => <ShortlistItListCriteriaListItem parent={this} criteria={c} />)}
+                {this.criteria.map(c => <ShortlistItListCriteriaListItem key={c.id} parent={this} criteria={c} />)}
                 <ListGroupItem
                     variant="info"
                     key="add_new_criteria" 

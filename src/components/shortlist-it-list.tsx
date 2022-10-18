@@ -45,6 +45,25 @@ export class ShortlistItList extends React.Component<ShortlistItListProps, Short
         return this.state.editing;
     }
 
+    startEditing(): void {
+        this.setState({editing: true});
+    }
+
+    doneEditing(): void {
+        // TODO: save edits
+        this.setState({editing: false});
+    }
+
+    archive(): void {
+        this.list.archived = true;
+        this.parent.forceUpdate();
+    }
+
+    unarchive(): void {
+        this.list.archived = false;
+        this.parent.forceUpdate();
+    }
+
     expandAll(): void {
         
     }
