@@ -7,7 +7,7 @@ import { CriteriaType } from "../types/criteria/criteria-type";
 import { Container, Row, Col, ListGroup, ListGroupItem, Badge, Collapse, Card, Navbar, Form, Button, Nav, Alert, InputGroup, FloatingLabel } from "react-bootstrap";
 import { BootstrapIcon } from "./bootstrap-icon";
 import { ShortlistItMenu, ShortlistItMenuItem } from "./shortlist-it-menu";
-import { StorageHelper } from "../utilities/store";
+import { Storage } from "../utilities/storage";
 import { ShortlistItList } from "./shortlist-it-list";
 
 type ShortlistItState = {
@@ -19,11 +19,11 @@ type ShortlistItState = {
 };
 
 export class ShortlistIt extends React.Component<{}, ShortlistItState> {
-    private store: StorageHelper<ShortlistItState>;
+    private store: Storage<ShortlistItState>;
     
     constructor(props: never) {
         super(props);
-        this.store = new StorageHelper<ShortlistItState>();
+        this.store = new Storage<ShortlistItState>();
         this.state = {
             showArchived: this.store.get('showArchived', false),
             lists: this.store.get('lists', new Array<Shortlist>(
@@ -232,8 +232,8 @@ export class ShortlistIt extends React.Component<{}, ShortlistItState> {
         const listTitle = this.state.lists.find(l => l.id === listId)?.title;
         if (listId && listTitle) {
             return (
-                <div className="overlay w-100 d-flex justify-content-center align-content-center">
-                    <Alert className="fill-screen-99 mt-3" id={`delete-${listId}`} variant="danger" dismissible onClose={() => this.hideDeleteConfirmation()}>
+                <div className="overlay w-100 d-flex justify-content-center align-content-start">
+                    <Alert className="m-3" id={`delete-${listId}`} variant="danger" dismissible onClose={() => this.hideDeleteConfirmation()}>
                         <Alert.Heading>Warning!</Alert.Heading>
                         <p>
                         are you certain you want to delete list titled: <i>{listTitle}</i> a deleted list can not be recovered. 

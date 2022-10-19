@@ -18,10 +18,10 @@ function reviver(key: string, value: any) {
     return value;
 }
 
-export class StorageHelper<T extends {}> {
+export class Storage<T extends {}> {
     get<Tkey extends keyof T, Tval = T[Tkey]>(key: Tkey, defaultVal: Tval): Tval {
-        const store = localStorage.getItem(key.toString());
-        return (store) ? JSON.parse(store, reviver) : defaultVal;
+        const valStr = localStorage.getItem(key.toString());
+        return (valStr) ? JSON.parse(valStr, reviver) : defaultVal;
     }
     set<Tkey extends keyof T, Tval = T[Tkey]>(key: Tkey, val: Tval): void {
         localStorage.setItem(key.toString(), JSON.stringify(val, replacer));
