@@ -4,11 +4,11 @@ import { Shortlist } from "../types/shortlist";
 import { Entry } from "../types/entries/entry";
 import { Criteria } from "../types/criteria/criteria";
 import { CriteriaType } from "../types/criteria/criteria-type";
-import { Container, Row, Col, ListGroup, ListGroupItem, Badge, Collapse, Card, Navbar, Form, Button, Nav, Alert, InputGroup, FloatingLabel } from "react-bootstrap";
+import { Container, Navbar, Form, Button, Nav, Alert } from "react-bootstrap";
 import { BootstrapIcon } from "./bootstrap-icon";
-import { ShortlistItMenu, ShortlistItMenuItem } from "./shortlist-it-menu";
 import { Storage } from "../utilities/storage";
 import { ShortlistItList } from "./shortlist-it-list";
+import { ShortlistItModal } from "./shortlist-it-modal";
 
 type ShortlistItState = {
     lists: Array<Shortlist>,
@@ -210,50 +210,39 @@ export class ShortlistIt extends React.Component<{}, ShortlistItState> {
     }
 
     showDeleteConfirmation(listId: string) {
-        // prevent scrolling
-        const html = document.querySelector("html");
-        if (html) {
-            html.style.overflow = "hidden";
-        }
         this.setState({listToBeDeleted: listId});
     }
 
     hideDeleteConfirmation() {
         this.setState({listToBeDeleted: undefined});
-        // restore scrolling
-        const html = document.querySelector("html");
-        if (html) {
-            html.style.overflow = "auto";
-        }
     }
 
     getListDeleteConfirmation() {
-        const listId = this.state.listToBeDeleted;
+        const listId = this.state.listToBeDeleted ?? '';
         const listTitle = this.state.lists.find(l => l.id === listId)?.title;
-        if (listId && listTitle) {
-            return (
-                <div className="overlay w-100 d-flex justify-content-center align-content-start">
-                    <Alert className="m-3" id={`delete-${listId}`} variant="danger" dismissible onClose={() => this.hideDeleteConfirmation()}>
-                        <Alert.Heading>Warning!</Alert.Heading>
-                        <p>
-                        are you certain you want to delete list titled: <i>{listTitle}</i> a deleted list can not be recovered. 
-                        would you rather archive this list instead?
-                        </p>
-                        <hr />
-                        <div className="d-flex justify-content-between">
-                            <Button onClick={() => this.archiveList(listId)} variant="outline-dark">
-                                Archive
-                            </Button>
-                            <Button onClick={() => this.deleteList(listId)} variant="outline-danger">
-                                DELETE
-                            </Button>
-                        </div>
-                    </Alert>
+        return (
+            <ShortlistItModal 
+                id={`delete-${listId}`}
+                variant="danger"
+                heading="Warning!"
+                dismissible={true}
+                show={!!(listId && listTitle)}
+                onClose={() => this.hideDeleteConfirmation()}>
+                <p>
+                are you certain you want to delete list titled: <i>{listTitle}</i> a deleted list can not be recovered. 
+                would you rather archive this list instead?
+                </p>
+                <hr />
+                <div className="d-flex justify-content-between">
+                    <Button onClick={() => this.archiveList(listId)} variant="outline-dark">
+                        Archive
+                    </Button>
+                    <Button onClick={() => this.deleteList(listId)} variant="outline-danger">
+                        DELETE
+                    </Button>
                 </div>
-            );
-        } else {
-            return <></>;
-        }
+            </ShortlistItModal>
+        );
     }
 
     setArchivedState(listId: string, archived: boolean) {
