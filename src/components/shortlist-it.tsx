@@ -4,18 +4,17 @@ import { Shortlist } from "../types/shortlist";
 import { Entry } from "../types/entries/entry";
 import { Criteria } from "../types/criteria/criteria";
 import { CriteriaType } from "../types/criteria/criteria-type";
-import { Container, Navbar, Form, Button, Nav, Alert } from "react-bootstrap";
-import { BootstrapIcon } from "./bootstrap-icon";
+import { Button } from "react-bootstrap";
 import { Storage } from "../utilities/storage";
 import { ShortlistItList } from "./shortlist-it-list";
 import { ShortlistItModal } from "./shortlist-it-modal";
+import { ShortlistItNav } from "./shortlist-it-nav";
 
 type ShortlistItState = {
     lists: Array<Shortlist>,
-    expandedStateMap: Map<string, boolean>,
     showArchived: boolean,
     listToBeDeleted?: string;
-    listBeingEdited?: string;
+    filterText: string;
 };
 
 export class ShortlistIt extends React.Component<{}, ShortlistItState> {
@@ -135,15 +134,27 @@ export class ShortlistIt extends React.Component<{}, ShortlistItState> {
                 },
                 {id: v4(), title: 'The Third List Example - this is fun!', criteria: new Array<Criteria>(), entries: new Array<Entry>()}
             )),
-            expandedStateMap: this.store.get('expandedStateMap', new Map<string, boolean>())
+            filterText: ''
         };
     }
 
     getLists(): Array<Shortlist> {
-        if (this.getShowArchived()) {
-            return this.state.lists;
+        let lists = this.state.lists;
+        if (!this.showArchived) {
+            lists = lists.filter(l => l.archived !== true)
         }
-        return this.state.lists.filter(l => l.archived !== true);
+        if (this.filterText && this.filterText !== '') {
+            // create the regex matcher
+            const filters: string[] = this.filterText.split(' ');
+            let rStr: string = '';
+            for (var i=0; i<filters.length; i++) {
+                var filter = filters[i].replace(/([-\(\)\[\]\{\}+\?*\.$\^\|,:#<\!\\])/g, '\\$1').replace(/\x08/g, '\\x08');
+                rStr += ".*(" + filter + ").*";
+            }
+            const regex = new RegExp(rStr, "i");
+            lists = lists.filter(l => l.title?.match(regex) || l.entries.find(e => e.description?.match(regex)));
+        }
+        return lists;
     }
 
     render() {
@@ -151,8 +162,8 @@ export class ShortlistIt extends React.Component<{}, ShortlistItState> {
 
         return (
             <>
-                {this.getListDeleteConfirmation()}
-                {this.getNavbar()}
+                {this.getListDeleteConfirmationModal()}
+                <ShortlistItNav parent={this} />
                 <div className="d-flex justify-content-evenly align-items-start flex-wrap flex-sm-row flex-column">
                     {lists.map((list) => <ShortlistItList key={list.id} parent={this} list={list} />)}
                 </div>
@@ -160,53 +171,17 @@ export class ShortlistIt extends React.Component<{}, ShortlistItState> {
         );
     }
 
-    getShowArchived(): boolean {
+    get showArchived(): boolean {
         return this.state.showArchived ?? false;
+    }
+
+    get filterText(): string {
+        return this.state.filterText;
     }
 
     setShowArchived(show: boolean) {
         this.store.set('showArchived', show);
         this.setState({showArchived: show});
-    }
-
-    getNavbar() {
-        return (
-            <Navbar sticky="top" collapseOnSelect expand="md" bg="dark" variant="dark">
-                <Container fluid className="d-flex justify-content-between">
-                    <Navbar.Brand href="/">Shortlist-It</Navbar.Brand>
-                    <Navbar.Toggle aria-controls="navbarScroll" />
-                    <Navbar.Collapse id="navbarScroll" className="justify-content-end">
-                        <Nav>
-                            <Nav.Item>
-                                <Button variant="outline-success"><BootstrapIcon icon="plus-lg" /> Add New List</Button>
-                            </Nav.Item>
-                        </Nav>
-                        <Navbar.Text className="px-1">
-                            <Form.Check 
-                                type="switch"
-                                id="display-archived"
-                                label="View Archived Lists"
-                                checked={this.getShowArchived()}
-                                onChange={e => this.setShowArchived(e.target.checked)}
-                            />
-                        </Navbar.Text>
-                        <Nav>
-                            <Nav.Item>
-                                <Form className="d-flex">
-                                    <Form.Control
-                                        type="search"
-                                        placeholder="enter search term(s)"
-                                        className="me-2"
-                                        aria-label="Search"
-                                    />
-                                    <Button variant="outline-success">Search</Button>
-                                </Form>
-                            </Nav.Item>
-                        </Nav>
-                    </Navbar.Collapse>
-                </Container>
-            </Navbar>
-        );
     }
 
     showDeleteConfirmation(listId: string) {
@@ -217,7 +192,7 @@ export class ShortlistIt extends React.Component<{}, ShortlistItState> {
         this.setState({listToBeDeleted: undefined});
     }
 
-    getListDeleteConfirmation() {
+    getListDeleteConfirmationModal() {
         const listId = this.state.listToBeDeleted ?? '';
         const listTitle = this.state.lists.find(l => l.id === listId)?.title;
         return (
@@ -270,5 +245,9 @@ export class ShortlistIt extends React.Component<{}, ShortlistItState> {
             this.store.set('lists', tmp);
             this.setState({lists: tmp});
         }
+    }
+
+    setFilterText(filterStr: string): void {
+        this.setState({filterText: filterStr});
     }
 }
