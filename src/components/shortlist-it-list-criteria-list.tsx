@@ -14,7 +14,7 @@ type ShortlistItListCriteriaListProps = {
 export class ShortlistItListCriteriaList extends React.Component<ShortlistItListCriteriaListProps> {
     render() {
         return (
-            <ListGroup>
+            <ListGroup className="critiera-list">
                 {this.criteria.map(c => <ShortlistItListCriteriaListItem key={c.id} parent={this} criteria={c} />)}
                 <ListGroupItem
                     variant="info"

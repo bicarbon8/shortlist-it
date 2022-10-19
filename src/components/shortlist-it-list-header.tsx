@@ -35,8 +35,12 @@ export class ShortlistItListHeader extends React.Component<ShortlistItListHeader
     getTitleContent() {
         if (this.editing) {
             return (
-                <FloatingLabel controlId="listTitle" label="List Title">
-                    <Form.Control type="text" placeholder="enter title or description" value={this.list.title} onChange={() => null}></Form.Control>
+                <FloatingLabel controlId={`title-input-${this.list.id}`} label="List Title">
+                    <Form.Control 
+                        type="text" 
+                        placeholder="enter title or description" 
+                        defaultValue={this.list.title}
+                        className="list-header-title-input" />
                 </FloatingLabel>
             );
         } else {

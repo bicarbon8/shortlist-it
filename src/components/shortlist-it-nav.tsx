@@ -17,7 +17,7 @@ export class ShortlistItNav extends React.Component<ShortlistItNavProps> {
                     <Navbar.Collapse id="navbarScroll" className="justify-content-end">
                         <Nav>
                             <Nav.Item>
-                                <Button variant="outline-success">
+                                <Button variant="outline-success" onClick={() => this.props.parent.addNewList()}>
                                     <BootstrapIcon icon="plus-lg" /> 
                                     Add New List
                                 </Button>

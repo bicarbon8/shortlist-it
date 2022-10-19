@@ -1,1 +1,1 @@
-export type CriteriaType = 'worst-to-best' | 'boolean' | 'positives' | 'negatives';
+export type CriteriaType = 'worst-to-best' | 'yes-no' | 'positives' | 'negatives';

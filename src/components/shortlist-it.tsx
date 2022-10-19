@@ -78,7 +78,7 @@ export class ShortlistIt extends React.Component<{}, ShortlistItState> {
                         {id: v4(), name: 'giver or taker', type: 'worst-to-best' as CriteriaType, values: ['taker', 'both', 'giver']},
                         {id: v4(), name: 'feeling when with them', type: 'worst-to-best' as CriteriaType, values: ['anger', 'agitation', 'sadness', 'nothingness', 'warmth', 'joy', 'elation']},
                         {id: v4(), name: 'activity level', type: 'worst-to-best' as CriteriaType, values: ['none', 'extreme', 'low', 'moderate']}, 
-                        {id: v4(), name: 'makes me a better person', type: 'boolean' as CriteriaType, values: ['true', 'false']},
+                        {id: v4(), name: 'makes me a better person', type: 'yes-no' as CriteriaType, values: ['yes', 'no']},
                         {id: v4(), name: 'good features', type: 'positives' as CriteriaType, values: ['tidy', 'fashionable', 'kind', 'athletic', 'attractive', 'intelligent'], allowMultiple: true}
                     ), 
                     entries: new Array<Entry>(
@@ -90,7 +90,7 @@ export class ShortlistIt extends React.Component<{}, ShortlistItState> {
                                 ['giver or taker', ['giver']],
                                 ['feeling when with them', ['joy']],
                                 ['activity level', ['moderate']],
-                                ['makes me a better person', ['false']],
+                                ['makes me a better person', ['no']],
                                 ['good features', ['kind', 'athletic', 'intelligent']]
                             ])
                         },
@@ -102,7 +102,7 @@ export class ShortlistIt extends React.Component<{}, ShortlistItState> {
                                 ['giver or taker', ['giver']],
                                 ['feeling when with them', ['joy']],
                                 ['activity level', ['low']],
-                                ['makes me a better person', ['true']],
+                                ['makes me a better person', ['yes']],
                                 ['good features', ['kind', 'intelligent']]
                             ])
                         },
@@ -114,7 +114,7 @@ export class ShortlistIt extends React.Component<{}, ShortlistItState> {
                                 ['giver or taker', ['both']],
                                 ['feeling when with them', ['warmth']],
                                 ['activity level', ['low']],
-                                ['makes me a better person', ['false']],
+                                ['makes me a better person', ['no']],
                                 ['good features', ['tidy', 'attractive']]
                             ])
                         },
@@ -126,7 +126,7 @@ export class ShortlistIt extends React.Component<{}, ShortlistItState> {
                                 ['giver or taker', ['taker']],
                                 ['feeling when with them', ['nothingness']],
                                 ['activity level', ['moderate']],
-                                ['makes me a better person', ['true']],
+                                ['makes me a better person', ['yes']],
                                 ['good features', ['athletic', 'intelligent']]
                             ])
                         }
@@ -134,7 +134,7 @@ export class ShortlistIt extends React.Component<{}, ShortlistItState> {
                 },
                 {id: v4(), title: 'The Third List Example - this is fun!', criteria: new Array<Criteria>(), entries: new Array<Entry>()}
             )),
-            filterText: ''
+            filterText: this.store.get('filterText', '')
         };
     }
 
@@ -230,6 +230,34 @@ export class ShortlistIt extends React.Component<{}, ShortlistItState> {
         }
     }
 
+    addNewList(): string {
+        const list: Shortlist = {
+            id: v4(),
+            title: `New Shortlist (${this.state.lists.length + 1})`,
+            entries: new Array<Entry>(),
+            criteria: new Array<Criteria>()
+        };
+        const allLists = this.state.lists;
+        allLists.push(list);
+        this.store.set('lists', allLists);
+        this.setState({lists: allLists});
+        return list.id;
+    }
+
+    getList(id: string): Shortlist | undefined {
+        return this.state.lists.find(l => l.id === id);
+    }
+
+    updateList(updated: Shortlist): void {
+        const allLists = this.state.lists;
+        const index = allLists.findIndex(l => l.id === updated.id);
+        if (index >= 0) {
+            allLists.splice(index, 1, updated);
+            this.store.set('lists', allLists);
+            this.setState({lists: allLists});
+        }
+    }
+
     archiveList(listId: string): void {
         this.hideDeleteConfirmation();
         this.setArchivedState(listId, true);
@@ -248,6 +276,7 @@ export class ShortlistIt extends React.Component<{}, ShortlistItState> {
     }
 
     setFilterText(filterStr: string): void {
+        this.store.set('filterText', filterStr);
         this.setState({filterText: filterStr});
     }
 }
