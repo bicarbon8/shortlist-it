@@ -53,7 +53,7 @@ export class ShortlistItList extends React.Component<ShortlistItListProps, Short
         this.setState({editing: true});
     }
 
-    doneEditing(): void {
+    saveEdits(): void {
         // get changes
         const cardElement = document.getElementById(`${this.list.id}`);
         if (cardElement) {
@@ -75,12 +75,16 @@ export class ShortlistItList extends React.Component<ShortlistItListProps, Short
         }
     }
 
+    cancelEdits(): void {
+        this.setState({editing: false});
+    }
+
     archive(): void {
-        this.parent.setArchivedState(this.list.id, true);
+        this.parent.archiveList(this.list.id);
     }
 
     unarchive(): void {
-        this.parent.setArchivedState(this.list.id, false);
+        this.parent.unarchiveList(this.list.id);
     }
 
     deleteEntry(entryId: string): void {

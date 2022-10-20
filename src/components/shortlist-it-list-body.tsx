@@ -4,7 +4,6 @@ import { Entry } from "../types/entries/entry";
 import { Shortlist } from "../types/shortlist";
 import { BootstrapIcon } from "./bootstrap-icon";
 import { ShortlistItList } from "./shortlist-it-list";
-import { ShortlistItListCriteriaList } from "./shortlist-it-list-criteria-list";
 import { ShortlistItListEntry } from "./shortlist-it-list-entry";
 
 type ShortlistItListBodyProps = {
@@ -15,7 +14,6 @@ export class ShortlistItListBody extends React.Component<ShortlistItListBodyProp
     render() {
         return (
             <ListGroup>
-                {this.getCriteriaList()}
                 {this.list.entries.map((entry: Entry) => <ShortlistItListEntry key={entry.id} parent={this} entry={entry} />)}
                 {this.getAddEntryButton()}
             </ListGroup>
@@ -32,14 +30,6 @@ export class ShortlistItListBody extends React.Component<ShortlistItListBodyProp
 
     get editing(): boolean {
         return this.parent.editing;
-    }
-
-    getCriteriaList() {
-        if (this.editing) {
-            return <ListGroupItem variant="warning"><ShortlistItListCriteriaList parent={this} /></ListGroupItem>;
-        } else {
-            return <></>;
-        }
     }
 
     getAddEntryButton() {

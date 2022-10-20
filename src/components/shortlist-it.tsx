@@ -184,15 +184,15 @@ export class ShortlistIt extends React.Component<{}, ShortlistItState> {
         this.setState({showArchived: show});
     }
 
-    showDeleteConfirmation(listId: string) {
+    deleteList(listId: string) {
         this.setState({listToBeDeleted: listId});
     }
 
-    hideDeleteConfirmation() {
+    private hideDeleteConfirmation() {
         this.setState({listToBeDeleted: undefined});
     }
 
-    getListDeleteConfirmationModal() {
+    private getListDeleteConfirmationModal() {
         const listId = this.state.listToBeDeleted ?? '';
         const listTitle = this.state.lists.find(l => l.id === listId)?.title;
         return (
@@ -212,7 +212,7 @@ export class ShortlistIt extends React.Component<{}, ShortlistItState> {
                     <Button onClick={() => this.archiveList(listId)} variant="outline-dark">
                         Archive
                     </Button>
-                    <Button onClick={() => this.deleteList(listId)} variant="outline-danger">
+                    <Button onClick={() => this.confirmDeletion(listId)} variant="outline-danger">
                         DELETE
                     </Button>
                 </div>
@@ -220,7 +220,7 @@ export class ShortlistIt extends React.Component<{}, ShortlistItState> {
         );
     }
 
-    setArchivedState(listId: string, archived: boolean) {
+    private setArchivedState(listId: string, archived: boolean) {
         const listIndex = this.state.lists.findIndex(l => l.id === listId);
         if (listIndex >= 0) {
             const lists = this.state.lists;
@@ -263,7 +263,11 @@ export class ShortlistIt extends React.Component<{}, ShortlistItState> {
         this.setArchivedState(listId, true);
     }
 
-    deleteList(listId: string): void {
+    unarchiveList(listId: string): void {
+        this.setArchivedState(listId, false);
+    }
+
+    private confirmDeletion(listId: string): void {
         this.hideDeleteConfirmation();
 
         const listIndex = this.state.lists.findIndex(l => l.id === listId);

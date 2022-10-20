@@ -4,6 +4,7 @@ import { Criteria } from "../types/criteria/criteria";
 import { CriteriaType } from "../types/criteria/criteria-type";
 import { BootstrapIcon } from "./bootstrap-icon";
 import { ShortlistItListCriteriaList } from "./shortlist-it-list-criteria-list";
+import { ShortlistItTooltip } from "./shortlist-it-tooltip";
 
 type ShortlistItListCriteriaListItemProps = {
     parent: ShortlistItListCriteriaList;
@@ -30,8 +31,8 @@ export class ShortlistItListCriteriaListItem extends React.Component<ShortlistIt
     
     render() {
         return (
-            <ListGroupItem id={this.criteria.id} variant="dark" className="d-flex flex-column justify-content-evenly criteria-list-item">
-                <InputGroup>
+            <ListGroupItem id={this.criteria.id} variant="dark" className="d-flex flex-row justify-content-between criteria-list-item">
+                <div className="d-flex flex-column justify-content-evently flex-grow-1 pe-1">
                     <FloatingLabel controlId="criteriaName" label="Criteria Name">
                         <Form.Control 
                             type="text" 
@@ -56,14 +57,18 @@ export class ShortlistItListCriteriaListItem extends React.Component<ShortlistIt
                             className={(this.valuesError) ? 'is-invalid' : ''}
                             onChange={() => this.validateValues()} />
                     </FloatingLabel>
-                </InputGroup>
-                <div className="d-flex flex-row justify-content-between">
                     <Form.Check 
                         type="switch" 
                         label="Allow Multiselect?" 
                         defaultChecked={(this.multiselectAllowed) ? this.criteria.allowMultiple : false}
                         disabled={!this.multiselectAllowed} /> 
-                    <Button variant="outline-primary" onClick={() => this.deleteCriteria(this.criteria.id)}><BootstrapIcon icon="trash" /></Button>
+                </div>
+                <div className="d-flex flex-column justify-content-between ps-1">
+                    <ShortlistItTooltip id={`delete-criteria-${this.criteria.id}`} text="Delete Criteria">
+                        <Button variant="danger" onClick={() => this.deleteCriteria(this.criteria.id)}>
+                            <BootstrapIcon icon="trash" />
+                        </Button>
+                    </ShortlistItTooltip>
                 </div>
             </ListGroupItem>
         );

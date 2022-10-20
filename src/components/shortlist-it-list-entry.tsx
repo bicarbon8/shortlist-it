@@ -5,7 +5,6 @@ import { Shortlist } from "../types/shortlist";
 import { BootstrapIcon } from "./bootstrap-icon";
 import { ShortlistItListBody } from "./shortlist-it-list-body";
 import { ShortlistItListEntryValuesList } from "./shortlist-it-list-entry-values-list";
-import { ShortlistItMenu, ShortlistItMenuItem } from "./shortlist-it-menu";
 import { ShortlistItTooltip } from "./shortlist-it-tooltip";
 
 type ShortlistItListEntryProps = {
@@ -81,12 +80,21 @@ export class ShortlistItListEntry extends React.Component<ShortlistItListEntryPr
             if (this.editing) {
                 return (
                     <div className="d-flex flex-column justify-content-evenly align-content-between h-100">
-                        <Button variant="outline-success" onClick={() => this.doneEditing()}>
-                            <BootstrapIcon icon="check" />
-                        </Button>
-                        <Button variant="outline-danger" onClick={() => this.deleteEntry()}>
-                            <BootstrapIcon icon="trash" />
-                        </Button>
+                        <ShortlistItTooltip id={`save-changes-${this.entry.id}`} text="Save Changes">
+                            <Button variant="success" onClick={() => this.saveChanges()}>
+                                <BootstrapIcon icon="check" />
+                            </Button>
+                        </ShortlistItTooltip>
+                        <ShortlistItTooltip id={`cancel-edits-${this.entry.id}`} text="Cancel Edits">
+                            <Button variant="warning" onClick={() => this.cancelEditing()}>
+                                <BootstrapIcon icon="x-circle" />
+                            </Button>
+                        </ShortlistItTooltip>
+                        <ShortlistItTooltip id={`delete-entry-${this.entry.id}`} text="Delete Entry">
+                            <Button variant="danger" onClick={() => this.deleteEntry()}>
+                                <BootstrapIcon icon="trash" />
+                            </Button>
+                        </ShortlistItTooltip>
                     </div>
                 );
             } else {
@@ -116,7 +124,8 @@ export class ShortlistItListEntry extends React.Component<ShortlistItListEntryPr
         this.setState({editing: true});
     }
 
-    doneEditing(): void {
+    saveChanges(): void {
+        
         this.setState({editing: false});
     }
 
