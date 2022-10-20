@@ -35,12 +35,12 @@ export class ShortlistItListEntry extends React.Component<ShortlistItListEntryPr
                     <div className="px-1"><Badge pill={true} className={badgeColour}>{this.entry.ranking}</Badge></div> 
                     <span className="xs-8 px-1 text-start flex-grow-1">
                         {this.getDescription()}
+                        {this.getValuesList()}
                     </span> 
                     <span className="text-center px-1"> 
-                        {this.getMenuButton()}
+                        {this.getEditButton()}
                     </span>
                 </div>
-                {this.getValuesList()}
             </ListGroupItem>
         );
     }
@@ -74,24 +74,26 @@ export class ShortlistItListEntry extends React.Component<ShortlistItListEntryPr
         }
     }
 
-    getMenuButton() {
+    getEditButton() {
         if (this.list.archived) {
             return <></>;
         } else {
             if (this.editing) {
-                return <Button onClick={() => this.doneEditing()}>Done</Button>
-            } else {
-                const items = new Array<ShortlistItMenuItem>(
-                    {text: 'edit entry', icon: 'pencil-square', action: () => this.startEditing()},
-                    {text: 'delete', icon: 'trash', action: () => null}
-                );
                 return (
-                    <ShortlistItMenu 
-                        id={this.entry.id}
-                        headerText="Entry Options"
-                        menuItems={items}>
-                        <BootstrapIcon icon="list" style={{ fontSize: '14pt' }} />
-                    </ShortlistItMenu>
+                    <div className="d-flex flex-column justify-content-evenly align-content-between h-100">
+                        <Button variant="outline-success" onClick={() => this.doneEditing()}>
+                            <BootstrapIcon icon="check" />
+                        </Button>
+                        <Button variant="outline-danger" onClick={() => this.deleteEntry()}>
+                            <BootstrapIcon icon="trash" />
+                        </Button>
+                    </div>
+                );
+            } else {
+                return (
+                    <div onClick={() => this.startEditing()}>
+                        <BootstrapIcon icon="pencil-square" />
+                    </div>
                 );
             }
         }
@@ -99,7 +101,12 @@ export class ShortlistItListEntry extends React.Component<ShortlistItListEntryPr
 
     getValuesList() {
         if (this.editing) {
-            return <ShortlistItListEntryValuesList parent={this} />;
+            return (
+                <>
+                    <hr />
+                    <ShortlistItListEntryValuesList parent={this} />
+                </>
+            );
         } else {
             return <></>;
         }
@@ -111,5 +118,16 @@ export class ShortlistItListEntry extends React.Component<ShortlistItListEntryPr
 
     doneEditing(): void {
         this.setState({editing: false});
+    }
+
+    cancelEditing(): void {
+        this.setState({editing: false});
+    }
+
+    deleteEntry(): void {
+        const confirmed: boolean = window.confirm(`Are you sure you want to delete entry described by: ${this.entry.description}? This action cannot be undone.`);
+        if (confirmed) {
+            this.parent.parent.deleteEntry(this.entry.id);
+        }
     }
 }

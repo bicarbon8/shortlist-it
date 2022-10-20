@@ -6,6 +6,7 @@ import { ShortlistIt } from "./shortlist-it";
 import { ShortlistItListBody } from "./shortlist-it-list-body";
 import { ShortlistItListHeader } from "./shortlist-it-list-header";
 import { Criteria } from "../types/criteria/criteria";
+import { rankingCalculator } from "../utilities/ranking-calculator";
 
 type ShortlistItListProps = {
     parent: ShortlistIt;
@@ -82,11 +83,13 @@ export class ShortlistItList extends React.Component<ShortlistItListProps, Short
         this.parent.setArchivedState(this.list.id, false);
     }
 
-    expandAll(): void {
-        
-    }
-
-    collapseAll(): void {
-
+    deleteEntry(entryId: string): void {
+        const index = this.list.entries.findIndex(e => e.id === entryId);
+        if (index >= 0) {
+            let updated = this.list;
+            updated.entries.splice(index, 1);
+            updated = rankingCalculator.rankEntries(updated);
+            this.parent.updateList(updated);
+        }
     }
 }

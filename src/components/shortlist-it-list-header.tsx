@@ -50,7 +50,7 @@ export class ShortlistItListHeader extends React.Component<ShortlistItListHeader
 
     getMenuButtonContent() {
         if (this.editing) {
-            return <Button onClick={() => this.parent.doneEditing()}>Done</Button>;
+            return <Button variant="outline-success" onClick={() => this.parent.doneEditing()}><BootstrapIcon icon="check" /></Button>;
         } else {
             return (
                 <ShortlistItMenu 

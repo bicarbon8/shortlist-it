@@ -22,7 +22,7 @@ export class ShortlistItListEntryValuesListItem extends React.Component<Shortlis
     
     render() {
         return (
-            <ListGroupItem key={this.criteriaName} className="d-flex justify-content-between align-content-start flex-wrap">
+            <ListGroupItem key={this.criteriaName} className="d-flex justify-content-between align-content-start flex-wrap" variant="secondary">
                 {this.getValuesSelector()}
             </ListGroupItem>
         );
