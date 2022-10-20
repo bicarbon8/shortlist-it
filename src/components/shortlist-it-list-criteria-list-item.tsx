@@ -13,6 +13,8 @@ type ShortlistItListCriteriaListItemProps = {
 type ShortlistItListCriteriaListItemState = {
     multiselectAllowed: boolean;
     valuesAllowed: boolean;
+    nameError: boolean;
+    valuesError: boolean;
 };
 
 export class ShortlistItListCriteriaListItem extends React.Component<ShortlistItListCriteriaListItemProps, ShortlistItListCriteriaListItemState> {
@@ -20,7 +22,9 @@ export class ShortlistItListCriteriaListItem extends React.Component<ShortlistIt
         super(props);
         this.state = {
             multiselectAllowed: !!(this.props.criteria.type !== 'yes-no'),
-            valuesAllowed: !!(this.props.criteria.type !== 'yes-no')
+            valuesAllowed: !!(this.props.criteria.type !== 'yes-no'),
+            nameError: false,
+            valuesError: false
         };
     }
     
@@ -29,10 +33,14 @@ export class ShortlistItListCriteriaListItem extends React.Component<ShortlistIt
             <ListGroupItem id={this.criteria.id} variant="dark" className="d-flex flex-column justify-content-evenly criteria-list-item">
                 <InputGroup>
                     <FloatingLabel controlId="criteriaName" label="Criteria Name">
-                        <Form.Control type="text" defaultValue={this.criteria.name} />
+                        <Form.Control 
+                            type="text" 
+                            defaultValue={this.criteria.name} 
+                            className={(this.nameError) ? 'is-invalid' : ''} 
+                            onChange={() => this.validateName()} />
                     </FloatingLabel>
                     <FloatingLabel controlId="criteriaType" label="Criteria Type">
-                        <Form.Select aria-label="Criteria Type Select" defaultValue={this.criteria.type} onChange={() => this.validate()}>
+                        <Form.Select aria-label="Criteria Type Select" defaultValue={this.criteria.type} onChange={() => this.validateType()}>
                             <option value="worst-to-best">worst-to-best</option>
                             <option value="yes-no">yes-no</option>
                             <option value="positives">positives</option>
@@ -44,7 +52,9 @@ export class ShortlistItListCriteriaListItem extends React.Component<ShortlistIt
                             type="text" 
                             placeholder="comma separated values" 
                             defaultValue={(this.valuesAllowed) ? this.criteria.values.join(',') : 'yes,no'} 
-                            disabled={!this.valuesAllowed} />
+                            disabled={!this.valuesAllowed} 
+                            className={(this.valuesError) ? 'is-invalid' : ''}
+                            onChange={() => this.validateValues()} />
                     </FloatingLabel>
                 </InputGroup>
                 <div className="d-flex flex-row justify-content-between">
@@ -67,6 +77,10 @@ export class ShortlistItListCriteriaListItem extends React.Component<ShortlistIt
         return this.props.criteria;
     }
 
+    get allCriteriaItems(): Array<Criteria> {
+        return this.parent.list.criteria;
+    }
+
     get multiselectAllowed(): boolean {
         return this.state.multiselectAllowed;
     }
@@ -75,16 +89,39 @@ export class ShortlistItListCriteriaListItem extends React.Component<ShortlistIt
         return this.state.valuesAllowed;
     }
 
-    validate(): void {
+    get nameError(): boolean {
+        return this.state.nameError;
+    }
+
+    get valuesError(): boolean {
+        return this.state.valuesError;
+    }
+
+    validateType(): void {
         const criteriaEl = document.getElementById(`${this.criteria.id}`) as HTMLDivElement;
-        const criteriaName: string = (criteriaEl.querySelector('#criteriaName') as HTMLInputElement).value;
         const criteriaType: CriteriaType = (criteriaEl.querySelector('#criteriaType option:checked') as HTMLOptionElement)?.value as CriteriaType || 'worst-to-best';
-        const criteriaValues: Array<string> = (criteriaEl.querySelector('#criteriaValues') as HTMLInputElement).value
-            .split(',')
-            .map(v => v.trim());
-        const criteriaMultiselect: boolean = (criteriaEl.querySelector("input[type='checkbox']") as HTMLInputElement)?.checked || false;
         const allow: boolean = !!(criteriaType !== 'yes-no');
         this.setState({multiselectAllowed: allow, valuesAllowed: allow});
+    }
+
+    validateName(): void {
+        const criteriaEl = document.getElementById(`${this.criteria.id}`) as HTMLDivElement;
+        const criteriaName: string = (criteriaEl.querySelector('#criteriaName') as HTMLInputElement).value;
+        const invalid: boolean = (!criteriaName || criteriaName.match(/^[\s]+$/) !== null || this.allCriteriaItems
+            .filter(i => i.id !== this.criteria.id)
+            .map(i => i.name)
+            .includes(criteriaName));
+        this.setState({nameError: invalid});
+    }
+
+    validateValues(): void {
+        const criteriaEl = document.getElementById(`${this.criteria.id}`) as HTMLDivElement;
+        const criteriaName: string = (criteriaEl.querySelector('#criteriaValues') as HTMLInputElement).value;
+        const invalid: boolean = (!criteriaName || criteriaName.match(/^[\s]+$/) !== null || this.allCriteriaItems
+            .filter(i => i.id !== this.criteria.id)
+            .map(i => i.name)
+            .includes(criteriaName));
+        this.setState({valuesError: invalid});
     }
 
     deleteCriteria(id: string): void {
