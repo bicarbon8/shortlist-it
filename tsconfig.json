@@ -12,7 +12,7 @@
       "allowSyntheticDefaultImports": true,
       "strict": true,
       "forceConsistentCasingInFileNames": true,
-      "module": "esnext",
+      "module": "CommonJS",
       "moduleResolution": "node",
       "resolveJsonModule": true,
       "isolatedModules": true,
@@ -21,9 +21,11 @@
       "declaration": false,
       "jsx": "react",
       "noFallthroughCasesInSwitch": false,
-      "strictNullChecks": false
+      "strictNullChecks": false,
+      "rootDir": "./"
     },
     "include": [
+      "./package.json",
       "src/**/*.tsx",
       "src/**/*.ts"
     ]
