@@ -13,7 +13,7 @@ type ShortlistItListEntryValuesListProps = {
 
 export class ShortlistItListEntryValuesList extends React.Component<ShortlistItListEntryValuesListProps> {
     render() {
-        const criteriaNames = Array.from(this.entry.values.keys());
+        const criteriaNames = Array.from(this.list.criteria.map(c => c.name));
         return (
             <ListGroup>
                 {criteriaNames.map(criteriaName => <ShortlistItListEntryValuesListItem 

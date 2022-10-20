@@ -311,7 +311,7 @@ export class ShortlistIt extends React.Component<{}, ShortlistItState> {
         }
     }
 
-    addNewList(): string {
+    addNewList(): void {
         const list: Shortlist = {
             id: v4(),
             title: `New Shortlist (${this.state.lists.length + 1})`,
@@ -322,7 +322,7 @@ export class ShortlistIt extends React.Component<{}, ShortlistItState> {
         allLists.unshift(list);
         this.store.set('lists', allLists);
         this.setState({lists: allLists});
-        return list.id;
+        this.startEditingList(list.id);
     }
 
     getList(id: string): Shortlist {
@@ -362,6 +362,7 @@ export class ShortlistIt extends React.Component<{}, ShortlistItState> {
             updated.entries.push(entry);
             updated = rankingCalculator.rankEntries(updated);
             this.updateList(updated);
+            this.startEditingEntry(listId, entry.id);
         }
     }
 
