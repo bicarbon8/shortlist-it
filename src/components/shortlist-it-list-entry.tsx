@@ -1,11 +1,12 @@
 import React from "react";
-import { Badge, ListGroupItem } from "react-bootstrap";
+import { Badge, Button, FloatingLabel, Form, ListGroupItem } from "react-bootstrap";
 import { Entry } from "../types/entries/entry";
 import { Shortlist } from "../types/shortlist";
 import { BootstrapIcon } from "./bootstrap-icon";
 import { ShortlistItListBody } from "./shortlist-it-list-body";
 import { ShortlistItListEntryValuesList } from "./shortlist-it-list-entry-values-list";
 import { ShortlistItMenu, ShortlistItMenuItem } from "./shortlist-it-menu";
+import { ShortlistItTooltip } from "./shortlist-it-tooltip";
 
 type ShortlistItListEntryProps = {
     parent: ShortlistItListBody;
@@ -14,34 +15,29 @@ type ShortlistItListEntryProps = {
 
 type ShortlistItListEntryState = {
     editing: boolean;
-    expanded: boolean;
 };
 
 export class ShortlistItListEntry extends React.Component<ShortlistItListEntryProps, ShortlistItListEntryState> {
     constructor(props: ShortlistItListEntryProps) {
         super(props);
         this.state = {
-            editing: false,
-            expanded: false
+            editing: false
         };
     }
     
     render() {
-        const variant = (this.list.archived) ? 'secondary' : 'primary';
-        const menuItems = this.getMenuItems();
+        const variant = (this.list.archived) ? 'dark' : 'primary';
+        const badgeColour = (this.list.archived) ? 'bg-secondary' : 'bg-primary';
 
         return (
             <ListGroupItem variant={variant} className="d-flex flex-column justify-content-between align-content-between flex-wrap">
                 <div className="d-flex flex-row justify-content-between w-100">
-                    <div className="px-1"><Badge pill={true}>{this.entry.ranking}</Badge></div> 
-                    <span className="xs-8 px-1 text-start flex-grow-1">{this.entry.description}</span> 
+                    <div className="px-1"><Badge pill={true} className={badgeColour}>{this.entry.ranking}</Badge></div> 
+                    <span className="xs-8 px-1 text-start flex-grow-1">
+                        {this.getDescription()}
+                    </span> 
                     <span className="text-center px-1"> 
-                        <ShortlistItMenu 
-                            id={this.entry.id}
-                            headerText="Entry Options"
-                            menuItems={menuItems}>
-                            <BootstrapIcon icon="list" style={{ fontSize: '14pt' }} />
-                        </ShortlistItMenu>
+                        {this.getMenuButton()}
                     </span>
                 </div>
                 {this.getValuesList()}
@@ -65,29 +61,44 @@ export class ShortlistItListEntry extends React.Component<ShortlistItListEntryPr
         return this.state.editing;
     }
 
-    get expanded(): boolean {
-        return this.state.expanded;
+    getDescription() {
+        if (this.editing) {
+            return (
+                <FloatingLabel controlId="entryDescription" label="Entry Description">
+                    <Form.Control type="text" defaultValue={this.entry.description} />
+                </FloatingLabel>
+            )
+        } else {
+            const textColour = (this.list.archived) ? 'text-muted' : 'text-dark';
+            return <span className={textColour}>{this.entry.description}</span>;
+        }
     }
 
-    getMenuItems(): Array<ShortlistItMenuItem> {
-        const items = new Array<ShortlistItMenuItem>(
-            {
-                text: (this.expanded) ? 'collapse' : 'expand', 
-                icon: (this.expanded) ? 'chevron-bar-contract' : 'chevron-bar-expand',
-                action: () => (this.expanded) ? this.collapse() : this.expand()
+    getMenuButton() {
+        if (this.list.archived) {
+            return <></>;
+        } else {
+            if (this.editing) {
+                return <Button onClick={() => this.doneEditing()}>Done</Button>
+            } else {
+                const items = new Array<ShortlistItMenuItem>(
+                    {text: 'edit entry', icon: 'pencil-square', action: () => this.startEditing()},
+                    {text: 'delete', icon: 'trash', action: () => null}
+                );
+                return (
+                    <ShortlistItMenu 
+                        id={this.entry.id}
+                        headerText="Entry Options"
+                        menuItems={items}>
+                        <BootstrapIcon icon="list" style={{ fontSize: '14pt' }} />
+                    </ShortlistItMenu>
+                );
             }
-        );
-        if (!this.list.archived) {
-            items.push(
-                {text: 'edit', icon: 'pencil-square', action: () => this.startEditing()},
-                {text: 'delete', icon: 'trash', action: () => null}
-            );
         }
-        return items;
     }
 
     getValuesList() {
-        if (this.expanded) {
+        if (this.editing) {
             return <ShortlistItListEntryValuesList parent={this} />;
         } else {
             return <></>;
@@ -95,18 +106,10 @@ export class ShortlistItListEntry extends React.Component<ShortlistItListEntryPr
     }
 
     startEditing(): void {
-
+        this.setState({editing: true});
     }
 
     doneEditing(): void {
-
-    }
-
-    expand(): void {
-        this.setState({expanded: true});
-    }
-
-    collapse(): void {
-        this.setState({expanded: false});
+        this.setState({editing: false});
     }
 }

@@ -25,8 +25,9 @@ export class ShortlistItList extends React.Component<ShortlistItListProps, Short
     }
     
     render() {
+        const bgColor = (this.list.archived) ? 'bg-secondary' : '';
         return (
-            <Card id={this.list.id} className="m-1 min-width-300 max-width-700">
+            <Card id={this.list.id} className={`m-1 min-width-300 max-width-700 ${bgColor}`}>
                 <Card.Body className="d-flex flex-column justify-content-center align-content-center">
                     <ShortlistItListHeader parent={this} />
                     <ShortlistItListBody parent={this} />
@@ -74,13 +75,11 @@ export class ShortlistItList extends React.Component<ShortlistItListProps, Short
     }
 
     archive(): void {
-        this.list.archived = true;
-        this.parent.forceUpdate();
+        this.parent.setArchivedState(this.list.id, true);
     }
 
     unarchive(): void {
-        this.list.archived = false;
-        this.parent.forceUpdate();
+        this.parent.setArchivedState(this.list.id, false);
     }
 
     expandAll(): void {

@@ -1,20 +1,29 @@
 import React from "react";
-import { Button, ListGroupItem } from "react-bootstrap";
+import { Button, Col, FloatingLabel, Form, ListGroupItem } from "react-bootstrap";
 import { ShortlistItListEntryValuesList } from "./shortlist-it-list-entry-values-list";
 
 type ShortlistItListEntryValuesListItemProps = {
     parent: ShortlistItListEntryValuesList;
     criteriaName: string;
+    multiselect: boolean;
 };
 
-export class ShortlistItListEntryValuesListItem extends React.Component<ShortlistItListEntryValuesListItemProps> {
+type ShortlistItListEntryValuesListItemState = {
+    updatedValues: Array<string>;
+}
+
+export class ShortlistItListEntryValuesListItem extends React.Component<ShortlistItListEntryValuesListItemProps, ShortlistItListEntryValuesListItemState> {
+    constructor(props: ShortlistItListEntryValuesListItemProps) {
+        super(props);
+        this.state = {
+            updatedValues: new Array<string>()
+        };
+    }
+    
     render() {
         return (
             <ListGroupItem key={this.criteriaName} className="d-flex justify-content-between align-content-start flex-wrap">
-                <span className="fw-bold text-nowrap">{this.criteriaName}:</span>
-                <div className="d-flex justify-content-evenly align-content-between flex-wrap">
-                    {this.allPossibleValues.map(val => this.getValueNode(val))}
-                </div>
+                {this.getValuesSelector()}
             </ListGroupItem>
         );
     }
@@ -37,8 +46,29 @@ export class ShortlistItListEntryValuesListItem extends React.Component<Shortlis
             ?.values || new Array<string>();
     }
 
+    getValuesSelector() {
+        if (this.props.multiselect) {
+            return (
+                <Form.Group as={Col} controlId="entryValues">
+                    <Form.Label column="sm">{this.criteriaName}</Form.Label>
+                    <Form.Control as="select" multiple defaultValue={this.selectedValues}>
+                        {this.allPossibleValues.map(val => this.getValueNode(val))}
+                    </Form.Control>
+                </Form.Group>
+            );
+        } else {
+            return (
+                <FloatingLabel className="w-100" controlId={`values-select-${this.criteriaName}`} label={this.criteriaName}>
+                    <Form.Select aria-label="Values Select" defaultValue={this.selectedValues[0]}>
+                        {this.allPossibleValues.map(val => this.getValueNode(val))}
+                    </Form.Select>
+                </FloatingLabel>
+            )
+        }
+    }
+
     getValueNode(val: string) {
-        const variant = (this.selectedValues.includes(val)) ? 'primary' : 'outline-primary';
-        return <Button key={val} className="my-1" variant={variant}>{val}</Button>
+        const selected: boolean = !!(this.selectedValues.includes(val));
+        return <option key={val} value={val} defaultChecked={selected}>{val}</option>; // <Button key={val} className="my-1" variant={variant}>{val}</Button>
     }
 }

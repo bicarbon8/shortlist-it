@@ -68,12 +68,10 @@ export class ShortlistItListHeader extends React.Component<ShortlistItListHeader
         if (this.list.archived) {
             items.push({text: 'restore', icon: 'arrow-counterclockwise', action: () => this.parent.unarchive()});
         } else {
-            items.push({text: 'edit', icon: 'pencil-square', action: () => this.parent.startEditing()});
+            items.push({text: 'edit list', icon: 'pencil-square', action: () => this.parent.startEditing()});
             items.push({text: 'archive', icon: 'archive', action: () => this.parent.archive()});
         }
         items.push(
-            {text: 'expand all', icon: 'chevron-bar-expand', action: () => this.parent.expandAll()},
-            {text: 'collapse all', icon: 'chevron-bar-contract', action: () => this.parent.collapseAll()},
             {text: 'delete', icon: 'trash', action: () => this.showDeleteConfirmation()}
         );
         return items;

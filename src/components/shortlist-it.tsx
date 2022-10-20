@@ -238,7 +238,7 @@ export class ShortlistIt extends React.Component<{}, ShortlistItState> {
             criteria: new Array<Criteria>()
         };
         const allLists = this.state.lists;
-        allLists.push(list);
+        allLists.unshift(list);
         this.store.set('lists', allLists);
         this.setState({lists: allLists});
         return list.id;

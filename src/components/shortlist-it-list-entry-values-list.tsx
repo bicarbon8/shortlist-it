@@ -12,7 +12,16 @@ type ShortlistItListEntryValuesListProps = {
 export class ShortlistItListEntryValuesList extends React.Component<ShortlistItListEntryValuesListProps> {
     render() {
         const criteriaNames = Array.from(this.entry.values.keys());
-        return <ListGroup>{criteriaNames.map(criteriaName => <ShortlistItListEntryValuesListItem key={criteriaName} parent={this} criteriaName={criteriaName} />)}</ListGroup>
+        return (
+            <ListGroup>
+                {criteriaNames.map(criteriaName => <ShortlistItListEntryValuesListItem 
+                    key={criteriaName} 
+                    parent={this} 
+                    criteriaName={criteriaName} 
+                    multiselect={this.isMultiselect(criteriaName)} />
+                )}
+            </ListGroup>
+        );
     }
 
     get parent(): ShortlistItListEntry {
@@ -25,5 +34,9 @@ export class ShortlistItListEntryValuesList extends React.Component<ShortlistItL
 
     get entry(): Entry {
         return this.parent.entry;
+    }
+
+    isMultiselect(criteriaName: string): boolean {
+        return this.list.criteria.find(c => c.name === criteriaName)?.allowMultiple || false;
     }
 }
