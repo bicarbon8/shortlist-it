@@ -1,9 +1,7 @@
 import React from "react";
 
-type bootstrapIconsProps = {
-    icon: string,
-    style?: {},
-    onClick?: () => void
+type bootstrapIconsProps = React.HTMLAttributes<HTMLSpanElement> & {
+    icon: string
 };
 
 /**
@@ -11,6 +9,8 @@ type bootstrapIconsProps = {
  */
 export class BootstrapIcon extends React.Component<bootstrapIconsProps> {
     render() {
-        return <i className={'bi-' + this.props.icon} style={this.props.style || {}}></i>
+        const propsWithoutClassName = {...this.props};
+        delete propsWithoutClassName.className;
+        return <i className={`bi-${this.props.icon} ${this.props.className ?? ''}`} {...propsWithoutClassName}></i>
     }
 }

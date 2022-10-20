@@ -20,9 +20,11 @@
       "sourceMap": true,
       "declaration": false,
       "jsx": "react",
-      "noFallthroughCasesInSwitch": false
+      "noFallthroughCasesInSwitch": false,
+      "strictNullChecks": false
     },
     "include": [
-      "src"
+      "src/**/*.tsx",
+      "src/**/*.ts"
     ]
 }

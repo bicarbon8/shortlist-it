@@ -3,24 +3,21 @@ import { Badge, Button, FloatingLabel, Form, ListGroupItem } from "react-bootstr
 import { Entry } from "../types/entries/entry";
 import { Shortlist } from "../types/shortlist";
 import { BootstrapIcon } from "./bootstrap-icon";
-import { ShortlistItListBody } from "./shortlist-it-list-body";
+import { ShortlistIt } from "./shortlist-it";
 import { ShortlistItListEntryValuesList } from "./shortlist-it-list-entry-values-list";
 import { ShortlistItTooltip } from "./shortlist-it-tooltip";
 
 type ShortlistItListEntryProps = {
-    parent: ShortlistItListBody;
-    entry: Entry;
+    app: ShortlistIt;
+    listId: string;
+    entryId: string;
 };
 
-type ShortlistItListEntryState = {
-    editing: boolean;
-};
-
-export class ShortlistItListEntry extends React.Component<ShortlistItListEntryProps, ShortlistItListEntryState> {
+export class ShortlistItListEntry extends React.Component<ShortlistItListEntryProps> {
     constructor(props: ShortlistItListEntryProps) {
         super(props);
         this.state = {
-            editing: false
+            editing: (this.entry.description) ? false : true
         };
     }
     
@@ -44,24 +41,20 @@ export class ShortlistItListEntry extends React.Component<ShortlistItListEntryPr
         );
     }
 
-    get parent(): ShortlistItListBody {
-        return this.props.parent;
+    get app(): ShortlistIt {
+        return this.props.app;
     }
 
     get list(): Shortlist {
-        return this.parent.list;
+        return this.app.getList(this.props.listId);
     }
 
     get entry(): Entry {
-        return this.props.entry;
-    }
-
-    get editing(): boolean {
-        return this.state.editing;
+        return this.list.entries.find(e => e.id === this.props.entryId);
     }
 
     getDescription() {
-        if (this.editing) {
+        if (this.app.isEditingEntry(this.props.listId, this.props.entryId)) {
             return (
                 <FloatingLabel controlId="entryDescription" label="Entry Description">
                     <Form.Control type="text" defaultValue={this.entry.description} />
@@ -77,21 +70,21 @@ export class ShortlistItListEntry extends React.Component<ShortlistItListEntryPr
         if (this.list.archived) {
             return <></>;
         } else {
-            if (this.editing) {
+            if (this.app.isEditingEntry(this.props.listId, this.props.entryId)) {
                 return (
                     <div className="d-flex flex-column justify-content-evenly align-content-start">
                         <ShortlistItTooltip id={`save-changes-${this.entry.id}`} text="Save Changes" className="mb-2">
-                            <Button variant="success" onClick={() => this.saveChanges()}>
+                            <Button variant="success" onClick={() => this.app.saveListEntryEdits(this.props.listId, this.props.entryId)}>
                                 <BootstrapIcon icon="check" />
                             </Button>
                         </ShortlistItTooltip>
                         <ShortlistItTooltip id={`cancel-edits-${this.entry.id}`} text="Cancel Edits" className="my-2">
-                            <Button variant="warning" onClick={() => this.cancelEditing()}>
+                            <Button variant="warning" onClick={() => this.app.cancelListEntryEdits(this.props.listId, this.props.entryId)}>
                                 <BootstrapIcon icon="x-circle" />
                             </Button>
                         </ShortlistItTooltip>
                         <ShortlistItTooltip id={`delete-entry-${this.entry.id}`} text="Delete Entry" className="mt-2">
-                            <Button variant="danger" onClick={() => this.deleteEntry()}>
+                            <Button variant="danger" onClick={() => this.app.deleteEntry(this.props.listId, this.props.entryId)}>
                                 <BootstrapIcon icon="trash" />
                             </Button>
                         </ShortlistItTooltip>
@@ -99,8 +92,8 @@ export class ShortlistItListEntry extends React.Component<ShortlistItListEntryPr
                 );
             } else {
                 return (
-                    <div onClick={() => this.startEditing()}>
-                        <BootstrapIcon icon="pencil-square" />
+                    <div onClick={() => this.app.startEditingEntry(this.props.listId, this.props.entryId)}>
+                        <BootstrapIcon className="clickable" icon="pencil-square" />
                     </div>
                 );
             }
@@ -108,35 +101,15 @@ export class ShortlistItListEntry extends React.Component<ShortlistItListEntryPr
     }
 
     getValuesList() {
-        if (this.editing) {
+        if (this.app.isEditingEntry(this.props.listId, this.props.entryId)) {
             return (
                 <>
                     <hr />
-                    <ShortlistItListEntryValuesList parent={this} />
+                    <ShortlistItListEntryValuesList app={this.app} listId={this.props.listId} entryId={this.props.entryId} />
                 </>
             );
         } else {
             return <></>;
-        }
-    }
-
-    startEditing(): void {
-        this.setState({editing: true});
-    }
-
-    saveChanges(): void {
-        
-        this.setState({editing: false});
-    }
-
-    cancelEditing(): void {
-        this.setState({editing: false});
-    }
-
-    deleteEntry(): void {
-        const confirmed: boolean = window.confirm(`Are you sure you want to delete entry described by: '${this.entry.description}' from list '${this.list.title}'? This action cannot be undone.`);
-        if (confirmed) {
-            this.parent.parent.deleteEntry(this.entry.id);
         }
     }
 }

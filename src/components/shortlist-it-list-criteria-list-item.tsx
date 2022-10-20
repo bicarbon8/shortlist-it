@@ -1,12 +1,14 @@
 import React from "react";
-import { Button, FloatingLabel, Form, InputGroup, ListGroupItem } from "react-bootstrap";
+import { Button, FloatingLabel, Form, ListGroupItem } from "react-bootstrap";
 import { Criteria } from "../types/criteria/criteria";
 import { CriteriaType } from "../types/criteria/criteria-type";
 import { BootstrapIcon } from "./bootstrap-icon";
+import { ShortlistIt } from "./shortlist-it";
 import { ShortlistItListCriteriaList } from "./shortlist-it-list-criteria-list";
 import { ShortlistItTooltip } from "./shortlist-it-tooltip";
 
 type ShortlistItListCriteriaListItemProps = {
+    app: ShortlistIt;
     parent: ShortlistItListCriteriaList;
     criteria: Criteria;
 };

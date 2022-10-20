@@ -6,8 +6,10 @@ import { Shortlist } from "../types/shortlist";
 import { BootstrapIcon } from "./bootstrap-icon";
 import { ShortlistItListCriteriaListItem } from "./shortlist-it-list-criteria-list-item";
 import { ShortlistItListHeader } from "./shortlist-it-list-header";
+import { ShortlistIt } from "./shortlist-it";
 
 type ShortlistItListCriteriaListProps = {
+    app: ShortlistIt;
     parent: ShortlistItListHeader;
 };
 
@@ -15,7 +17,7 @@ export class ShortlistItListCriteriaList extends React.Component<ShortlistItList
     render() {
         return (
             <ListGroup className="critiera-list py-2">
-                {this.criteria.map(c => <ShortlistItListCriteriaListItem key={c.id} parent={this} criteria={c} />)}
+                {this.criteria.map(c => <ShortlistItListCriteriaListItem key={c.id} app={this.app} parent={this} criteria={c} />)}
                 <ListGroupItem
                     variant="info"
                     key="add_new_criteria" 
@@ -29,6 +31,10 @@ export class ShortlistItListCriteriaList extends React.Component<ShortlistItList
                 </ListGroupItem>
             </ListGroup>
         );
+    }
+
+    get app(): ShortlistIt {
+        return this.props.app;
     }
 
     get parent(): ShortlistItListHeader {

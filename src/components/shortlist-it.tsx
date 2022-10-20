@@ -9,12 +9,15 @@ import { Storage } from "../utilities/storage";
 import { ShortlistItList } from "./shortlist-it-list";
 import { ShortlistItModal } from "./shortlist-it-modal";
 import { ShortlistItNav } from "./shortlist-it-nav";
+import { rankingCalculator } from "../utilities/ranking-calculator";
 
 type ShortlistItState = {
     lists: Array<Shortlist>,
     showArchived: boolean,
     listToBeDeleted?: string;
     filterText: string;
+    editingListMap: Map<string, boolean>
+    editingListEntryMap: Map<string, boolean>
 };
 
 export class ShortlistIt extends React.Component<{}, ShortlistItState> {
@@ -134,7 +137,9 @@ export class ShortlistIt extends React.Component<{}, ShortlistItState> {
                 },
                 {id: v4(), title: 'The Third List Example - this is fun!', criteria: new Array<Criteria>(), entries: new Array<Entry>()}
             )),
-            filterText: this.store.get('filterText', '')
+            filterText: this.store.get('filterText', ''),
+            editingListMap: new Map<string, boolean>(),
+            editingListEntryMap: new Map<string, boolean>()
         };
     }
 
@@ -165,7 +170,7 @@ export class ShortlistIt extends React.Component<{}, ShortlistItState> {
                 {this.getListDeleteConfirmationModal()}
                 <ShortlistItNav parent={this} />
                 <div className="d-flex justify-content-evenly align-items-start flex-wrap flex-sm-row flex-column">
-                    {lists.map((list) => <ShortlistItList key={list.id} parent={this} list={list} />)}
+                    {lists.map((list) => <ShortlistItList key={list.id} app={this} listId={list.id} />)}
                 </div>
             </>
         );
@@ -179,6 +184,52 @@ export class ShortlistIt extends React.Component<{}, ShortlistItState> {
         return this.state.filterText;
     }
 
+    startEditingList(listId: string): void {
+        this.setEditingListState(listId, true);
+    }
+
+    isEditingList(listId: string): boolean {
+        return this.state.editingListMap.get(listId) || false;
+    }
+
+    saveListEdits(listId: string): void {
+        // get changes
+        const listContainer = document.getElementById(`${listId}`);
+        if (listContainer) {
+            const title = (listContainer.querySelector('.list-header-title-input') as HTMLInputElement)?.value;
+            const criteriaList: Array<Criteria> = Array.from(listContainer.querySelectorAll('.criteria-list-item').values())
+                .map(criteriaEl => {
+                    const criteriaId: string = criteriaEl.id;
+                    const criteriaName: string = (criteriaEl.querySelector('#criteriaName') as HTMLInputElement).value;
+                    const criteriaType: CriteriaType = (criteriaEl.querySelector('#criteriaType option:checked') as HTMLOptionElement)?.value as CriteriaType || 'worst-to-best';
+                    const criteriaValues: Array<string> = (criteriaEl.querySelector('#criteriaValues') as HTMLInputElement).value
+                        .split(',')
+                        .map(v => v.trim());
+                    const criteriaMultiselect: boolean = (criteriaEl.querySelector("input[type='checkbox']") as HTMLInputElement)?.checked || false;
+                    return { id: criteriaId, name: criteriaName, type: criteriaType, values: criteriaValues, allowMultiple: criteriaMultiselect } as Criteria;
+                });
+            const updated: Shortlist = {id: listId, title: title, criteria: criteriaList, entries: this.getList(listId)?.entries || []};
+            this.updateList(updated);
+            this.setEditingListState(listId, false);
+        }
+    }
+
+    cancelListEdits(listId: string): void {
+        this.setEditingListState(listId, false);
+    }
+
+    private setEditingListState(listId: string, editing: boolean): void {
+        const editingMap = this.state.editingListMap;
+        editingMap.set(listId, editing);
+        this.setState({editingListMap: editingMap});
+    }
+
+    private setEditingListEntryState(listId: string, entryId: string, editing: boolean): void {
+        const editingMap = this.state.editingListEntryMap;
+        editingMap.set(`${listId}_${entryId}`, editing);
+        this.setState({editingListEntryMap: editingMap});
+    }
+
     setShowArchived(show: boolean) {
         this.store.set('showArchived', show);
         this.setState({showArchived: show});
@@ -186,6 +237,36 @@ export class ShortlistIt extends React.Component<{}, ShortlistItState> {
 
     deleteList(listId: string) {
         this.setState({listToBeDeleted: listId});
+    }
+
+    startEditingEntry(listId: string, entryId: string): void {
+        this.setEditingListEntryState(listId, entryId, true);
+    }
+
+    isEditingEntry(listId: string, entryId: string): boolean {
+        return this.state.editingListEntryMap.get(`${listId}_${entryId}`) || false;
+    }
+
+    saveListEntryEdits(listId: string, entryId: string): void {
+        // TODO: get updated values and validate Entry and then updateList
+        this.setEditingListEntryState(listId, entryId, false);
+    }
+
+    cancelListEntryEdits(listId: string, entryId: string): void {
+        this.setEditingListEntryState(listId, entryId, false);
+    }
+
+    deleteEntry(listId: string, entryId: string): void {
+        const list = this.getList(listId);
+        const entry = this.getEntry(listId, entryId);
+        const confirmed: boolean = window.confirm(`Are you sure you want to delete entry described by: '${entry.description}' from list '${list.title}'? This action cannot be undone.`);
+        const index = list.entries.findIndex(e => e.id === entryId);
+        if (index >= 0) {
+            let updated = list;
+            updated.entries.splice(index, 1);
+            updated = rankingCalculator.rankEntries(updated);
+            this.updateList(updated);
+        }
     }
 
     private hideDeleteConfirmation() {
@@ -244,7 +325,7 @@ export class ShortlistIt extends React.Component<{}, ShortlistItState> {
         return list.id;
     }
 
-    getList(id: string): Shortlist | undefined {
+    getList(id: string): Shortlist {
         return this.state.lists.find(l => l.id === id);
     }
 
@@ -265,6 +346,23 @@ export class ShortlistIt extends React.Component<{}, ShortlistItState> {
 
     unarchiveList(listId: string): void {
         this.setArchivedState(listId, false);
+    }
+
+    getEntry(listId: string, entryId: string): Entry {
+        return this.getList(listId).entries.find(e => e.id === entryId);
+    }
+
+    addNewEntry(listId: string): void {
+        let updated = this.getList(listId);
+        if (updated) {
+            const entry: Entry = {
+                id: v4(),
+                values: new Map<string, Array<string>>()
+            }
+            updated.entries.push(entry);
+            updated = rankingCalculator.rankEntries(updated);
+            this.updateList(updated);
+        }
     }
 
     private confirmDeletion(listId: string): void {

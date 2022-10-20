@@ -2,13 +2,14 @@ import React from "react";
 import { Button, FloatingLabel, Form } from "react-bootstrap";
 import { Shortlist } from "../types/shortlist";
 import { BootstrapIcon } from "./bootstrap-icon";
-import { ShortlistItList } from "./shortlist-it-list";
+import { ShortlistIt } from "./shortlist-it";
 import { ShortlistItListCriteriaList } from "./shortlist-it-list-criteria-list";
 import { ShortlistItMenu, ShortlistItMenuItem } from "./shortlist-it-menu";
 import { ShortlistItTooltip } from "./shortlist-it-tooltip";
 
 type ShortlistItListHeaderProps = {
-    parent: ShortlistItList;
+    app: ShortlistIt;
+    listId: string;
 }
 
 export class ShortlistItListHeader extends React.Component<ShortlistItListHeaderProps> {
@@ -21,20 +22,16 @@ export class ShortlistItListHeader extends React.Component<ShortlistItListHeader
         );
     }
 
-    get parent(): ShortlistItList {
-        return this.props.parent;
+    get app(): ShortlistIt {
+        return this.props.app;
     }
 
     get list(): Shortlist {
-        return this.parent.list;
-    }
-
-    get editing(): boolean {
-        return this.parent.editing;
+        return this.app.getList(this.props.listId);
     }
 
     getTitleContent() {
-        if (this.editing) {
+        if (this.app.isEditingList(this.list.id)) {
             return (
                 <>
                     <FloatingLabel controlId={`title-input-${this.list.id}`} label="List Title">
@@ -44,7 +41,7 @@ export class ShortlistItListHeader extends React.Component<ShortlistItListHeader
                             defaultValue={this.list.title}
                             className="list-header-title-input" />
                     </FloatingLabel>
-                    <ShortlistItListCriteriaList parent={this} />
+                    <ShortlistItListCriteriaList app={this.app} parent={this} />
                 </>
             );
         } else {
@@ -53,16 +50,16 @@ export class ShortlistItListHeader extends React.Component<ShortlistItListHeader
     }
 
     getMenuButtonContent() {
-        if (this.editing) {
+        if (this.app.isEditingList(this.list.id)) {
             return (
                 <div className="d-flex flex-column justify-content-evenly align-content-start">
                     <ShortlistItTooltip id={`save-list-edits-${this.list.id}`} text="Save Changes" className="mb-2">
-                        <Button variant="success" onClick={() => this.saveEdits()}>
+                        <Button variant="success" onClick={() => this.app.saveListEdits(this.props.listId)}>
                             <BootstrapIcon icon="check" />
                         </Button>
                     </ShortlistItTooltip>
                     <ShortlistItTooltip id={`cancel-list-edits-${this.list.id}`} text="Cancel Edits" className="mt-2">
-                        <Button variant="warning" onClick={() => this.cancelEdits()}>
+                        <Button variant="warning" onClick={() => this.app.cancelListEdits(this.props.listId)}>
                             <BootstrapIcon icon="x-circle" />
                         </Button>
                     </ShortlistItTooltip>
@@ -83,26 +80,14 @@ export class ShortlistItListHeader extends React.Component<ShortlistItListHeader
     getMenuItems(): Array<ShortlistItMenuItem> {
         const items = new Array<ShortlistItMenuItem>();
         if (this.list.archived) {
-            items.push({text: 'restore', icon: 'arrow-counterclockwise', action: () => this.parent.unarchive()});
+            items.push({text: 'restore', icon: 'arrow-counterclockwise', action: () => this.app.unarchiveList(this.props.listId)});
         } else {
-            items.push({text: 'edit list', icon: 'pencil-square', action: () => this.parent.startEditing()});
-            items.push({text: 'archive', icon: 'archive', action: () => this.parent.archive()});
+            items.push({text: 'edit list', icon: 'pencil-square', action: () => this.app.startEditingList(this.props.listId)});
+            items.push({text: 'archive', icon: 'archive', action: () => this.app.archiveList(this.props.listId)});
         }
         items.push(
-            {text: 'delete', icon: 'trash', action: () => this.showDeleteConfirmation()}
+            {text: 'delete', icon: 'trash', action: () => this.app.deleteList(this.props.listId)}
         );
         return items;
-    }
-
-    saveEdits(): void {
-        this.parent.saveEdits();
-    }
-
-    cancelEdits(): void {
-        this.parent.cancelEdits();
-    }
-
-    showDeleteConfirmation(): void {
-        this.parent.parent.deleteList(this.list.id);
     }
 }
