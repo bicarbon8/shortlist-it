@@ -55,13 +55,13 @@ export class ShortlistItListHeader extends React.Component<ShortlistItListHeader
     getMenuButtonContent() {
         if (this.editing) {
             return (
-                <div className="d-flex flex-column justify-content-evenly align-content-between h-100">
-                    <ShortlistItTooltip id={`save-list-edits-${this.list.id}`} text="Save Changes">
+                <div className="d-flex flex-column justify-content-evenly align-content-start">
+                    <ShortlistItTooltip id={`save-list-edits-${this.list.id}`} text="Save Changes" className="mb-2">
                         <Button variant="success" onClick={() => this.saveEdits()}>
                             <BootstrapIcon icon="check" />
                         </Button>
                     </ShortlistItTooltip>
-                    <ShortlistItTooltip id={`cancel-list-edits-${this.list.id}`} text="Cancel Edits">
+                    <ShortlistItTooltip id={`cancel-list-edits-${this.list.id}`} text="Cancel Edits" className="mt-2">
                         <Button variant="warning" onClick={() => this.cancelEdits()}>
                             <BootstrapIcon icon="x-circle" />
                         </Button>

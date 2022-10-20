@@ -79,18 +79,18 @@ export class ShortlistItListEntry extends React.Component<ShortlistItListEntryPr
         } else {
             if (this.editing) {
                 return (
-                    <div className="d-flex flex-column justify-content-evenly align-content-between h-100">
-                        <ShortlistItTooltip id={`save-changes-${this.entry.id}`} text="Save Changes">
+                    <div className="d-flex flex-column justify-content-evenly align-content-start">
+                        <ShortlistItTooltip id={`save-changes-${this.entry.id}`} text="Save Changes" className="mb-2">
                             <Button variant="success" onClick={() => this.saveChanges()}>
                                 <BootstrapIcon icon="check" />
                             </Button>
                         </ShortlistItTooltip>
-                        <ShortlistItTooltip id={`cancel-edits-${this.entry.id}`} text="Cancel Edits">
+                        <ShortlistItTooltip id={`cancel-edits-${this.entry.id}`} text="Cancel Edits" className="my-2">
                             <Button variant="warning" onClick={() => this.cancelEditing()}>
                                 <BootstrapIcon icon="x-circle" />
                             </Button>
                         </ShortlistItTooltip>
-                        <ShortlistItTooltip id={`delete-entry-${this.entry.id}`} text="Delete Entry">
+                        <ShortlistItTooltip id={`delete-entry-${this.entry.id}`} text="Delete Entry" className="mt-2">
                             <Button variant="danger" onClick={() => this.deleteEntry()}>
                                 <BootstrapIcon icon="trash" />
                             </Button>
@@ -134,7 +134,7 @@ export class ShortlistItListEntry extends React.Component<ShortlistItListEntryPr
     }
 
     deleteEntry(): void {
-        const confirmed: boolean = window.confirm(`Are you sure you want to delete entry described by: ${this.entry.description}? This action cannot be undone.`);
+        const confirmed: boolean = window.confirm(`Are you sure you want to delete entry described by: '${this.entry.description}' from list '${this.list.title}'? This action cannot be undone.`);
         if (confirmed) {
             this.parent.parent.deleteEntry(this.entry.id);
         }

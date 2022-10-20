@@ -1,7 +1,13 @@
 import React from "react";
 import { OverlayTrigger, Tooltip, TooltipProps } from "react-bootstrap";
 
-export class ShortlistItTooltip extends React.Component<{id: string, text: string, children: React.ReactElement}> {
+type ShortlistItTooltipProps =  React.HTMLAttributes<HTMLSpanElement> & {
+    id: string, 
+    text: string, 
+    children: React.ReactElement
+};
+
+export class ShortlistItTooltip extends React.Component<ShortlistItTooltipProps> {
     tooltip = (props: JSX.IntrinsicAttributes & TooltipProps & React.RefAttributes<HTMLDivElement>) => (
         <Tooltip id={this.props.id} {...props}>
           {this.props.text}
@@ -14,7 +20,7 @@ export class ShortlistItTooltip extends React.Component<{id: string, text: strin
                 placement="auto"
                 delay={{ show: 250, hide: 400 }}
                 overlay={this.tooltip}>
-                <span>{this.props.children}</span>
+                <span {...this.props}>{this.props.children}</span>
             </OverlayTrigger>
         )
     }

@@ -130,7 +130,7 @@ export class ShortlistItListCriteriaListItem extends React.Component<ShortlistIt
     }
 
     deleteCriteria(id: string): void {
-        const confirmed: boolean = window.confirm(`are you sure you want to delete criteria: ${this.criteria.name} from list ${this.parent.list.title}? this action cannot be undone and will remove all values associated with the criteria from any entries in the list`)
+        const confirmed: boolean = window.confirm(`are you sure you want to delete criteria: '${this.criteria.name}' from list '${this.parent.list.title}'? this action cannot be undone and will remove all values associated with the criteria from any entries in the list`)
         if (confirmed) {
             const index = this.parent.criteria.findIndex(c => c.id === id);
             if (index >= 0) {
