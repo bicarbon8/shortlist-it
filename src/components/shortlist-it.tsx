@@ -168,9 +168,9 @@ export class ShortlistIt extends React.Component<{}, ShortlistItState> {
         return (
             <>
                 {this.getListDeleteConfirmationModal()}
-                <ShortlistItNav parent={this} />
+                <ShortlistItNav app={this} />
                 <div className="d-flex justify-content-evenly align-items-start flex-wrap flex-sm-row flex-column">
-                    {lists.map((list) => <ShortlistItList key={list.id} app={this} listId={list.id} />)}
+                    {lists.map((list) => <ShortlistItList key={list.id} app={this} list={list} />)}
                 </div>
             </>
         );
@@ -192,24 +192,11 @@ export class ShortlistIt extends React.Component<{}, ShortlistItState> {
         return this.state.editingListMap.get(listId) || false;
     }
 
-    saveListEdits(listId: string): void {
-        // get changes
-        const listContainer = document.getElementById(`${listId}`);
-        if (listContainer) {
-            const title = (listContainer.querySelector('.list-header-title-input') as HTMLInputElement)?.value;
-            const criteriaList: Array<Criteria> = Array.from(listContainer.querySelectorAll('.criteria-list-item').values())
-                .map(criteriaEl => {
-                    const criteriaId: string = criteriaEl.id;
-                    const criteriaName: string = (criteriaEl.querySelector('#criteriaName') as HTMLInputElement).value;
-                    const criteriaType: CriteriaType = (criteriaEl.querySelector('#criteriaType option:checked') as HTMLOptionElement)?.value as CriteriaType || 'worst-to-best';
-                    const criteriaValues: Array<string> = (criteriaEl.querySelector('#criteriaValues') as HTMLInputElement).value
-                        .split(',')
-                        .map(v => v.trim());
-                    const criteriaMultiselect: boolean = (criteriaEl.querySelector("input[type='checkbox']") as HTMLInputElement)?.checked || false;
-                    return { id: criteriaId, name: criteriaName, type: criteriaType, values: criteriaValues, allowMultiple: criteriaMultiselect } as Criteria;
-                });
-            const updated: Shortlist = {id: listId, title: title, criteria: criteriaList, entries: this.getList(listId)?.entries || []};
-            this.updateList(updated);
+    saveListEdits(listId: string, updated: Pick<Shortlist, 'title' | 'criteria'>): void {
+        let valid: boolean = true;
+        // TODO validate values
+        if (valid) {
+            this.updateList(listId, updated);
             this.setEditingListState(listId, false);
         }
     }
@@ -230,13 +217,36 @@ export class ShortlistIt extends React.Component<{}, ShortlistItState> {
         this.setState({editingListEntryMap: editingMap});
     }
 
-    setShowArchived(show: boolean) {
+    setShowArchived(show: boolean): void {
         this.store.set('showArchived', show);
         this.setState({showArchived: show});
     }
 
-    deleteList(listId: string) {
+    deleteList(listId: string): void {
         this.setState({listToBeDeleted: listId});
+    }
+
+    addNewCriteria(listId: string): void {
+        const list = this.getList(listId);
+        if (list) {
+            list.criteria.push({id: v4(), values: new Array<string>()});
+            this.updateList(listId, list);
+        }
+    }
+
+    deleteCriteria(listId: string, criteriaId: string): void {
+        const list = this.getList(listId);
+        if (list) {
+            const index = list.criteria.findIndex(c => c.id === criteriaId);
+            if (index >= 0) {
+                const criteria = list.criteria[index];
+                const confirmed: boolean = window.confirm(`are you sure you want to delete criteria: '${criteria.name}' from list '${list.title}'? this action cannot be undone and will remove all values associated with the criteria from any entries in the list`)
+                if (confirmed) {
+                    list.criteria.splice(index, 1);
+                    this.updateList(listId, list);
+                }
+            }
+        }
     }
 
     startEditingEntry(listId: string, entryId: string): void {
@@ -247,9 +257,16 @@ export class ShortlistIt extends React.Component<{}, ShortlistItState> {
         return this.state.editingListEntryMap.get(`${listId}_${entryId}`) || false;
     }
 
-    saveListEntryEdits(listId: string, entryId: string): void {
-        // TODO: get updated values and validate Entry and then updateList
-        this.setEditingListEntryState(listId, entryId, false);
+    saveListEntryEdits(listId: string, entry: Entry): void {
+        const list = this.getList(listId);
+        if (list) {
+            const index = list.entries.findIndex(e => e.id === entry.id);
+            if (index >= 0) {
+                list.entries.splice(index, 1, entry);
+                this.updateList(listId, list);
+                this.setEditingListEntryState(listId, entry.id, false);
+            }
+        }
     }
 
     cancelListEntryEdits(listId: string, entryId: string): void {
@@ -260,12 +277,13 @@ export class ShortlistIt extends React.Component<{}, ShortlistItState> {
         const list = this.getList(listId);
         const entry = this.getEntry(listId, entryId);
         const confirmed: boolean = window.confirm(`Are you sure you want to delete entry described by: '${entry.description}' from list '${list.title}'? This action cannot be undone.`);
-        const index = list.entries.findIndex(e => e.id === entryId);
-        if (index >= 0) {
-            let updated = list;
-            updated.entries.splice(index, 1);
-            updated = rankingCalculator.rankEntries(updated);
-            this.updateList(updated);
+        if (confirmed) {
+            const index = list.entries.findIndex(e => e.id === entryId);
+            if (index >= 0) {
+                let updated = list;
+                updated.entries.splice(index, 1);
+                this.updateList(listId, updated);
+            }
         }
     }
 
@@ -329,11 +347,13 @@ export class ShortlistIt extends React.Component<{}, ShortlistItState> {
         return this.state.lists.find(l => l.id === id);
     }
 
-    updateList(updated: Shortlist): void {
+    updateList(listId:string, updated: Partial<Shortlist>): void {
         const allLists = this.state.lists;
-        const index = allLists.findIndex(l => l.id === updated.id);
+        const index = allLists.findIndex(l => l.id === listId);
         if (index >= 0) {
-            allLists.splice(index, 1, updated);
+            const orig = allLists[index];
+            const merged = rankingCalculator.rankEntries({...orig, ...updated});
+            allLists.splice(index, 1, merged);
             this.store.set('lists', allLists);
             this.setState({lists: allLists});
         }
@@ -360,8 +380,7 @@ export class ShortlistIt extends React.Component<{}, ShortlistItState> {
                 values: new Map<string, Array<string>>()
             }
             updated.entries.push(entry);
-            updated = rankingCalculator.rankEntries(updated);
-            this.updateList(updated);
+            this.updateList(listId, updated);
             this.startEditingEntry(listId, entry.id);
         }
     }

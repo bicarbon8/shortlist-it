@@ -8,14 +8,14 @@ import { ShortlistItListEntry } from "./shortlist-it-list-entry";
 
 type ShortlistItListBodyProps = {
     app: ShortlistIt;
-    listId: string;
+    list: Shortlist;
 }
 
 export class ShortlistItListBody extends React.Component<ShortlistItListBodyProps> {
     render() {
         return (
             <ListGroup>
-                {this.list.entries.map((entry: Entry) => <ShortlistItListEntry key={entry.id} app={this.app} listId={this.props.listId} entryId={entry.id} />)}
+                {this.props.list.entries.map((entry: Entry) => <ShortlistItListEntry key={entry.id} app={this.app} listId={this.props.list.id} entryId={entry.id} />)}
                 {this.getAddEntryButton()}
             </ListGroup>
         );
@@ -25,19 +25,15 @@ export class ShortlistItListBody extends React.Component<ShortlistItListBodyProp
         return this.props.app;
     }
 
-    get list(): Shortlist {
-        return this.app.getList(this.props.listId);
-    }
-
     getAddEntryButton() {
-        if (this.list.archived) {
+        if (this.props.list.archived) {
             return <></>;
         } else {
             return (
                 <ListGroupItem 
                     variant="dark"
                     key="add_new_entry" 
-                    onClick={() => this.app.addNewEntry(this.list.id)}
+                    onClick={() => this.app.addNewEntry(this.props.list.id)}
                     className="d-flex justify-content-center clickable">
                     <BootstrapIcon icon="plus-lg" /> 
                     Add New Entry

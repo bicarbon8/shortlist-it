@@ -1,16 +1,18 @@
 import React from "react";
 import { Button, FloatingLabel, Form, ListGroupItem } from "react-bootstrap";
 import { Criteria } from "../types/criteria/criteria";
+import { CriteriaRefContainer } from "../types/criteria/criteria-ref-container";
 import { CriteriaType } from "../types/criteria/criteria-type";
+import { Shortlist } from "../types/shortlist";
 import { BootstrapIcon } from "./bootstrap-icon";
 import { ShortlistIt } from "./shortlist-it";
-import { ShortlistItListCriteriaList } from "./shortlist-it-list-criteria-list";
 import { ShortlistItTooltip } from "./shortlist-it-tooltip";
 
 type ShortlistItListCriteriaListItemProps = {
-    app: ShortlistIt;
-    parent: ShortlistItListCriteriaList;
+    app: ShortlistIt
+    list: Shortlist;
     criteria: Criteria;
+    criteriaRef: CriteriaRefContainer;
 };
 
 type ShortlistItListCriteriaListItemState = {
@@ -37,13 +39,18 @@ export class ShortlistItListCriteriaListItem extends React.Component<ShortlistIt
                 <div className="d-flex flex-column justify-content-evently flex-grow-1 pe-1">
                     <FloatingLabel controlId="criteriaName" label="Criteria Name">
                         <Form.Control 
+                            ref={this.props.criteriaRef.name}
                             type="text" 
                             defaultValue={this.criteria.name} 
                             className={(this.nameError) ? 'is-invalid' : ''} 
                             onChange={() => this.validateName()} />
                     </FloatingLabel>
                     <FloatingLabel controlId="criteriaType" label="Criteria Type">
-                        <Form.Select aria-label="Criteria Type Select" defaultValue={this.criteria.type} onChange={() => this.validateType()}>
+                        <Form.Select 
+                            ref={this.props.criteriaRef.type}
+                            aria-label="Criteria Type Select" 
+                            defaultValue={this.criteria.type} 
+                            onChange={() => this.validateType()}>
                             <option value="worst-to-best">worst-to-best</option>
                             <option value="yes-no">yes-no</option>
                             <option value="positives">positives</option>
@@ -52,6 +59,7 @@ export class ShortlistItListCriteriaListItem extends React.Component<ShortlistIt
                     </FloatingLabel>
                     <FloatingLabel controlId="criteriaValues" label="Criteria Values">
                         <Form.Control 
+                            ref={this.props.criteriaRef.values}
                             type="text" 
                             placeholder="comma separated values" 
                             defaultValue={(this.valuesAllowed) ? this.criteria.values.join(',') : 'yes,no'} 
@@ -60,6 +68,7 @@ export class ShortlistItListCriteriaListItem extends React.Component<ShortlistIt
                             onChange={() => this.validateValues()} />
                     </FloatingLabel>
                     <Form.Check 
+                        ref={this.props.criteriaRef.multi}
                         type="switch" 
                         label="Allow Multiselect?" 
                         defaultChecked={(this.multiselectAllowed) ? this.criteria.allowMultiple : false}
@@ -67,7 +76,7 @@ export class ShortlistItListCriteriaListItem extends React.Component<ShortlistIt
                 </div>
                 <div className="d-flex flex-column justify-content-between ps-1">
                     <ShortlistItTooltip id={`delete-criteria-${this.criteria.id}`} text="Delete Criteria">
-                        <Button variant="danger" onClick={() => this.deleteCriteria(this.criteria.id)}>
+                        <Button variant="danger" onClick={() => this.props.app.deleteCriteria(this.props.list.id, this.criteria.id)}>
                             <BootstrapIcon icon="trash" />
                         </Button>
                     </ShortlistItTooltip>
@@ -76,16 +85,12 @@ export class ShortlistItListCriteriaListItem extends React.Component<ShortlistIt
         );
     }
 
-    get parent(): ShortlistItListCriteriaList {
-        return this.props.parent;
-    }
-
     get criteria(): Criteria {
         return this.props.criteria;
     }
 
     get allCriteriaItems(): Array<Criteria> {
-        return this.parent.list.criteria;
+        return this.props.list.criteria;
     }
 
     get multiselectAllowed(): boolean {
@@ -129,16 +134,5 @@ export class ShortlistItListCriteriaListItem extends React.Component<ShortlistIt
             .map(i => i.name)
             .includes(criteriaName));
         this.setState({valuesError: invalid});
-    }
-
-    deleteCriteria(id: string): void {
-        const confirmed: boolean = window.confirm(`are you sure you want to delete criteria: '${this.criteria.name}' from list '${this.parent.list.title}'? this action cannot be undone and will remove all values associated with the criteria from any entries in the list`)
-        if (confirmed) {
-            const index = this.parent.criteria.findIndex(c => c.id === id);
-            if (index >= 0) {
-                this.parent.criteria.splice(index, 1);
-                this.parent.forceUpdate();
-            }
-        }
     }
 }

@@ -7,27 +7,19 @@ import { Shortlist } from "../types/shortlist";
 
 type ShortlistItListProps = {
     app: ShortlistIt;
-    listId: string;
+    list: Shortlist;
 }
 
 export class ShortlistItList extends React.Component<ShortlistItListProps> {
     render() {
-        const bgColor = (this.list.archived) ? 'bg-secondary' : '';
+        const bgColor = (this.props.list.archived) ? 'bg-secondary' : '';
         return (
-            <Card id={this.props.listId} className={`m-1 min-width-300 max-width-700 ${bgColor}`}>
+            <Card id={this.props.list.id} className={`m-1 min-width-300 max-width-700 ${bgColor}`}>
                 <Card.Body className="d-flex flex-column justify-content-center align-content-center">
-                    <ShortlistItListHeader app={this.app} listId={this.props.listId} />
-                    <ShortlistItListBody app={this.app} listId={this.props.listId} />
+                    <ShortlistItListHeader app={this.props.app} list={this.props.list} />
+                    <ShortlistItListBody app={this.props.app} list={this.props.list} />
                 </Card.Body>
             </Card>
         );
-    }
-
-    get app(): ShortlistIt {
-        return this.props.app
-    }
-
-    get list(): Shortlist {
-        return this.app.getList(this.props.listId);
     }
 }
