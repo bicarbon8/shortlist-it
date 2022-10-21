@@ -15,7 +15,7 @@ export class ShortlistItListBody extends React.Component<ShortlistItListBodyProp
     render() {
         return (
             <ListGroup>
-                {this.props.list.entries.map((entry: Entry) => <ShortlistItListEntry key={entry.id} app={this.app} listId={this.props.list.id} entryId={entry.id} />)}
+                {this.props.list.entries.map((entry: Entry) => <ShortlistItListEntry key={entry.id} app={this.app} list={this.props.list} entry={entry} />)}
                 {this.getAddEntryButton()}
             </ListGroup>
         );

@@ -1,11 +1,13 @@
 import React from "react";
-import { Button, Col, FloatingLabel, Form, ListGroupItem } from "react-bootstrap";
+import { Col, FloatingLabel, Form, ListGroupItem } from "react-bootstrap";
+import { EntryValuesRefContainer } from "../types/entries/entry-values-ref-container";
 import { ShortlistItListEntryValuesList } from "./shortlist-it-list-entry-values-list";
 
 type ShortlistItListEntryValuesListItemProps = {
     parent: ShortlistItListEntryValuesList;
     criteriaName: string;
     multiselect: boolean;
+    valuesRef: EntryValuesRefContainer;
 };
 
 type ShortlistItListEntryValuesListItemState = {
@@ -51,7 +53,7 @@ export class ShortlistItListEntryValuesListItem extends React.Component<Shortlis
             return (
                 <Form.Group as={Col} controlId="entryValues">
                     <Form.Label column="sm">{this.criteriaName}</Form.Label>
-                    <Form.Control as="select" multiple defaultValue={this.selectedValues}>
+                    <Form.Control ref={this.props.valuesRef.values} as="select" multiple defaultValue={this.selectedValues}>
                         {this.allPossibleValues.map(val => this.getValueNode(val))}
                     </Form.Control>
                 </Form.Group>
@@ -59,7 +61,7 @@ export class ShortlistItListEntryValuesListItem extends React.Component<Shortlis
         } else {
             return (
                 <FloatingLabel className="w-100" controlId={`values-select-${this.criteriaName}`} label={this.criteriaName}>
-                    <Form.Select aria-label="Values Select" defaultValue={this.selectedValues[0]}>
+                    <Form.Select ref={this.props.valuesRef.values} aria-label="Values Select" defaultValue={this.selectedValues[0]}>
                         {this.allPossibleValues.map(val => this.getValueNode(val))}
                     </Form.Select>
                 </FloatingLabel>
@@ -69,6 +71,6 @@ export class ShortlistItListEntryValuesListItem extends React.Component<Shortlis
 
     getValueNode(val: string) {
         const selected: boolean = !!(this.selectedValues.includes(val));
-        return <option key={val} value={val} defaultChecked={selected}>{val}</option>; // <Button key={val} className="my-1" variant={variant}>{val}</Button>
+        return <option key={val} value={val} defaultChecked={selected}>{val}</option>;
     }
 }
