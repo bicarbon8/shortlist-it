@@ -4,11 +4,12 @@ import { Shortlist } from "../types/shortlist";
 
 class RankingCalculator {
     rankEntries(list: Shortlist): Shortlist {
-        const origEntries = list.entries;
+        const pruned = this.pruneValuesWithNoMatchingCriteria(list);
+        const origEntries = pruned.entries;
         const valuesMap = new Map<number, Array<Entry>>();
         for (var i=0; i<origEntries.length; i++) {
             const entry = origEntries[i];
-            const entryTotal = this.calculateEntryTotal(entry, list);
+            const entryTotal = this.calculateEntryTotal(entry, pruned);
             if (!valuesMap.has(entryTotal)) {
                 valuesMap.set(entryTotal, new Array<Entry>(entry));
             } else {
@@ -19,6 +20,7 @@ class RankingCalculator {
                 }
             }
         }
+
         const rankedEntries = new Array<Entry>();
         let rank = 1;
         // get points values starting with highest
@@ -34,8 +36,23 @@ class RankingCalculator {
             }
             rank++;
         }
-        list.entries = rankedEntries;
-        return list;
+        pruned.entries = rankedEntries;
+        return pruned;
+    }
+
+    private pruneValuesWithNoMatchingCriteria(list: Shortlist): Shortlist {
+        const criteriaNames: Array<string> = list.criteria.map(c => c.name);
+        const updatedEntries = new Array<Entry>();
+        list.entries.forEach(entry => {
+            const updatedValues = new Map<string, Array<string>>();
+            entry.values.forEach((vals: Array<string>, key: string) => {
+                if (criteriaNames.includes(key)) {
+                    updatedValues.set(key, vals);
+                }
+            });
+            updatedEntries.push({...entry, ...{values: updatedValues}});
+        });
+        return {...list, ...{entries: updatedEntries}};
     }
 
     private calculateEntryTotal(entry: Entry, list: Shortlist): number {
