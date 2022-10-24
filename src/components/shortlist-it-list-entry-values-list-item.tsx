@@ -76,7 +76,7 @@ export class ShortlistItListEntryValuesListItem extends React.Component<Shortlis
                         defaultValue={selected}
                         className={invalid}
                         onChange={(e) => this.validateSelection(e.target)}>
-                        <option value="---" disabled={true} hidden={true}>Choose value...</option>
+                        <option value="" disabled={true} hidden={true}>Choose value...</option>
                         {this.allPossibleValues.map(val => this.getValueNode(val))}
                     </Form.Select>
                 </FloatingLabel>

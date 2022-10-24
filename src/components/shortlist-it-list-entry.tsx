@@ -157,13 +157,14 @@ export class ShortlistItListEntry extends React.Component<ShortlistItListEntryPr
     }
 
     private hasMissingData(): boolean {
-        const valKeys: Array<string> = Array.from(this.props.entry.values.keys());
-        for (var i=0; i<valKeys.length; i++) {
-            const key = valKeys[i];
+        const criteriaNames: Array<string> = Array.from(this.props.list.criteria.map(c => c.name))
+            .filter(name => name && name !== '');
+        for (var i=0; i<criteriaNames.length; i++) {
+            const key = criteriaNames[i];
             const vals = this.props.entry.values.get(key);
-            const criteria: Criteria = this.props.list.criteria.find(c => c.name === key);
-            if (criteria) {
-                if (!criteria.allowMultiple && vals.length === 0) {
+            if (!vals || vals.length === 0) {
+                const criteria: Criteria = this.props.list.criteria.find(c => c.name === key);
+                if (!criteria.allowMultiple) {
                     return true;
                 }
             }
