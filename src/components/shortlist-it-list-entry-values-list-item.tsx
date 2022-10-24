@@ -74,7 +74,8 @@ export class ShortlistItListEntryValuesListItem extends React.Component<Shortlis
                         ref={this.props.valuesRef.values} 
                         aria-label="Values Select" 
                         defaultValue={selected}
-                        className={invalid}>
+                        className={invalid}
+                        onChange={(e) => this.validateSelection(e.target)}>
                         <option value="" disabled={true} hidden={true}>Choose value...</option>
                         {this.allPossibleValues.map(val => this.getValueNode(val))}
                     </Form.Select>
@@ -83,8 +84,14 @@ export class ShortlistItListEntryValuesListItem extends React.Component<Shortlis
         }
     }
 
-    getValueNode(val: string) {
+    private getValueNode(val: string) {
         const selected: boolean = !!(this.selectedValues.includes(val));
         return <option key={val} value={val} defaultChecked={selected}>{val}</option>;
+    }
+
+    private validateSelection(target: HTMLSelectElement) {
+        if (target.value !== '') {
+            target.className = [...target.classList].filter(c => c !== 'is-invalid').join(' ');
+        }
     }
 }
