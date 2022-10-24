@@ -39,7 +39,6 @@ export class ShortlistItNav extends React.Component<ShortlistItNavProps> {
                                         id="filter-lists-input"
                                         type="text"
                                         placeholder="enter filter term(s)"
-                                        className="me-2"
                                         aria-label="Filter"
                                         defaultValue={this.props.app.filterText}
                                         onChange={(e) => this.setFilterText(e.target.value)}
