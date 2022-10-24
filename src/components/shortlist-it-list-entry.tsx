@@ -1,5 +1,6 @@
 import React from "react";
 import { Badge, Button, FloatingLabel, Form, ListGroupItem } from "react-bootstrap";
+import { Criteria } from "../types/criteria/criteria";
 import { Entry } from "../types/entries/entry";
 import { EntryValuesRefContainer } from "../types/entries/entry-values-ref-container";
 import { Shortlist } from "../types/shortlist";
@@ -57,7 +58,7 @@ export class ShortlistItListEntry extends React.Component<ShortlistItListEntryPr
         return this.props.app;
     }
 
-    getDescription() {
+    private getDescription() {
         if (this.app.isEditingEntry(this.props.list.id, this.props.entry.id)) {
             return (
                 <FloatingLabel controlId="entryDescription" label="Entry Description">
@@ -70,7 +71,7 @@ export class ShortlistItListEntry extends React.Component<ShortlistItListEntryPr
         }
     }
 
-    getEditButton() {
+    private getEditButton() {
         if (this.props.list.archived) {
             return <></>;
         } else {
@@ -95,16 +96,30 @@ export class ShortlistItListEntry extends React.Component<ShortlistItListEntryPr
                     </div>
                 );
             } else {
+                let icon: string;
+                let tooltip: string;
+                let iconBackground: string;
+                if (this.hasMissingData()) {
+                    icon = 'exclamation-triangle';
+                    tooltip = 'Missing Data - click to set values';
+                    iconBackground = 'bg-warning';
+                } else {
+                    icon = 'pencil-square';
+                    tooltip = 'Edit Entry';
+                    iconBackground = '';
+                }
                 return (
-                    <div onClick={() => this.app.startEditingEntry(this.props.list.id, this.props.entry.id)}>
-                        <BootstrapIcon className="clickable" icon="pencil-square" />
-                    </div>
+                    <ShortlistItTooltip id={`edit-entry-${this.props.entry.id}`} text={tooltip}>
+                        <div className="clickable" onClick={() => this.app.startEditingEntry(this.props.list.id, this.props.entry.id)}>
+                            <BootstrapIcon className={iconBackground} icon={icon} />
+                        </div>
+                    </ShortlistItTooltip>
                 );
             }
         }
     }
 
-    getValuesList() {
+    private getValuesList() {
         if (this.app.isEditingEntry(this.props.list.id, this.props.entry.id)) {
             return (
                 <>
@@ -117,7 +132,7 @@ export class ShortlistItListEntry extends React.Component<ShortlistItListEntryPr
         }
     }
 
-    saveChanges(): void {
+    private saveChanges(): void {
         const values = new Map<string, Array<string>>();
         this.valuesRefs.forEach(r => {
             const criteriaName = r.criteriaName;
@@ -139,5 +154,20 @@ export class ShortlistItListEntry extends React.Component<ShortlistItListEntryPr
             criteriaName: criteriaName,
             values: React.createRef<HTMLSelectElement>()
         };
+    }
+
+    private hasMissingData(): boolean {
+        const valKeys: Array<string> = Array.from(this.props.entry.values.keys());
+        for (var i=0; i<valKeys.length; i++) {
+            const key = valKeys[i];
+            const vals = this.props.entry.values.get(key);
+            const criteria: Criteria = this.props.list.criteria.find(c => c.name === key);
+            if (criteria) {
+                if (!criteria.allowMultiple && vals.length === 0) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

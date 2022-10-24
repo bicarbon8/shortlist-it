@@ -59,9 +59,23 @@ export class ShortlistItListEntryValuesListItem extends React.Component<Shortlis
                 </Form.Group>
             );
         } else {
+            let selected: string;
+            let invalid: string;
+            if (this.selectedValues.length === 0) {
+                selected = '';
+                invalid = 'is-invalid';
+            } else {
+                selected = this.selectedValues[0];
+                invalid = '';
+            }
             return (
                 <FloatingLabel className="w-100" controlId={`values-select-${this.criteriaName}`} label={this.criteriaName}>
-                    <Form.Select ref={this.props.valuesRef.values} aria-label="Values Select" defaultValue={this.selectedValues[0]}>
+                    <Form.Select 
+                        ref={this.props.valuesRef.values} 
+                        aria-label="Values Select" 
+                        defaultValue={selected}
+                        className={invalid}>
+                        <option value="" disabled={true} hidden={true}>Choose value...</option>
                         {this.allPossibleValues.map(val => this.getValueNode(val))}
                     </Form.Select>
                 </FloatingLabel>
