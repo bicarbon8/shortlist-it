@@ -47,7 +47,13 @@ class RankingCalculator {
             const updatedValues = new Map<string, Array<string>>();
             entry.values.forEach((vals: Array<string>, key: string) => {
                 if (criteriaNames.includes(key)) {
-                    updatedValues.set(key, vals);
+                    const updatedVals = new Array<string>();
+                    vals.forEach((val: string) => {
+                        if (list.criteria.find(c => c.name === key).values.includes(val)) {
+                            updatedVals.push(val);
+                        }
+                    });
+                    updatedValues.set(key, updatedVals);
                 }
             });
             updatedEntries.push({...entry, ...{values: updatedValues}});
