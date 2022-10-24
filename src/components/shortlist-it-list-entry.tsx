@@ -121,7 +121,9 @@ export class ShortlistItListEntry extends React.Component<ShortlistItListEntryPr
         const values = new Map<string, Array<string>>();
         this.valuesRefs.forEach(r => {
             const criteriaName = r.criteriaName;
-            const vals: Array<string> = r.values.current.value.split(',');
+            const vals: Array<string> = [...r.values.current.options]
+                .filter(o => o.selected)
+                .map(o => o.value);
             values.set(criteriaName, vals);
         });
         const entry: Entry = {

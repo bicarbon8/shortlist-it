@@ -22,7 +22,8 @@
       "jsx": "react",
       "noFallthroughCasesInSwitch": false,
       "strictNullChecks": false,
-      "rootDir": "./"
+      "rootDir": "./",
+      "downlevelIteration": true
     },
     "include": [
       "./package.json",
