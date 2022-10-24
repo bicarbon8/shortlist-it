@@ -76,7 +76,7 @@ export class ShortlistItListEntry extends React.Component<ShortlistItListEntryPr
         } else {
             if (this.app.isEditingEntry(this.props.list.id, this.props.entry.id)) {
                 return (
-                    <div className="d-flex flex-column justify-content-evenly align-content-start">
+                    <div className="d-flex flex-column justify-content-evenly align-content-start sticky">
                         <ShortlistItTooltip id={`save-changes-${this.props.entry.id}`} text="Save Changes" className="mb-2">
                             <Button variant="success" onClick={() => this.saveChanges()}>
                                 <BootstrapIcon icon="check" />

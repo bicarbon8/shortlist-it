@@ -63,7 +63,7 @@ export class ShortlistItListHeader extends React.Component<ShortlistItListHeader
     private getMenuButtonContent() {
         if (this.props.app.isEditingList(this.props.list.id)) {
             return (
-                <div className="d-flex flex-column justify-content-evenly align-content-start">
+                <div className="d-flex flex-column justify-content-evenly align-content-start sticky">
                     <ShortlistItTooltip id={`save-list-edits-${this.props.list.id}`} text="Save Changes" className="mb-2">
                         <Button variant="success" onClick={() => this.saveChanges()}>
                             <BootstrapIcon icon="check" />
