@@ -17,9 +17,6 @@ module.exports = {
   resolve: {
     extensions: [".tsx", ".ts", ".jsx", ".js", ".json"],
   },
-  experiments: {
-    outputModule: true
-  }, 
   devServer: {
     port: 4800,
     historyApiFallback: true,
@@ -67,8 +64,6 @@ module.exports = {
   plugins: [
     // This makes it possible for us to safely use env vars on our code
     new ModuleFederationPlugin({
-      library: { type: "module" },
-
       name: "shortlistIt",
       filename: "remoteEntry.js",
       remotes: {},
