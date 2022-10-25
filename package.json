@@ -6,6 +6,7 @@
     "build": "npm run clean && webpack -o ./docs/ --mode production",
     "build:dev": "npm run clean && webpack --mode development",
     "build:start": "npm run build:dev && cd dist && PORT=4800 npx serve",
+    "build:prod:start": "npm run build && cd docs && PORT=4800 npx serve",
     "start": "ASSET_PATH=http://localhost:4800/ webpack serve --open --mode development",
     "start:live": "ASSET_PATH=http://localhost:4800/ webpack serve --open --mode development --live-reload --hot"
   },
