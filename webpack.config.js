@@ -7,18 +7,23 @@ const deps = require("./package.json").dependencies;
 module.exports = {
   devtool: "eval-cheap-source-map",
   output: {
+    uniqueName: 'shortlist-it',
     publicPath: 'auto',
+    scriptType: 'text/javascript'
   },
-
+  optimization: {
+    runtimeChunk: false
+  },
   resolve: {
     extensions: [".tsx", ".ts", ".jsx", ".js", ".json"],
   },
-
+  experiments: {
+    outputModule: true
+  }, 
   devServer: {
-    port: 4200,
-    historyApiFallback: true
+    port: 4800,
+    historyApiFallback: true,
   },
-
   module: {
     rules: [
       {
@@ -59,24 +64,14 @@ module.exports = {
       }
     ],
   },
-
   plugins: [
     // This makes it possible for us to safely use env vars on our code
     new ModuleFederationPlugin({
-      name: "shortlist_it",
+      name: "shortlistIt",
       filename: "remoteEntry.js",
       remotes: {},
-      exposes: {},
-      shared: {
-        ...deps,
-        react: {
-          singleton: true,
-          requiredVersion: deps.react,
-        },
-        "react-dom": {
-          singleton: true,
-          requiredVersion: deps["react-dom"],
-        },
+      exposes: {
+        './ShortlistItModule': './src/App.tsx',
       },
     }),
     new HtmlWebPackPlugin({

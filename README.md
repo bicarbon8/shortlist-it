@@ -146,7 +146,8 @@ const tcl: Entry = {
 ![UX Interactions](./design/mocks/Share-It_UX.png)
 
 # Future Ideas
-- multiple list tracking
 - historical tracking and future trends prediction
 - export / import data
-- integration with external applications
+- integration with external applications for storage or values selections
+- templated `Criteria` and `Shortlist` to make the process of creating new lists easier for common use cases as well as to provide re-use of user-created items
+- weighted `Criteria` so that some selections factor into the final ranking more than others
