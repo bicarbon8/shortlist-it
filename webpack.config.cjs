@@ -19,7 +19,7 @@ module.exports = {
     port: 4800,
     historyApiFallback: true,
     headers: {
-      "Access-Control-Allow-Origin": "*"
+      "Access-Control-Allow-Origin": "*",
     }
   },
   module: {
@@ -30,7 +30,6 @@ module.exports = {
         resolve: {
           fullySpecified: false,
         },
-        mimetype: 'application/javascript'
       },
       { 
         test: /\.(jpe?g|gif|png|svg|woff|ttf|wav|mp3|ico)$/, 
@@ -60,7 +59,6 @@ module.exports = {
       {
         test: /\.(json)$/,
         loader: "json-loader",
-        mimetype: 'application/json'
       }
     ],
   },
