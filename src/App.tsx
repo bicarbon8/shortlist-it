@@ -8,13 +8,12 @@ import { ShortlistIt } from "./components/shortlist-it";
 import "./favicon.ico";
 import {
     createBrowserRouter,
-    RouterProvider,
-    Navigate
+    RouterProvider
 } from "react-router-dom";
 
 const router = createBrowserRouter([
     { path: '/', element: <ShortlistIt /> },
-    { path: '*', element: <Navigate to="/" /> }
+    { path: '*', element: <ShortlistIt /> }
 ]);
 
 ReactDOM.render(
