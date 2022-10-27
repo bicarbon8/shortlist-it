@@ -1,23 +1,23 @@
 const webpack = require('webpack');
 const HtmlWebPackPlugin = require("html-webpack-plugin");
-const ModuleFederationPlugin = require("webpack/lib/container/ModuleFederationPlugin");
-
-const deps = require("./package.json").dependencies;
+const ModuleFederationPlugin = webpack.container.ModuleFederationPlugin;
+const path = require('path');
 
 module.exports = {
+  entry: './src/index',
   devtool: "eval-cheap-source-map",
   mode: 'development',
   output: {
-    uniqueName: 'shortlist-it',
-    publicPath: 'auto',
-    scriptType: 'text/javascript'
+    publicPath: 'auto'
   },
   resolve: {
     extensions: [".tsx", ".ts", ".jsx", ".js", ".json"],
   },
   devServer: {
+    static: {
+      directory: path.join(__dirname, 'dist'),
+    },
     port: 4800,
-    historyApiFallback: true,
     headers: {
       "Access-Control-Allow-Origin": "*",
     }
@@ -62,13 +62,16 @@ module.exports = {
       }
     ],
   },
+  optimization: {
+    runtimeChunk: false,
+  },
   experiments: {
     outputModule: true
   },
   plugins: [
     new ModuleFederationPlugin({
-      library: { type: "module" },
       name: "shortlistIt",
+      library: { type: 'module' },
       filename: "remoteEntry.js",
       exposes: {
         './ShortlistItModule': './src/App.tsx',
