@@ -6,13 +6,11 @@ const deps = require("./package.json").dependencies;
 
 module.exports = {
   devtool: "eval-cheap-source-map",
+  mode: 'development',
   output: {
     uniqueName: 'shortlist-it',
     publicPath: 'auto',
     scriptType: 'text/javascript'
-  },
-  optimization: {
-    runtimeChunk: false
   },
   resolve: {
     extensions: [".tsx", ".ts", ".jsx", ".js", ".json"],
@@ -20,6 +18,9 @@ module.exports = {
   devServer: {
     port: 4800,
     historyApiFallback: true,
+    headers: {
+      "Access-Control-Allow-Origin": "*"
+    }
   },
   module: {
     rules: [
@@ -29,6 +30,7 @@ module.exports = {
         resolve: {
           fullySpecified: false,
         },
+        mimetype: 'application/javascript'
       },
       { 
         test: /\.(jpe?g|gif|png|svg|woff|ttf|wav|mp3|ico)$/, 
@@ -57,16 +59,19 @@ module.exports = {
       },
       {
         test: /\.(json)$/,
-        loader: "json-loader"
+        loader: "json-loader",
+        mimetype: 'application/json'
       }
     ],
   },
+  experiments: {
+    outputModule: true
+  },
   plugins: [
-    // This makes it possible for us to safely use env vars on our code
     new ModuleFederationPlugin({
+      library: { type: "module" },
       name: "shortlistIt",
       filename: "remoteEntry.js",
-      remotes: {},
       exposes: {
         './ShortlistItModule': './src/App.tsx',
       },
