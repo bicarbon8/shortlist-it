@@ -6,10 +6,19 @@ import "./index.css";
 import "./.nojekyll";
 import { ShortlistIt } from "./components/shortlist-it";
 import "./favicon.ico";
+import {
+    createBrowserRouter,
+    RouterProvider
+} from "react-router-dom";
+
+const router = createBrowserRouter([
+    { path: '/', element: <ShortlistIt /> },
+    { path: '*', element: <ShortlistIt /> }
+]);
 
 ReactDOM.render(
     <React.StrictMode>
-        <ShortlistIt />
+        <RouterProvider router={router} />
     </React.StrictMode>,
     document.getElementById("shortlist-it")
 );

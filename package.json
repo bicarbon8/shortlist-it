@@ -1,14 +1,14 @@
 {
   "name": "shortlist-it",
   "version": "1.0.0",
+  "type": "module",
   "scripts": {
     "clean": "rimraf ./docs/*",
-    "build": "npm run clean && webpack -o ./docs/ --mode production",
-    "build:dev": "npm run clean && webpack --mode development",
-    "build:start": "npm run build:dev && cd dist && PORT=4800 npx serve",
-    "build:prod:start": "npm run build && cd docs && PORT=4800 npx serve",
-    "start": "ASSET_PATH=http://localhost:4800/ webpack serve --open --mode development",
-    "start:live": "ASSET_PATH=http://localhost:4800/ webpack serve --open --mode development --live-reload --hot"
+    "build": "npm run clean && webpack -o ./docs/ -c ./webpack.prod.config.cjs",
+    "build:dev": "npm run clean && webpack -c ./webpack.config.cjs",
+    "start": "ASSET_PATH=http://localhost:4800/ webpack serve -c ./webpack.config.cjs --open",
+    "start:prod": "ASSET_PATH=http://localhost:4800/ webpack serve -c ./webpack.prod.config.cjs --open",
+    "start:live": "ASSET_PATH=http://localhost:4800/ webpack serve -c ./webpack.config.cjs --open --live-reload --hot"
   },
   "license": "MIT",
   "author": {
@@ -46,6 +46,7 @@
     "react-bootstrap": "^2.5.0",
     "react-bootstrap-icons": "^1.9.1",
     "react-dom": "^17.0.2",
+    "react-router-dom": "^6.4.2",
     "uuid": "^9.0.0"
   }
 }

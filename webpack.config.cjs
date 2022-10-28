@@ -1,25 +1,24 @@
 const webpack = require('webpack');
 const HtmlWebPackPlugin = require("html-webpack-plugin");
-const ModuleFederationPlugin = require("webpack/lib/container/ModuleFederationPlugin");
+const ModuleFederationPlugin = webpack.container.ModuleFederationPlugin;
+const path = require('path');
 
-const deps = require("./package.json").dependencies;
-
-module.exports = {
+module.exports = {  
+  entry: './src/index',
   devtool: "eval-cheap-source-map",
+  mode: 'development',
   output: {
-    uniqueName: 'shortlist-it',
     publicPath: 'auto',
-    scriptType: 'text/javascript'
-  },
-  optimization: {
-    runtimeChunk: false
   },
   resolve: {
     extensions: [".tsx", ".ts", ".jsx", ".js", ".json"],
   },
   devServer: {
-    port: 4800,
     historyApiFallback: true,
+    port: 4800,
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+    }
   },
   module: {
     rules: [
@@ -57,22 +56,28 @@ module.exports = {
       },
       {
         test: /\.(json)$/,
-        loader: "json-loader"
+        loader: "json-loader",
       }
     ],
   },
+  optimization: {
+    runtimeChunk: false,
+  },
+  experiments: {
+    outputModule: true
+  },
   plugins: [
-    // This makes it possible for us to safely use env vars on our code
     new ModuleFederationPlugin({
+      library: { type: 'module' },
       name: "shortlistIt",
-      filename: "remoteEntry.js",
-      remotes: {},
+      filename: "remoteEntry.mjs",
       exposes: {
         './ShortlistItModule': './src/App.tsx',
       },
     }),
     new HtmlWebPackPlugin({
       template: "./src/index.html",
+      scriptLoading: "module"
     }),
   ],
 };
