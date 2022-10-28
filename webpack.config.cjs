@@ -3,20 +3,18 @@ const HtmlWebPackPlugin = require("html-webpack-plugin");
 const ModuleFederationPlugin = webpack.container.ModuleFederationPlugin;
 const path = require('path');
 
-module.exports = {
+module.exports = {  
   entry: './src/index',
   devtool: "eval-cheap-source-map",
   mode: 'development',
   output: {
-    publicPath: 'auto'
+    publicPath: 'auto',
   },
   resolve: {
     extensions: [".tsx", ".ts", ".jsx", ".js", ".json"],
   },
   devServer: {
-    static: {
-      directory: path.join(__dirname, 'dist'),
-    },
+    historyApiFallback: true,
     port: 4800,
     headers: {
       "Access-Control-Allow-Origin": "*",
@@ -70,9 +68,9 @@ module.exports = {
   },
   plugins: [
     new ModuleFederationPlugin({
-      name: "shortlistIt",
       library: { type: 'module' },
-      filename: "remoteEntry.js",
+      name: "shortlistIt",
+      filename: "remoteEntry.mjs",
       exposes: {
         './ShortlistItModule': './src/App.tsx',
       },
