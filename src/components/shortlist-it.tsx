@@ -21,7 +21,7 @@ type ShortlistItState = {
 };
 
 export class ShortlistIt extends React.Component<{}, ShortlistItState> {
-    private store: Storage<ShortlistItState>;
+    readonly store: Storage<ShortlistItState>;
     
     constructor(props: never) {
         super(props);
@@ -134,13 +134,20 @@ export class ShortlistIt extends React.Component<{}, ShortlistItState> {
                             ])
                         }
                     )
-                },
-                {id: v4(), title: 'The Third List Example - this is fun!', criteria: new Array<Criteria>(), entries: new Array<Entry>()}
+                }
             )),
             filterText: this.store.get('filterText', ''),
             editingListMap: new Map<string, boolean>(),
             editingListEntryMap: new Map<string, boolean>()
         };
+    }
+
+    refreshState(): void {
+        this.setState({
+            showArchived: this.store.get('showArchived', false),
+            lists: this.store.get('lists', new Array<Shortlist>()),
+            filterText: this.store.get('filterText', '')
+        });
     }
 
     getLists(): Array<Shortlist> {
