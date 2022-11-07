@@ -28,6 +28,8 @@ export class Storage<T extends {}> {
     constructor() {
         this.name = packagejson.name;
         this.version = packagejson.version;
+
+        this.migrateLegacyContainer();
     }
 
     /**
@@ -97,7 +99,11 @@ export class Storage<T extends {}> {
     private getContainer(): StorageContainer {
         let container: StorageContainer;
         try {
-            container = JSON.parse(localStorage.getItem(this.key), reviver);
+            const containers: Array<StorageContainer> = JSON.parse(localStorage.getItem(this.key), reviver);
+            if (containers?.length) {
+                container = containers.find(c => c.version === this.version);
+                // TODO: handle fallback and/or migration logic in the future
+            }
         } catch (e) {
             console.error(e);
         }
@@ -111,11 +117,44 @@ export class Storage<T extends {}> {
 
     private setContainer(container: StorageContainer): void {
         if (container) {
+            let containers: Array<StorageContainer> = new Array<StorageContainer>();
             try {
-                localStorage.setItem(this.key, JSON.stringify(container, replacer));
+                const storedStr = localStorage.getItem(this.key);
+                if (storedStr) {
+                    containers = JSON.parse(storedStr, reviver);
+                }
             } catch (e) {
                 console.error(e);
             }
+            try {
+                const index = containers.findIndex(c => c.version === this.version);
+                if (index >= 0) {
+                    containers.splice(index, 1);
+                }
+                containers.push(container);
+                localStorage.setItem(this.key, JSON.stringify(containers, replacer));
+            } catch (e) {
+                console.error(e);
+            }
+        }
+    }
+
+    /**
+     * TODO: remove in next update
+     * @returns `StorageContainer`
+     */
+    private migrateLegacyContainer(): void {
+        const legacyKey = `${this.name}-${this.version}`;
+        let container: StorageContainer;
+
+        try {
+            container = JSON.parse(localStorage.getItem(legacyKey), reviver);
+            if (container) {
+                localStorage.removeItem(legacyKey);
+                this.setContainer(container);
+            }
+        } catch (e) {
+            // ignore
         }
     }
 }
