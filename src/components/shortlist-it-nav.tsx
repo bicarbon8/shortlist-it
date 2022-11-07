@@ -107,7 +107,8 @@ export class ShortlistItNav extends React.Component<ShortlistItNavProps> {
             .catch((err) => {
                 if (err.name != 'AbortError') { // AbortError is manual user cancel of file save operation
                     console.warn(`unable to use File System API so falling back to legacy mode: ${err}`);
-                    saveAs(text, downloadFileName);
+                    let blob = new Blob([text], { type: 'data:attachment/text; charset=utf-8' });
+                    saveAs(blob, downloadFileName);
                 }
             });
     }
