@@ -23,7 +23,10 @@
       "noFallthroughCasesInSwitch": false,
       "strictNullChecks": false,
       "rootDir": "./",
-      "downlevelIteration": true
+      "downlevelIteration": true,
+      "typeRoots": [
+        "src/types.d.ts"
+      ]
     },
     "include": [
       "./package.json",

@@ -28,30 +28,82 @@ export class Storage<T extends {}> {
     constructor() {
         this.name = packagejson.name;
         this.version = packagejson.version;
+
+        this.migrateLegacyContainer();
     }
 
+    /**
+     * the `localStorage` key used to get / set the `StorageContainer`
+     */
     get key(): string {
-        return `${this.name}-${this.version}`;
+        return this.name;
     }
 
+    /**
+     * gets the data stored under the specified `key` within the `StorageContainer` in
+     * `localStorage`
+     * @param key the lookup key for the stored datatype
+     * @param defaultVal a value to return if no data is found
+     * @returns the value stored under the specified key or `defaultVal` if none found
+     */
     get<Tkey extends keyof T, Tval = T[Tkey]>(key: Tkey, defaultVal: Tval): Tval {
         return this.getContainer().data.get(key.toString()) ?? defaultVal;
     }
+
+    /**
+     * stores the specified `val` under the passed in `key` within the `StorageContainer` in
+     * `localStorage`
+     * @param key the lookup key for the stored datatype
+     * @param val the value to store
+     */
     set<Tkey extends keyof T, Tval = T[Tkey]>(key: Tkey, val: Tval): void {
         const container = this.getContainer();
         container.data.set(key.toString(), val);
         this.setContainer(container);
     }
+
+    /**
+     * removes any stored data under the specified `key` in the `StorageContainer` in
+     * `localStorage`
+     * @param key the lookup key for the stored datatype
+     */
     delete<Tkey extends keyof T>(key: Tkey): void {
         const container = this.getContainer();
         container.data.delete(key.toString());
         this.setContainer(container);
     }
 
+    import(text: string, overwrite: boolean = false): void {
+        const container = this.getContainer();
+        if (container) {
+            const imported = JSON.parse(text, reviver);
+            if (overwrite) {
+                this.setContainer(imported);
+            } else {
+                const updated = {
+                    ...container,
+                    ...imported
+                };
+                this.setContainer(updated);
+            }
+        }
+    }
+
+    export(): string {
+        const container = this.getContainer();
+        if (container) {
+            return JSON.stringify(container, replacer);
+        }
+    }
+
     private getContainer(): StorageContainer {
         let container: StorageContainer;
         try {
-            container = JSON.parse(localStorage.getItem(this.key), reviver);
+            const containers: Array<StorageContainer> = JSON.parse(localStorage.getItem(this.key), reviver);
+            if (containers?.length) {
+                container = containers.find(c => c.version === this.version);
+                // TODO: handle fallback and/or migration logic in the future
+            }
         } catch (e) {
             console.error(e);
         }
@@ -65,11 +117,44 @@ export class Storage<T extends {}> {
 
     private setContainer(container: StorageContainer): void {
         if (container) {
+            let containers: Array<StorageContainer> = new Array<StorageContainer>();
             try {
-                localStorage.setItem(this.key, JSON.stringify(container, replacer));
+                const storedStr = localStorage.getItem(this.key);
+                if (storedStr) {
+                    containers = JSON.parse(storedStr, reviver);
+                }
             } catch (e) {
                 console.error(e);
             }
+            try {
+                const index = containers.findIndex(c => c.version === this.version);
+                if (index >= 0) {
+                    containers.splice(index, 1);
+                }
+                containers.push(container);
+                localStorage.setItem(this.key, JSON.stringify(containers, replacer));
+            } catch (e) {
+                console.error(e);
+            }
+        }
+    }
+
+    /**
+     * TODO: remove in next update
+     * @returns `StorageContainer`
+     */
+    private migrateLegacyContainer(): void {
+        const legacyKey = `${this.name}-${this.version}`;
+        let container: StorageContainer;
+
+        try {
+            container = JSON.parse(localStorage.getItem(legacyKey), reviver);
+            if (container) {
+                localStorage.removeItem(legacyKey);
+                this.setContainer(container);
+            }
+        } catch (e) {
+            // ignore
         }
     }
 }
