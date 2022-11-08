@@ -73,19 +73,11 @@ export class Storage<T extends {}> {
         this.setContainer(container);
     }
 
-    import(text: string, overwrite: boolean = false): void {
+    import(text: string): void {
         const container = this.getContainer();
         if (container) {
             const imported = JSON.parse(text, reviver);
-            if (overwrite) {
-                this.setContainer(imported);
-            } else {
-                const updated = {
-                    ...container,
-                    ...imported
-                };
-                this.setContainer(updated);
-            }
+            this.setContainer(imported);
         }
     }
 

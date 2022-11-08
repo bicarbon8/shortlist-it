@@ -35,6 +35,11 @@ export class ShortlistItNav extends React.Component<ShortlistItNavProps> {
                                         <span className="ps-2 d-sm-inline d-md-none d-lg-inline">Export Lists</span>
                                     </Button>
                                 </ButtonGroup>
+                                <Form.Control 
+                                    type="file" 
+                                    id="file-input" 
+                                    onChange={(e) => this.handleFileInput((e.target as HTMLInputElement)?.files?.[0])} 
+                                    className="file-input visually-hidden" />
                             </Nav.Item>
                         </Nav>
                         <Navbar.Text className="p-1">
@@ -79,25 +84,40 @@ export class ShortlistItNav extends React.Component<ShortlistItNavProps> {
     }
 
     importLists(): void {
-        this.readFile()
-            .then(f => {
-                this.props.app.store.import(f.text);
-                this.props.app.refreshState();
-            })
-            .catch(err => console.error('unable to process supplied file', err));
+        const confirmed: boolean = window.confirm('this action will overwrite any existing lists; are you sure?');
+        if (confirmed) {
+            this.readFile()
+                .catch((err) => {
+                    if (err.name != 'AbortError') { // AbortError is manual user cancel of file save operation
+                        console.warn(`unable to use File System API so falling back to legacy mode: ${err}`);
+                        document.getElementById('file-input').click();
+                    }
+                });
+        }
     }
 
-    private async readFile(): Promise<ExternalFile> {
+    /**
+     * attempt to use `window.showOpenFilePicker` to select file
+     */
+    private async readFile(): Promise<void> {
         let [handle] = await window.showOpenFilePicker();
         const file = await handle.getFile();
         const text = await file.text();
-        const f: ExternalFile = {
-            text: text, 
-            name: file.name, 
-            path: file.webkitRelativePath, 
-            size: file.size
-        };
-        return f;
+        this.props.app.store.import(text);
+        this.props.app.refreshState();
+    }
+
+    /**
+     * handles change event for hidden file input if calling
+     * `window.showOpenFilePicker` is unsuccessful
+     * @param file selected file
+     */
+    private async handleFileInput(file: File): Promise<void> {
+        if (file) {
+            const text = await file.text();
+            this.props.app.store.import(text);
+            this.props.app.refreshState();
+        }
     }
 
     exportLists(): void {
@@ -117,14 +137,14 @@ export class ShortlistItNav extends React.Component<ShortlistItNavProps> {
         const options = {
             suggestedName: data.name,
             types: [
-              {
-                description: "Shortlist-It export data",
-                accept: {
-                  "text/json": [".json"],
+                {
+                    description: "Shortlist-It export data",
+                    accept: {
+                        "text/json": [".json"],
+                    },
                 },
-              },
             ],
-          };
+        };
         const handle = await window.showSaveFilePicker(options);
         const file = await handle.createWritable();
         await file.write(data.text ?? '');

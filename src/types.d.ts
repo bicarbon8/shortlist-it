@@ -16,7 +16,7 @@ declare interface ShowSaveFilePickerOptions {
 }
 
 declare interface Window {
-    showOpenFilePicker(opts?: ShowOpenFilePickerOptions): Promise<>;
+    showOpenFilePicker(opts?: ShowOpenFilePickerOptions): Promise<Array<FileSystemFileHandle>>;
     showSaveFilePicker(opts?: ShowSaveFilePickerOptions): Promise<FileSystemFileHandle>;
 }
 
