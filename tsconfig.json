@@ -5,7 +5,7 @@
         "dom",
         "dom.iterable",
         "ES5",
-        "ES2015"
+        "ES2016"
       ],
       "allowJs": true,
       "skipLibCheck": true,

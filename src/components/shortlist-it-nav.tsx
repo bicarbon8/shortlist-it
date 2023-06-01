@@ -1,153 +1,162 @@
 import React from "react";
 import { Navbar, Nav, Container, Button, Form, InputGroup, ButtonGroup } from "react-bootstrap";
 import { BootstrapIcon } from "./bootstrap-icon";
-import { ShortlistIt } from "./shortlist-it";
+import { ShortlistItStateManager, addNewList, refreshState, store } from "./shortlist-it";
 import { saveAs } from 'file-saver';
 import { ExternalFile } from "../types/external-file";
 
-type ShortlistItNavProps = {
-    app: ShortlistIt;
+export type ShortlistItNavProps = {
+    stateMgr: ShortlistItStateManager;
 };
 
-export class ShortlistItNav extends React.Component<ShortlistItNavProps> {
-    render() {
-        return (
-            <Navbar sticky="top" collapseOnSelect expand="md" bg="dark" variant="dark">
-                <Container fluid className="d-flex justify-content-between">
-                    <Navbar.Brand href="/">Shortlist-It</Navbar.Brand>
-                    <Navbar.Toggle aria-controls="navbarScroll" />
-                    <Navbar.Collapse id="navbarScroll" className="justify-content-end">
-                        <Nav>
-                            <Nav.Item className="p-1">
-                                <Button variant="outline-success" onClick={() => this.props.app.addNewList()}>
-                                    <BootstrapIcon icon="plus-lg" />
-                                    <span className="ps-2">Add New List</span>
-                                </Button>
-                            </Nav.Item>
-                            <Nav.Item className="p-1">
-                                <ButtonGroup>
-                                    <Button id="import-lists" variant="outline-success" onClick={() => this.importLists()}>
-                                        <BootstrapIcon icon="cloud-upload" />
-                                        <span className="ps-2 d-sm-inline d-md-none d-lg-inline">Import List File</span>
-                                    </Button>
-                                    <Button id="export-lists" variant="outline-success" onClick={() => this.exportLists()}>
-                                        <BootstrapIcon icon="cloud-download" />
-                                        <span className="ps-2 d-sm-inline d-md-none d-lg-inline">Export Lists</span>
-                                    </Button>
-                                </ButtonGroup>
-                                <Form.Control 
-                                    type="file" 
-                                    id="file-input" 
-                                    onChange={(e) => this.handleFileInput((e.target as HTMLInputElement)?.files?.[0])} 
-                                    className="file-input visually-hidden" />
-                            </Nav.Item>
-                        </Nav>
-                        <Navbar.Text className="p-1">
-                            <Form.Check
-                                type="switch"
-                                id="display-archived"
-                                label="View Archived Lists"
-                                checked={this.props.app.showArchived}
-                                onChange={e => this.props.app.setShowArchived(e.target.checked)}
-                            />
-                        </Navbar.Text>
-                        <Nav>
-                            <Nav.Item className="p-1">
-                                <InputGroup>
-                                    <Form.Control
-                                        id="filter-lists-input"
-                                        type="text"
-                                        placeholder="enter filter term(s)"
-                                        aria-label="Filter"
-                                        defaultValue={this.props.app.filterText}
-                                        onChange={(e) => this.setFilterText(e.target.value)}
-                                        aria-describedby="filter-lists-clear-button"
-                                    />
-                                    <Button id="filter-lists-clear-button" variant="outline-secondary" onClick={() => this.clearFilter()}><BootstrapIcon icon="x-circle" /></Button>
-                                </InputGroup>
-                            </Nav.Item>
-                        </Nav>
-                    </Navbar.Collapse>
-                </Container>
-            </Navbar>
-        );
-    }
+function clearFilter(stateMgr: ShortlistItStateManager): void {
+    const input = document.querySelector('#filter-lists-input') as HTMLInputElement;
+    input.value = '';
+    stateMgr.setState({
+        ...stateMgr.state,
+        filterText: ''
+    });
+}
 
-    setFilterText(filterStr: string = ''): void {
-        this.props.app.setFilterText(filterStr);
-    }
-
-    clearFilter(): void {
-        const input = document.querySelector('#filter-lists-input') as HTMLInputElement;
-        input.value = '';
-        this.setFilterText('');
-    }
-
-    importLists(): void {
-        const confirmed: boolean = window.confirm('this action will overwrite any existing lists; are you sure?');
-        if (confirmed) {
-            this.readFile()
-                .catch((err) => {
-                    if (err.name != 'AbortError') { // AbortError is manual user cancel of file save operation
-                        console.warn(`unable to use File System API so falling back to legacy mode: ${err}`);
-                        document.getElementById('file-input').click();
-                    }
-                });
-        }
-    }
-
-    /**
-     * attempt to use `window.showOpenFilePicker` to select file
-     */
-    private async readFile(): Promise<void> {
-        let [handle] = await window.showOpenFilePicker();
-        const file = await handle.getFile();
-        const text = await file.text();
-        this.props.app.store.import(text);
-        this.props.app.refreshState();
-    }
-
-    /**
-     * handles change event for hidden file input if calling
-     * `window.showOpenFilePicker` is unsuccessful
-     * @param file selected file
-     */
-    private async handleFileInput(file: File): Promise<void> {
-        if (file) {
-            const text = await file.text();
-            this.props.app.store.import(text);
-            this.props.app.refreshState();
-        }
-    }
-
-    exportLists(): void {
-        const text: string = this.props.app.store.export();
-        const downloadFileName = `${this.props.app.store.key}.json`;
-        this.saveToFile({ text: text, name: downloadFileName })
+function importLists(stateMgr: ShortlistItStateManager): void {
+    const confirmed: boolean = window.confirm('this action will overwrite any existing lists; are you sure?');
+    if (confirmed) {
+        readFile(stateMgr)
             .catch((err) => {
                 if (err.name != 'AbortError') { // AbortError is manual user cancel of file save operation
                     console.warn(`unable to use File System API so falling back to legacy mode: ${err}`);
-                    let blob = new Blob([text], { type: 'data:attachment/text; charset=utf-8' });
-                    saveAs(blob, downloadFileName);
+                    document.getElementById('file-input').click();
                 }
             });
     }
+}
 
-    private async saveToFile(data: ExternalFile): Promise<void> {
-        const options = {
-            suggestedName: data.name,
-            types: [
-                {
-                    description: "Shortlist-It export data",
-                    accept: {
-                        "text/json": [".json"],
-                    },
-                },
-            ],
-        };
-        const handle = await window.showSaveFilePicker(options);
-        const file = await handle.createWritable();
-        await file.write(data.text ?? '');
-        await file.close();
+function exportLists(stateMgr: ShortlistItStateManager): void {
+    const text: string = store.export();
+    const downloadFileName = `${store.key}.json`;
+    saveToFile({ text: text, name: downloadFileName })
+        .catch((err) => {
+            if (err.name != 'AbortError') { // AbortError is manual user cancel of file save operation
+                console.warn(`unable to use File System API so falling back to legacy mode: ${err}`);
+                let blob = new Blob([text], { type: 'data:attachment/text; charset=utf-8' });
+                saveAs(blob, downloadFileName);
+            }
+        });
+}
+
+/**
+ * attempt to use `window.showOpenFilePicker` to select file
+ */
+async function readFile(stateMgr: ShortlistItStateManager): Promise<void> {
+    let [handle] = await window.showOpenFilePicker();
+    const file = await handle.getFile();
+    const text = await file.text();
+    store.import(text);
+    refreshState(stateMgr);
+}
+
+/**
+ * handles change event for hidden file input if calling
+ * `window.showOpenFilePicker` is unsuccessful
+ * @param file selected file
+ */
+async function handleFileInput(file: File, stateMgr: ShortlistItStateManager): Promise<void> {
+    if (file) {
+        const text = await file.text();
+        store.import(text);
+        refreshState(stateMgr);
     }
+}
+
+async function saveToFile(data: ExternalFile): Promise<void> {
+    const options = {
+        suggestedName: data.name,
+        types: [
+            {
+                description: "Shortlist-It export data",
+                accept: {
+                    "text/json": [".json"],
+                },
+            },
+        ],
+    };
+    const handle = await window.showSaveFilePicker(options);
+    const file = await handle.createWritable();
+    await file.write(data.text ?? '');
+    await file.close();
+}
+
+export function ShortlistItNav(props: ShortlistItNavProps) {
+    return (
+        <Navbar sticky="top" collapseOnSelect expand="md" bg="dark" variant="dark">
+            <Container fluid className="d-flex justify-content-between">
+                <Navbar.Brand href="/">Shortlist-It</Navbar.Brand>
+                <Navbar.Toggle aria-controls="navbarScroll" />
+                <Navbar.Collapse id="navbarScroll" className="justify-content-end">
+                    <Nav>
+                        <Nav.Item className="p-1">
+                            <Button variant="outline-success" onClick={() => addNewList(props.stateMgr)}>
+                                <BootstrapIcon icon="plus-lg" />
+                                <span className="ps-2">Add New List</span>
+                            </Button>
+                        </Nav.Item>
+                        <Nav.Item className="p-1">
+                            <ButtonGroup>
+                                <Button id="import-lists" variant="outline-success" onClick={() => importLists(props.stateMgr)}>
+                                    <BootstrapIcon icon="cloud-upload" />
+                                    <span className="ps-2 d-sm-inline d-md-none d-lg-inline">Import List File</span>
+                                </Button>
+                                <Button id="export-lists" variant="outline-success" onClick={() => exportLists(props.stateMgr)}>
+                                    <BootstrapIcon icon="cloud-download" />
+                                    <span className="ps-2 d-sm-inline d-md-none d-lg-inline">Export Lists</span>
+                                </Button>
+                            </ButtonGroup>
+                            <Form.Control 
+                                type="file" 
+                                id="file-input" 
+                                onChange={(e) => handleFileInput((e.target as HTMLInputElement)?.files?.[0], props.stateMgr)} 
+                                className="file-input visually-hidden" />
+                        </Nav.Item>
+                    </Nav>
+                    <Navbar.Text className="p-1">
+                        <Form.Check
+                            type="switch"
+                            id="display-archived"
+                            label="View Archived Lists"
+                            checked={props.stateMgr.state.showArchived}
+                            onChange={e => props.stateMgr.setState({
+                                ...props.stateMgr.state,
+                                showArchived: e.target.checked
+                            })}
+                        />
+                    </Navbar.Text>
+                    <Nav>
+                        <Nav.Item className="p-1">
+                            <InputGroup>
+                                <Form.Control
+                                    id="filter-lists-input"
+                                    type="text"
+                                    placeholder="enter filter term(s)"
+                                    aria-label="Filter"
+                                    defaultValue={props.stateMgr.state.filterText}
+                                    onChange={(e) => props.stateMgr.setState({
+                                        ...props.stateMgr.state,
+                                        filterText: e.target.value
+                                    })}
+                                    aria-describedby="filter-lists-clear-button"
+                                />
+                                <Button 
+                                    id="filter-lists-clear-button" 
+                                    variant="outline-secondary" 
+                                    onClick={() => clearFilter(props.stateMgr)}
+                                >
+                                    <BootstrapIcon icon="x-circle" />
+                                </Button>
+                            </InputGroup>
+                        </Nav.Item>
+                    </Nav>
+                </Navbar.Collapse>
+            </Container>
+        </Navbar>
+    );
 }

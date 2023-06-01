@@ -3,42 +3,36 @@ import { ListGroup, ListGroupItem } from "react-bootstrap";
 import { Entry } from "../types/entries/entry";
 import { Shortlist } from "../types/shortlist";
 import { BootstrapIcon } from "./bootstrap-icon";
-import { ShortlistIt } from "./shortlist-it";
+import { ShortlistItStateManager, addNewEntry } from "./shortlist-it";
 import { ShortlistItListEntry } from "./shortlist-it-list-entry";
 
 type ShortlistItListBodyProps = {
-    app: ShortlistIt;
+    stateMgr: ShortlistItStateManager;
     list: Shortlist;
 }
 
-export class ShortlistItListBody extends React.Component<ShortlistItListBodyProps> {
-    render() {
+function getAddEntryButton(props: ShortlistItListBodyProps) {
+    if (props.list.archived) {
+        return <></>;
+    } else {
         return (
-            <ListGroup>
-                {this.props.list.entries.map((entry: Entry) => <ShortlistItListEntry key={entry.id} app={this.app} list={this.props.list} entry={entry} />)}
-                {this.getAddEntryButton()}
-            </ListGroup>
+            <ListGroupItem 
+                variant="dark"
+                key="add_new_entry" 
+                onClick={() => addNewEntry(props.list.id, props.stateMgr)}
+                className="d-flex justify-content-center clickable">
+                <BootstrapIcon icon="plus-lg" /> 
+                Add New Entry
+            </ListGroupItem>
         );
     }
+}
 
-    get app(): ShortlistIt {
-        return this.props.app;
-    }
-
-    getAddEntryButton() {
-        if (this.props.list.archived) {
-            return <></>;
-        } else {
-            return (
-                <ListGroupItem 
-                    variant="dark"
-                    key="add_new_entry" 
-                    onClick={() => this.app.addNewEntry(this.props.list.id)}
-                    className="d-flex justify-content-center clickable">
-                    <BootstrapIcon icon="plus-lg" /> 
-                    Add New Entry
-                </ListGroupItem>
-            );
-        }
-    }
+export function ShortlistItListBody(props: ShortlistItListBodyProps) {
+    return (
+        <ListGroup>
+            {props.list.entries.map((entry: Entry) => <ShortlistItListEntry key={entry.id} stateMgr={props.stateMgr} list={props.list} entry={entry} />)}
+            {getAddEntryButton(props)}
+        </ListGroup>
+    );
 }

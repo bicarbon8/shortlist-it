@@ -1,97 +1,80 @@
 import React from "react";
 import { Col, FloatingLabel, Form, ListGroupItem } from "react-bootstrap";
 import { EntryValuesRefContainer } from "../types/entries/entry-values-ref-container";
-import { ShortlistItListEntryValuesList } from "./shortlist-it-list-entry-values-list";
+import { ShortlistItStateManager, getEntry, getList } from "./shortlist-it";
 
 type ShortlistItListEntryValuesListItemProps = {
-    parent: ShortlistItListEntryValuesList;
+    listId: string;
+    entryId: string;
     criteriaName: string;
     multiselect: boolean;
     valuesRef: EntryValuesRefContainer;
+    stateMgr: ShortlistItStateManager;
 };
 
-type ShortlistItListEntryValuesListItemState = {
-    updatedValues: Array<string>;
+function selectedValues(props: ShortlistItListEntryValuesListItemProps): Array<string> {
+    const entry = getEntry(props.listId, props.entryId, props.stateMgr)
+    return entry.values.get(props.criteriaName) || new Array<string>();
 }
 
-export class ShortlistItListEntryValuesListItem extends React.Component<ShortlistItListEntryValuesListItemProps, ShortlistItListEntryValuesListItemState> {
-    constructor(props: ShortlistItListEntryValuesListItemProps) {
-        super(props);
-        this.state = {
-            updatedValues: new Array<string>()
-        };
-    }
-    
-    render() {
+function allPossibleValues(props: ShortlistItListEntryValuesListItemProps): Array<string> {
+    const list = getList(props.listId, props.stateMgr);
+    return list.criteria
+        .find(c => c.name === props.criteriaName)
+        ?.values || new Array<string>();
+}
+
+function getValuesSelector(props: ShortlistItListEntryValuesListItemProps) {
+    if (props.multiselect) {
         return (
-            <ListGroupItem key={this.criteriaName} className="d-flex justify-content-between align-content-start flex-wrap" variant="secondary">
-                {this.getValuesSelector()}
-            </ListGroupItem>
+            <Form.Group as={Col} controlId="entryValues">
+                <Form.Label column="sm">{props.criteriaName}</Form.Label>
+                <Form.Control ref={props.valuesRef.values} as="select" multiple defaultValue={selectedValues(props)}>
+                    {allPossibleValues(props).map(val => getValueNode(val, props))}
+                </Form.Control>
+            </Form.Group>
         );
-    }
-
-    get parent(): ShortlistItListEntryValuesList {
-        return this.props.parent;
-    }
-
-    get criteriaName(): string {
-        return this.props.criteriaName;
-    }
-
-    get selectedValues(): Array<string> {
-        return this.parent.entry.values.get(this.criteriaName) || new Array<string>();
-    }
-
-    get allPossibleValues(): Array<string> {
-        return this.parent.list.criteria
-            .find(c => c.name === this.criteriaName)
-            ?.values || new Array<string>();
-    }
-
-    getValuesSelector() {
-        if (this.props.multiselect) {
-            return (
-                <Form.Group as={Col} controlId="entryValues">
-                    <Form.Label column="sm">{this.criteriaName}</Form.Label>
-                    <Form.Control ref={this.props.valuesRef.values} as="select" multiple defaultValue={this.selectedValues}>
-                        {this.allPossibleValues.map(val => this.getValueNode(val))}
-                    </Form.Control>
-                </Form.Group>
-            );
+    } else {
+        let selected: string;
+        let invalid: string;
+        if (selectedValues(props).length === 0) {
+            selected = '';
+            invalid = 'is-invalid';
         } else {
-            let selected: string;
-            let invalid: string;
-            if (this.selectedValues.length === 0) {
-                selected = '';
-                invalid = 'is-invalid';
-            } else {
-                selected = this.selectedValues[0];
-                invalid = '';
-            }
-            return (
-                <FloatingLabel className="w-100" controlId={`values-select-${this.criteriaName}`} label={this.criteriaName}>
-                    <Form.Select 
-                        ref={this.props.valuesRef.values} 
-                        aria-label="Values Select" 
-                        defaultValue={selected}
-                        className={invalid}
-                        onChange={(e) => this.validateSelection(e.target)}>
-                        <option value="" disabled={true} hidden={true}>Choose value...</option>
-                        {this.allPossibleValues.map(val => this.getValueNode(val))}
-                    </Form.Select>
-                </FloatingLabel>
-            )
+            selected = selectedValues(props)[0];
+            invalid = '';
         }
+        return (
+            <FloatingLabel className="w-100" controlId={`values-select-${props.criteriaName}`} label={props.criteriaName}>
+                <Form.Select 
+                    ref={props.valuesRef.values} 
+                    aria-label="Values Select" 
+                    defaultValue={selected}
+                    className={invalid}
+                    onChange={(e) => validateSelection(e.target)}>
+                    <option value="" disabled={true} hidden={true}>Choose value...</option>
+                    {allPossibleValues(props).map(val => getValueNode(val, props))}
+                </Form.Select>
+            </FloatingLabel>
+        )
     }
+}
 
-    private getValueNode(val: string) {
-        const selected: boolean = !!(this.selectedValues.includes(val));
-        return <option key={val} value={val} defaultChecked={selected}>{val}</option>;
-    }
+function getValueNode(val: string, props: ShortlistItListEntryValuesListItemProps) {
+    const selected: boolean = !!(selectedValues(props).includes(val));
+    return <option key={val} value={val} defaultChecked={selected}>{val}</option>;
+}
 
-    private validateSelection(target: HTMLSelectElement) {
-        if (target.value !== '') {
-            target.className = [...target.classList].filter(c => c !== 'is-invalid').join(' ');
-        }
+function validateSelection(target: HTMLSelectElement) {
+    if (target.value !== '') {
+        target.className = [...target.classList].filter(c => c !== 'is-invalid').join(' ');
     }
+}
+
+export function ShortlistItListEntryValuesListItem(props: ShortlistItListEntryValuesListItemProps) {
+    return (
+        <ListGroupItem key={props.criteriaName} className="d-flex justify-content-between align-content-start flex-wrap" variant="secondary">
+            {getValuesSelector(props)}
+        </ListGroupItem>
+    );
 }
