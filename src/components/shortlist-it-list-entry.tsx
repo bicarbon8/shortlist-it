@@ -5,9 +5,11 @@ import { Entry } from "../types/entries/entry";
 import { EntryValuesRefContainer } from "../types/entries/entry-values-ref-container";
 import { Shortlist } from "../types/shortlist";
 import { BootstrapIcon } from "./bootstrap-icon";
-import { ShortlistItStateManager, cancelListEntryEdits, deleteEntry, isEditingEntry, saveListEntryEdits, startEditingEntry } from "./shortlist-it";
 import { ShortlistItListEntryValuesList } from "./shortlist-it-list-entry-values-list";
 import { ShortlistItTooltip } from "./shortlist-it-tooltip";
+import { ShortlistItStateManager } from "../types/shortlist-it-state-manager";
+import { getEntry, setEditingListEntryState, startEditingEntry } from "../component-actions/list-entry-actions";
+import { getList, updateList } from "../component-actions/list-actions";
 
 type ShortlistItListEntryProps = {
     stateMgr: ShortlistItStateManager;
@@ -127,6 +129,40 @@ function hasMissingData(props: ShortlistItListEntryProps): boolean {
         }
     }
     return false;
+}
+
+function isEditingEntry(listId: string, entryId: string, stateMgr: ShortlistItStateManager): boolean {
+    return stateMgr.state.editingListEntryMap.get(`${listId}_${entryId}`) || false;
+}
+
+function saveListEntryEdits(listId: string, entry: Entry, stateMgr: ShortlistItStateManager): void {
+    const list = getList(listId, stateMgr);
+    if (list) {
+        const index = list.entries.findIndex(e => e.id === entry.id);
+        if (index >= 0) {
+            list.entries.splice(index, 1, entry);
+            updateList(listId, list, stateMgr);
+            setEditingListEntryState(listId, entry.id, false, stateMgr);
+        }
+    }
+}
+
+function cancelListEntryEdits(listId: string, entryId: string, stateMgr: ShortlistItStateManager): void {
+    setEditingListEntryState(listId, entryId, false, stateMgr);
+}
+
+function deleteEntry(listId: string, entryId: string, stateMgr: ShortlistItStateManager): void {
+    const list = getList(listId, stateMgr);
+    const entry = getEntry(listId, entryId, stateMgr);
+    const confirmed: boolean = window.confirm(`Are you sure you want to delete entry described by: '${entry.description}' from list '${list.title}'? This action cannot be undone.`);
+    if (confirmed) {
+        const index = list.entries.findIndex(e => e.id === entryId);
+        if (index >= 0) {
+            let updated = list;
+            updated.entries.splice(index, 1);
+            updateList(listId, updated, stateMgr);
+        }
+    }
 }
 
 export function ShortlistItListEntry(props: ShortlistItListEntryProps) {

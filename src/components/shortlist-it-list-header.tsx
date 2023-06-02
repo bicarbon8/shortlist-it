@@ -5,10 +5,11 @@ import { CriteriaRefContainer } from "../types/criteria/criteria-ref-container";
 import { CriteriaType } from "../types/criteria/criteria-type";
 import { Shortlist } from "../types/shortlist";
 import { BootstrapIcon } from "./bootstrap-icon";
-import { ShortlistItStateManager, archiveList, cancelListEdits, deleteList, isEditingList, saveListEdits, startEditingList, unarchiveList } from "./shortlist-it";
 import { ShortlistItListCriteriaList } from "./shortlist-it-list-criteria-list";
 import { ShortlistItMenu, ShortlistItMenuItem } from "./shortlist-it-menu";
 import { ShortlistItTooltip } from "./shortlist-it-tooltip";
+import { ShortlistItStateManager } from "../types/shortlist-it-state-manager";
+import { archiveList, setEditingListState, startEditingList, unarchiveList, updateList } from "../component-actions/list-actions";
 
 export type ShortlistItListHeaderProps = {
     stateMgr: ShortlistItStateManager;
@@ -107,6 +108,30 @@ function saveChanges(props: ShortlistItListHeaderProps, titleRefObject: React.Re
         title: title,
         criteria: criteria
     }, props.stateMgr);
+}
+
+function saveListEdits(listId: string, updated: Pick<Shortlist, 'title' | 'criteria'>, stateMgr: ShortlistItStateManager): void {
+    let valid: boolean = true;
+    // TODO validate values
+    if (valid) {
+        updateList(listId, updated, stateMgr);
+        setEditingListState(listId, false, stateMgr);
+    }
+}
+
+function cancelListEdits(listId: string, stateMgr: ShortlistItStateManager): void {
+    setEditingListState(listId, false, stateMgr);
+}
+
+function isEditingList(listId: string, stateMgr: ShortlistItStateManager): boolean {
+    return stateMgr.state.editingListMap.get(listId) || false;
+}
+
+function deleteList(listId: string, stateMgr: ShortlistItStateManager): void {
+    stateMgr.setState({
+        ...stateMgr.state,
+        listToBeDeleted: listId
+    });
 }
 
 export function ShortlistItListHeader(props: ShortlistItListHeaderProps) {

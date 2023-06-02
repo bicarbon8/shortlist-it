@@ -5,8 +5,9 @@ import { CriteriaRefContainer } from "../types/criteria/criteria-ref-container";
 import { CriteriaType } from "../types/criteria/criteria-type";
 import { Shortlist } from "../types/shortlist";
 import { BootstrapIcon } from "./bootstrap-icon";
-import { ShortlistItStateManager, deleteCriteria } from "./shortlist-it";
 import { ShortlistItTooltip } from "./shortlist-it-tooltip";
+import { ShortlistItStateManager } from "../types/shortlist-it-state-manager";
+import { getList, updateList } from "../component-actions/list-actions";
 
 type ShortlistItListCriteriaListItemProps = {
     stateMgr: ShortlistItStateManager;
@@ -57,6 +58,21 @@ function validateValues(props: ShortlistItListCriteriaListItemProps, state: Shor
         ...state,
         valuesError: invalid
     });
+}
+
+function deleteCriteria(listId: string, criteriaId: string, stateMgr: ShortlistItStateManager): void {
+    const list = getList(listId, stateMgr);
+    if (list) {
+        const index = list.criteria.findIndex(c => c.id === criteriaId);
+        if (index >= 0) {
+            const criteria = list.criteria[index];
+            const confirmed: boolean = window.confirm(`are you sure you want to delete criteria: '${criteria.name}' from list '${list.title}'? this action cannot be undone and will remove all values associated with the criteria from any entries in the list`)
+            if (confirmed) {
+                list.criteria.splice(index, 1);
+                updateList(listId, list, stateMgr);
+            }
+        }
+    }
 }
 
 export function ShortlistItListCriteriaListItem(props: ShortlistItListCriteriaListItemProps) {

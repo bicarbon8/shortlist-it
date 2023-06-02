@@ -4,8 +4,10 @@ import { Criteria } from "../types/criteria/criteria";
 import { Shortlist } from "../types/shortlist";
 import { BootstrapIcon } from "./bootstrap-icon";
 import { ShortlistItListCriteriaListItem } from "./shortlist-it-list-criteria-list-item";
-import { ShortlistItStateManager, addNewCriteria } from "./shortlist-it";
 import { CriteriaRefContainer } from "../types/criteria/criteria-ref-container";
+import { v4 } from "uuid";
+import { ShortlistItStateManager } from "../types/shortlist-it-state-manager";
+import { getList, updateList } from "../component-actions/list-actions";
 
 type ShortlistItListCriteriaListProps = {
     stateMgr: ShortlistItStateManager;
@@ -13,6 +15,14 @@ type ShortlistItListCriteriaListProps = {
     criteria: Array<Criteria>;
     criteriaRefs: Array<CriteriaRefContainer>
 };
+
+function addNewCriteria(listId: string, stateMgr: ShortlistItStateManager): void {
+    const list = getList(listId, stateMgr);
+    if (list) {
+        list.criteria.push({id: v4(), values: new Array<string>()});
+        updateList(listId, list, stateMgr);
+    }
+}
 
 export function ShortlistItListCriteriaList(props: ShortlistItListCriteriaListProps) {
     return (

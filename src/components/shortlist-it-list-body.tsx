@@ -3,8 +3,11 @@ import { ListGroup, ListGroupItem } from "react-bootstrap";
 import { Entry } from "../types/entries/entry";
 import { Shortlist } from "../types/shortlist";
 import { BootstrapIcon } from "./bootstrap-icon";
-import { ShortlistItStateManager, addNewEntry } from "./shortlist-it";
 import { ShortlistItListEntry } from "./shortlist-it-list-entry";
+import { v4 } from "uuid";
+import { ShortlistItStateManager } from "../types/shortlist-it-state-manager";
+import { getList, updateList } from "../component-actions/list-actions";
+import { startEditingEntry } from "../component-actions/list-entry-actions";
 
 type ShortlistItListBodyProps = {
     stateMgr: ShortlistItStateManager;
@@ -25,6 +28,19 @@ function getAddEntryButton(props: ShortlistItListBodyProps) {
                 Add New Entry
             </ListGroupItem>
         );
+    }
+}
+
+function addNewEntry(listId: string, stateMgr: ShortlistItStateManager): void {
+    let updated = getList(listId, stateMgr);
+    if (updated) {
+        const entry: Entry = {
+            id: v4(),
+            values: new Map<string, Array<string>>()
+        }
+        updated.entries.push(entry);
+        updateList(listId, updated, stateMgr);
+        startEditingEntry(listId, entry.id, stateMgr);
     }
 }
 

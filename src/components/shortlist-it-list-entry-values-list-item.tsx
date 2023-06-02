@@ -1,7 +1,9 @@
 import React from "react";
 import { Col, FloatingLabel, Form, ListGroupItem } from "react-bootstrap";
 import { EntryValuesRefContainer } from "../types/entries/entry-values-ref-container";
-import { ShortlistItStateManager, getEntry, getList } from "./shortlist-it";
+import { ShortlistItStateManager } from "../types/shortlist-it-state-manager";
+import { getEntry } from "../component-actions/list-entry-actions";
+import { getList } from "../component-actions/list-actions";
 
 type ShortlistItListEntryValuesListItemProps = {
     listId: string;

@@ -1,9 +1,9 @@
 import React from "react";
 import { Card } from "react-bootstrap";
-import { ShortlistItStateManager } from "./shortlist-it";
 import { ShortlistItListBody } from "./shortlist-it-list-body";
 import { ShortlistItListHeader } from "./shortlist-it-list-header";
 import { Shortlist } from "../types/shortlist";
+import { ShortlistItStateManager } from "../types/shortlist-it-state-manager";
 
 export type ShortlistItListProps = {
     list: Shortlist;

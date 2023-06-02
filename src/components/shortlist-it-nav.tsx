@@ -1,13 +1,28 @@
 import React from "react";
 import { Navbar, Nav, Container, Button, Form, InputGroup, ButtonGroup } from "react-bootstrap";
 import { BootstrapIcon } from "./bootstrap-icon";
-import { ShortlistItStateManager, addNewList, refreshState, store } from "./shortlist-it";
 import { saveAs } from 'file-saver';
 import { ExternalFile } from "../types/external-file";
+import { Shortlist } from "../types/shortlist";
+import { v4 } from "uuid";
+import { Entry } from "../types/entries/entry";
+import { Criteria } from "../types/criteria/criteria";
+import { ShortlistItStateManager } from "../types/shortlist-it-state-manager";
+import { store } from "../utilities/storage";
+import { startEditingList } from "../component-actions/list-actions";
 
 export type ShortlistItNavProps = {
     stateMgr: ShortlistItStateManager;
 };
+
+function refreshState(stateMgr: ShortlistItStateManager): void {
+    stateMgr.setState({
+        ...stateMgr.state,
+        showArchived: store.get('showArchived', false),
+        lists: store.get('lists', new Array<Shortlist>()),
+        filterText: store.get('filterText', '')
+    });
+}
 
 function clearFilter(stateMgr: ShortlistItStateManager): void {
     const input = document.querySelector('#filter-lists-input') as HTMLInputElement;
@@ -84,6 +99,23 @@ async function saveToFile(data: ExternalFile): Promise<void> {
     const file = await handle.createWritable();
     await file.write(data.text ?? '');
     await file.close();
+}
+
+function addNewList(stateMgr: ShortlistItStateManager): void {
+    const list: Shortlist = {
+        id: v4(),
+        title: `New Shortlist (${stateMgr.state.lists.length + 1})`,
+        entries: new Array<Entry>(),
+        criteria: new Array<Criteria>()
+    };
+    const allLists = stateMgr.state.lists;
+    allLists.unshift(list);
+    store.set('lists', allLists);
+    stateMgr.setState({
+        ...stateMgr.state,
+        lists: allLists
+    });
+    startEditingList(list.id, stateMgr);
 }
 
 export function ShortlistItNav(props: ShortlistItNavProps) {

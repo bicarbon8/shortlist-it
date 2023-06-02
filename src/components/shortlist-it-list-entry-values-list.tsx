@@ -2,8 +2,9 @@ import React from "react";
 import { ListGroup } from "react-bootstrap";
 import { EntryValuesRefContainer } from "../types/entries/entry-values-ref-container";
 import { Shortlist } from "../types/shortlist";
-import { ShortlistItStateManager, getList } from "./shortlist-it";
 import { ShortlistItListEntryValuesListItem } from "./shortlist-it-list-entry-values-list-item";
+import { ShortlistItStateManager } from "../types/shortlist-it-state-manager";
+import { getList } from "../component-actions/list-actions";
 
 type ShortlistItListEntryValuesListProps = {
     stateMgr: ShortlistItStateManager;

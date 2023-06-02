@@ -1,4 +1,5 @@
 import packagejson from "../../package.json";
+import { ShortlistItState } from "../types/shortlist-it-state";
 import { StorageContainer } from "./storage-container";
 
 function replacer(key: string, value: any) {
@@ -46,7 +47,7 @@ export class Storage<T extends {}> {
      * @param defaultVal a value to return if no data is found
      * @returns the value stored under the specified key or `defaultVal` if none found
      */
-    get<Tkey extends keyof T, Tval = T[Tkey]>(key: Tkey, defaultVal: Tval): Tval {
+    get<T extends {}>(key: keyof T, defaultVal: T[keyof T]): T[keyof T] {
         return this.getContainer().data.get(key.toString()) ?? defaultVal;
     }
 
@@ -56,7 +57,7 @@ export class Storage<T extends {}> {
      * @param key the lookup key for the stored datatype
      * @param val the value to store
      */
-    set<Tkey extends keyof T, Tval = T[Tkey]>(key: Tkey, val: Tval): void {
+    set<T extends {}>(key: keyof T, val: T[keyof T]): void {
         const container = this.getContainer();
         container.data.set(key.toString(), val);
         this.setContainer(container);
@@ -67,7 +68,7 @@ export class Storage<T extends {}> {
      * `localStorage`
      * @param key the lookup key for the stored datatype
      */
-    delete<Tkey extends keyof T>(key: Tkey): void {
+    delete<T extends {}>(key: keyof T): void {
         const container = this.getContainer();
         container.data.delete(key.toString());
         this.setContainer(container);
@@ -150,3 +151,5 @@ export class Storage<T extends {}> {
         }
     }
 }
+
+export const store = new Storage<ShortlistItState>();
