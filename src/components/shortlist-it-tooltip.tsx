@@ -7,21 +7,19 @@ type ShortlistItTooltipProps =  React.HTMLAttributes<HTMLSpanElement> & {
     children: React.ReactElement
 };
 
-export class ShortlistItTooltip extends React.Component<ShortlistItTooltipProps> {
-    tooltip = (props: JSX.IntrinsicAttributes & TooltipProps & React.RefAttributes<HTMLDivElement>) => (
-        <Tooltip id={this.props.id} {...props}>
-          {this.props.text}
+export function ShortlistItTooltip(props: ShortlistItTooltipProps) {
+    const tooltip = (tooltipProps: JSX.IntrinsicAttributes & TooltipProps & React.RefAttributes<HTMLDivElement>) => (
+        <Tooltip id={props.id} {...tooltipProps}>
+          {props.text}
         </Tooltip>
     );
     
-    render() {
-        return (
-            <OverlayTrigger
-                placement="auto"
-                delay={{ show: 250, hide: 400 }}
-                overlay={this.tooltip}>
-                <span {...this.props}>{this.props.children}</span>
-            </OverlayTrigger>
-        )
-    }
+    return (
+        <OverlayTrigger
+            placement="auto"
+            delay={{ show: 250, hide: 400 }}
+            overlay={tooltip}>
+            <span {...props}>{props.children}</span>
+        </OverlayTrigger>
+    );
 }
