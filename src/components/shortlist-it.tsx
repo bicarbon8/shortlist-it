@@ -141,7 +141,7 @@ const exampleLists: Array<Shortlist> = [
     }
 ];
 
-export function ShortlistIt(props: never) {
+export function ShortlistIt() {
     const [state, setState] = useState<ShortlistItState>({
         showArchived: store.get('showArchived', false),
         lists: store.get('lists', new Array<Shortlist>(...exampleLists)),
