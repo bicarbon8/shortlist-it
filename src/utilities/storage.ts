@@ -1,4 +1,5 @@
 import packagejson from "../../package.json";
+import { Shortlist } from "../types/shortlist";
 import { ShortlistItState } from "../types/shortlist-it-state";
 import { StorageContainer } from "./storage-container";
 
@@ -22,15 +23,13 @@ function reviver(key: string, value: any) {
     return value;
 }
 
-export class Storage<T extends {}> {
+export class Storage {
     private name: string;
     private version: string;
     
     constructor() {
         this.name = packagejson.name;
         this.version = packagejson.version;
-
-        this.migrateLegacyContainer();
     }
 
     /**
@@ -47,7 +46,7 @@ export class Storage<T extends {}> {
      * @param defaultVal a value to return if no data is found
      * @returns the value stored under the specified key or `defaultVal` if none found
      */
-    get<T extends {}>(key: keyof T, defaultVal: T[keyof T]): T[keyof T] {
+    get<T extends ShortlistItState, Tval extends T[keyof T]>(key: keyof T, defaultVal: Tval): Tval {
         return this.getContainer().data.get(key.toString()) ?? defaultVal;
     }
 
@@ -57,7 +56,7 @@ export class Storage<T extends {}> {
      * @param key the lookup key for the stored datatype
      * @param val the value to store
      */
-    set<T extends {}>(key: keyof T, val: T[keyof T]): void {
+    set<T extends ShortlistItState, Tval extends T[keyof T]>(key: keyof T, val: Tval): void {
         const container = this.getContainer();
         container.data.set(key.toString(), val);
         this.setContainer(container);
@@ -68,7 +67,7 @@ export class Storage<T extends {}> {
      * `localStorage`
      * @param key the lookup key for the stored datatype
      */
-    delete<T extends {}>(key: keyof T): void {
+    delete<T extends ShortlistItState>(key: keyof T): void {
         const container = this.getContainer();
         container.data.delete(key.toString());
         this.setContainer(container);
@@ -95,7 +94,12 @@ export class Storage<T extends {}> {
             const containers: Array<StorageContainer> = JSON.parse(localStorage.getItem(this.key), reviver);
             if (containers?.length) {
                 container = containers.find(c => c.version === this.version);
-                // TODO: handle fallback and/or migration logic in the future
+                if (!container) {
+                    container = containers.find(c => c.version.match(/^(1\.)([0-9]+\.)([0-9]+)$/));
+                    if (container) {
+                        (container.data.get('lists') as Array<Shortlist>).forEach(l => l.criteria.forEach(c => c.weight ??= 1));
+                    }
+                }
             }
         } catch (e) {
             console.error(e);
@@ -103,7 +107,6 @@ export class Storage<T extends {}> {
         if (!container) {
             container = { version: this.version, data: new Map<string, any>() }
         }
-        // TODO: handle migration of old version data
 
         return container;
     }
@@ -131,25 +134,6 @@ export class Storage<T extends {}> {
             }
         }
     }
-
-    /**
-     * TODO: remove in next update
-     * @returns `StorageContainer`
-     */
-    private migrateLegacyContainer(): void {
-        const legacyKey = `${this.name}-${this.version}`;
-        let container: StorageContainer;
-
-        try {
-            container = JSON.parse(localStorage.getItem(legacyKey), reviver);
-            if (container) {
-                localStorage.removeItem(legacyKey);
-                this.setContainer(container);
-            }
-        } catch (e) {
-            // ignore
-        }
-    }
 }
 
-export const store = new Storage<ShortlistItState>();
+export const store = new Storage();

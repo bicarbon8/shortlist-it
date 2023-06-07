@@ -65,8 +65,9 @@ class RankingCalculator {
         let total = 0;
         entry.values.forEach((vals: Array<string>, criteriaName: string) => {
             const criteria = list.criteria.find(c => c.name === criteriaName);
+            const weight = criteria.weight ?? 1;
             if (criteria && criteria.type) {
-                total += this.calculateValuePoints(criteria.type, criteria.values, vals);
+                total += this.calculateValuePoints(criteria.type, criteria.values, vals) * weight;
             }
         });
         return total;

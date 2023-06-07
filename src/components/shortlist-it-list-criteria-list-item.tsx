@@ -21,6 +21,7 @@ type ShortlistItListCriteriaListItemState = {
     valuesAllowed: boolean;
     nameError: boolean;
     valuesError: boolean;
+    weightError: boolean;
 };
 
 function validateType(props: ShortlistItListCriteriaListItemProps, state: ShortlistItListCriteriaListItemState, setState: React.Dispatch<React.SetStateAction<ShortlistItListCriteriaListItemState>>): void {
@@ -60,6 +61,16 @@ function validateValues(props: ShortlistItListCriteriaListItemProps, state: Shor
     });
 }
 
+function validateWeight(props: ShortlistItListCriteriaListItemProps, state: ShortlistItListCriteriaListItemState, setState: React.Dispatch<React.SetStateAction<ShortlistItListCriteriaListItemState>>): void {
+    const criteriaEl = document.getElementById(`${props.criteria.id}`) as HTMLDivElement;
+    const criteriaWeight: string = (criteriaEl.querySelector('#criteriaWeight') as HTMLInputElement).value;
+    const invalid: boolean = (isNaN(Number(criteriaWeight)) || criteriaWeight.match(/^((\+|-)?([0-9]+)(\.[0-9]+)?)|((\+|-)?\.?[0-9]+)$/) === null);
+    setState({
+        ...state,
+        weightError: invalid
+    });
+}
+
 function deleteCriteria(listId: string, criteriaId: string, stateMgr: ShortlistItStateManager): void {
     const list = getList(listId, stateMgr);
     if (list) {
@@ -80,7 +91,8 @@ export function ShortlistItListCriteriaListItem(props: ShortlistItListCriteriaLi
         multiselectAllowed: !!(props.criteria.type !== 'yes-no'),
         valuesAllowed: !!(props.criteria.type !== 'yes-no'),
         nameError: false,
-        valuesError: false
+        valuesError: false,
+        weightError: false,
     });
     
     return (
@@ -116,12 +128,25 @@ export function ShortlistItListCriteriaListItem(props: ShortlistItListCriteriaLi
                         className={(state.valuesError) ? 'is-invalid' : ''}
                         onChange={() => validateValues(props, state, setState)} />
                 </FloatingLabel>
-                <Form.Check 
-                    ref={props.criteriaRef.multi}
-                    type="switch" 
-                    label="Allow Multiselect?" 
-                    defaultChecked={(state.multiselectAllowed) ? props.criteria.allowMultiple : false}
-                    disabled={!state.multiselectAllowed} /> 
+                <div className="d-flex flex-row justify-content-between">
+                    <FloatingLabel controlId="criteriaWeight" label="Criteria Weight">
+                        <Form.Control
+                            ref={props.criteriaRef.weight}
+                            type="text" 
+                            placeholder="numeric points multiplier"
+                            defaultValue={props.criteria.weight} 
+                            className={(state.weightError) ? 'is-invalid' : ''}
+                            onChange={() => validateWeight(props, state, setState)} />
+                    </FloatingLabel>
+                    <Form.Check 
+                        className="pe-1"
+                        ref={props.criteriaRef.multi}
+                        type="switch" 
+                        label="Allow Multiselect?" 
+                        defaultChecked={(state.multiselectAllowed) ? props.criteria.allowMultiple : false}
+                        disabled={!state.multiselectAllowed}
+                    />
+                </div>
             </div>
             <div className="d-flex flex-column justify-content-between ps-1">
                 <ShortlistItTooltip id={`delete-criteria-${props.criteria.id}`} text="Delete Criteria">

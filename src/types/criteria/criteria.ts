@@ -6,4 +6,5 @@ export type Criteria = {
     type?: CriteriaType;
     values: Array<string>;
     allowMultiple?: boolean;
+    weight: number;
 };

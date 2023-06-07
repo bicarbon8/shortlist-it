@@ -6,4 +6,5 @@ export type CriteriaRefContainer = {
     type: React.RefObject<HTMLSelectElement>;
     values: React.RefObject<HTMLInputElement>;
     multi: React.RefObject<HTMLInputElement>;
+    weight: React.RefObject<HTMLInputElement>;
 }

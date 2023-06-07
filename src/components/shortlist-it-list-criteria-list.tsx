@@ -19,7 +19,7 @@ type ShortlistItListCriteriaListProps = {
 function addNewCriteria(listId: string, stateMgr: ShortlistItStateManager): void {
     const list = getList(listId, stateMgr);
     if (list) {
-        list.criteria.push({id: v4(), values: new Array<string>()});
+        list.criteria.push({id: v4(), values: new Array<string>(), weight: 1});
         updateList(listId, list, stateMgr);
     }
 }
