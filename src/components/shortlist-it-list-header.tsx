@@ -84,7 +84,8 @@ function createCriteriaRef(criteria: Criteria): CriteriaRefContainer {
         name: React.createRef<HTMLInputElement>(),
         type: React.createRef<HTMLSelectElement>(),
         values: React.createRef<HTMLInputElement>(),
-        multi: React.createRef<HTMLInputElement>()
+        multi: React.createRef<HTMLInputElement>(),
+        weight: React.createRef<HTMLInputElement>()
     };
 }
 
@@ -96,12 +97,14 @@ function saveChanges(props: ShortlistItListHeaderProps, titleRefObject: React.Re
         const type: CriteriaType = r.type.current.value as CriteriaType || 'worst-to-best';
         const values: Array<string> = r.values.current.value.split(',');
         const multi: boolean = r.multi.current.checked || false;
+        const weight: number = (r.weight.current.value != null) ? Number(r.weight.current.value) : 1;
         criteria.push({
             id: r.id,
             name: name,
             type: type,
             values: values,
-            allowMultiple: multi
+            allowMultiple: multi,
+            weight: weight
         });
     });
     saveListEdits(props.list.id, {

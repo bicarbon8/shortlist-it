@@ -134,12 +134,12 @@ export function ShortlistItListCriteriaListItem(props: ShortlistItListCriteriaLi
                             ref={props.criteriaRef.weight}
                             type="text" 
                             placeholder="numeric points multiplier"
-                            defaultValue={props.criteria.weight} 
+                            defaultValue={props.criteria.weight ?? 1} 
                             className={(state.weightError) ? 'is-invalid' : ''}
                             onChange={() => validateWeight(props, state, setState)} />
                     </FloatingLabel>
                     <Form.Check 
-                        className="pe-1"
+                        className="ps-1"
                         ref={props.criteriaRef.multi}
                         type="switch" 
                         label="Allow Multiselect?" 

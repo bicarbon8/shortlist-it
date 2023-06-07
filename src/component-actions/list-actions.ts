@@ -1,5 +1,4 @@
 import { Shortlist } from "../types/shortlist";
-import { ShortlistItState } from "../types/shortlist-it-state";
 import { ShortlistItStateManager } from "../types/shortlist-it-state-manager";
 import { rankingCalculator } from "../utilities/ranking-calculator";
 import { store } from "../utilities/storage";
@@ -30,7 +29,7 @@ export function updateList(listId: string, updated: Partial<Shortlist>, stateMgr
         const orig = allLists[index];
         const merged = rankingCalculator.rankEntries({...orig, ...updated});
         allLists.splice(index, 1, merged);
-        store.set<ShortlistItState>('lists', allLists);
+        store.set('lists', allLists);
         stateMgr.setState({
             ...stateMgr.state,
             lists: allLists
