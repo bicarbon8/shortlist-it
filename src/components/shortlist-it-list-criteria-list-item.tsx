@@ -135,7 +135,7 @@ export function ShortlistItListCriteriaListItem(props: ShortlistItListCriteriaLi
                             type="text" 
                             placeholder="numeric points multiplier"
                             defaultValue={props.criteria.weight ?? 1} 
-                            className={(state.weightError) ? 'is-invalid' : ''}
+                            className={['w-75', (state.weightError) ? 'is-invalid' : ''].join(' ')}
                             onChange={() => validateWeight(props, state, setState)} />
                     </FloatingLabel>
                     <Form.Check 
