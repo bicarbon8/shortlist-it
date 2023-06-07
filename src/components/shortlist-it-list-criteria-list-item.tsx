@@ -128,24 +128,27 @@ export function ShortlistItListCriteriaListItem(props: ShortlistItListCriteriaLi
                         className={(state.valuesError) ? 'is-invalid' : ''}
                         onChange={() => validateValues(props, state, setState)} />
                 </FloatingLabel>
-                <div className="d-flex flex-row justify-content-between">
-                    <FloatingLabel controlId="criteriaWeight" label="Criteria Weight">
+                <div className="d-flex flex-row justify-content-between align-items-center">
+                    <div className="d-flex flex-wrap align-content-around px-1">
+                        <p className="pe-1 pt-1 mb-1">Multiselect?</p>
+                        <Form.Check
+                            className="pt-1"
+                            ref={props.criteriaRef.multi}
+                            type="switch" 
+                            aria-label="Allow Multiselect?" 
+                            defaultChecked={(state.multiselectAllowed) ? props.criteria.allowMultiple : false}
+                            disabled={!state.multiselectAllowed}
+                        />
+                    </div>
+                    <FloatingLabel controlId="criteriaWeight" label="Weighting">
                         <Form.Control
                             ref={props.criteriaRef.weight}
                             type="text" 
                             placeholder="numeric points multiplier"
                             defaultValue={props.criteria.weight ?? 1} 
-                            className={['w-75', (state.weightError) ? 'is-invalid' : ''].join(' ')}
+                            className={(state.weightError) ? 'is-invalid' : ''}
                             onChange={() => validateWeight(props, state, setState)} />
                     </FloatingLabel>
-                    <Form.Check 
-                        className="ps-1"
-                        ref={props.criteriaRef.multi}
-                        type="switch" 
-                        label="Allow Multiselect?" 
-                        defaultChecked={(state.multiselectAllowed) ? props.criteria.allowMultiple : false}
-                        disabled={!state.multiselectAllowed}
-                    />
                 </div>
             </div>
             <div className="d-flex flex-column justify-content-between ps-1">
