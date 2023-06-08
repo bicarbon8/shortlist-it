@@ -71,6 +71,10 @@ function validateWeight(props: ShortlistItListCriteriaListItemProps, state: Shor
     });
 }
 
+function saveAsTemplate(listId: string, criteriaId: string, stateMgr: ShortlistItStateManager): void {
+
+}
+
 function deleteCriteria(listId: string, criteriaId: string, stateMgr: ShortlistItStateManager): void {
     const list = getList(listId, stateMgr);
     if (list) {
@@ -152,6 +156,11 @@ export function ShortlistItListCriteriaListItem(props: ShortlistItListCriteriaLi
                 </div>
             </div>
             <div className="d-flex flex-column justify-content-between ps-1">
+                <ShortlistItTooltip id={`save-criteria-template-${props.criteria.id}`} text="Save as Template">
+                    <Button variant="info" onClick={() => saveAsTemplate(props.list.id, props.criteria.id, props.stateMgr)}>
+                        <BootstrapIcon icon="file-earmark-arrow-down" />
+                    </Button>
+                </ShortlistItTooltip>
                 <ShortlistItTooltip id={`delete-criteria-${props.criteria.id}`} text="Delete Criteria">
                     <Button variant="danger" onClick={() => deleteCriteria(props.list.id, props.criteria.id, props.stateMgr)}>
                         <BootstrapIcon icon="trash" />
