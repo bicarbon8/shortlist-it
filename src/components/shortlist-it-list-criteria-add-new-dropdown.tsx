@@ -27,13 +27,15 @@ function addNewCriteria(listId: string, stateMgr: ShortlistItStateManager, templ
 }
 
 function deleteCriteriaTemplate(templateId: string, stateMgr: ShortlistItStateManager): void {
-    const criteriaTemplates = stateMgr.state.criteriaTemplates;
-    criteriaTemplates.delete(templateId);
-    store.set('criteriaTemplates', criteriaTemplates);
-    stateMgr.setState({
-        ...stateMgr.state,
-        criteriaTemplates: criteriaTemplates
-    });
+    if (confirm(`are you sure you want to delete Criteria Template: '${templateId}'?`)) {
+        const criteriaTemplates = stateMgr.state.criteriaTemplates;
+        criteriaTemplates.delete(templateId);
+        store.set('criteriaTemplates', criteriaTemplates);
+        stateMgr.setState({
+            ...stateMgr.state,
+            criteriaTemplates: criteriaTemplates
+        });
+    }
 }
 
 type ShortlistItListCriteriaAddNewDropdownProps = {
@@ -63,7 +65,7 @@ export default function ShortlistItListCriteriaAddNewDropdown(props: ShortlistIt
                                     return (
                                         <Dropdown.Item key={c.name} onClick={() => null}>
                                             <div className="d-flex flex-row justify-content-between">
-                                                <div className="flex-grow-1" onClick={() => addNewCriteria(props.list.id, props.stateMgr, c.name)}>
+                                                <div className="flex-grow-1 pe-1" onClick={() => addNewCriteria(props.list.id, props.stateMgr, c.name)}>
                                                     {c.name}
                                                 </div>
                                                 <Badge pill bg="danger">
