@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Button, FloatingLabel, Form, ListGroupItem } from "react-bootstrap";
+import { Alert, Button, FloatingLabel, Form, ListGroupItem } from "react-bootstrap";
 import { Criteria } from "../types/criteria/criteria";
 import { CriteriaRefContainer } from "../types/criteria/criteria-ref-container";
 import { CriteriaType } from "../types/criteria/criteria-type";
@@ -71,13 +71,13 @@ function validateWeight(props: ShortlistItListCriteriaListItemProps, state: Shor
     });
 }
 
-function saveAsTemplate(criteriaRef: CriteriaRefContainer, stateMgr: ShortlistItStateManager): void {
+function saveAsTemplate(criteriaRef: CriteriaRefContainer, stateMgr: ShortlistItStateManager, success: () => void, exists: () => void, error: () => void, overwrite?: boolean): void {
     const criteria = validateCriteriaTemplateValues(criteriaRef);
     if (criteria) {
         if (criteria.name) {
             if (stateMgr.state.criteriaTemplates.has(criteria.name)) {
-                const result = confirm(`Criteria template named '${criteria.name}' is already in use. Are you sure you wish to overwrite it?`);
-                if (!result) {
+                if (!overwrite) {
+                    exists();
                     return;
                 }
             }
@@ -88,10 +88,10 @@ function saveAsTemplate(criteriaRef: CriteriaRefContainer, stateMgr: ShortlistIt
                 ...stateMgr.state,
                 criteriaTemplates: updated
             });
-            alert(`new Criteria Template: '${criteria.name}' added`);
+            success();
         }
     } else {
-        alert(`Criteria must have values set for all fields in order to be used as a Template`);
+        error();
     }
 }
 
@@ -137,10 +137,45 @@ export function ShortlistItListCriteriaListItem(props: ShortlistItListCriteriaLi
         valuesError: false,
         weightError: false,
     });
+
+    const [showSaveTemplateSuccess, setShowSaveTemplateSuccess] = useState(false);
+    const onShowSuccess = () => {
+        setShowSaveTemplateSuccess(true);
+        window.setTimeout(() => setShowSaveTemplateSuccess(false), 5000);
+    }
+    const [showSaveTemplateExists, setShowSaveTemplateExists] = useState(false);
+    const onShowExists = () => {
+        setShowSaveTemplateExists(true);
+    }
+    const [showSaveTemplateError, setShowSaveTemplateError] = useState(false);
+    const onShowError = () => {
+        setShowSaveTemplateError(true);
+        window.setTimeout(() => setShowSaveTemplateError(false), 5000);
+    }
     
     return (
         <ListGroupItem id={props.criteria.id} variant="dark" className="d-flex flex-row justify-content-between criteria-list-item">
             <div className="d-flex flex-column justify-content-evently flex-grow-1 pe-1">
+                <Alert variant="danger" dismissible show={showSaveTemplateError}>
+                    Criteria must have all values set to valid values in order to be used as a Template
+                </Alert>
+                <Alert variant="warning" dismissible show={showSaveTemplateExists} onClose={() => setShowSaveTemplateExists(false)}>
+                    <div className="flex-row">
+                        <p className="flex-grow-1 pe-1">Criteria with same name already exists... do you wish to overwrite it?</p>
+                        <Button 
+                            variant="danger" 
+                            onClick={() => {
+                                setShowSaveTemplateExists(false);
+                                saveAsTemplate(props.criteriaRef, props.stateMgr, onShowSuccess, onShowExists, onShowError, true);
+                            }}
+                        >
+                            Overwrite
+                        </Button>
+                    </div>
+                </Alert>
+                <Alert variant="success" dismissible show={showSaveTemplateSuccess}>
+                    Criteria successfully saved as Template
+                </Alert>
                 <FloatingLabel controlId="criteriaName" label="Criteria Name">
                     <Form.Control 
                         ref={props.criteriaRef.name}
@@ -196,7 +231,7 @@ export function ShortlistItListCriteriaListItem(props: ShortlistItListCriteriaLi
             </div>
             <div className="d-flex flex-column justify-content-between ps-1">
                 <ShortlistItTooltip id={`save-criteria-template-${props.criteria.id}`} text="Save as Template">
-                    <Button variant="info" onClick={() => saveAsTemplate(props.criteriaRef, props.stateMgr)}>
+                    <Button variant="info" onClick={() => saveAsTemplate(props.criteriaRef, props.stateMgr, onShowSuccess, onShowExists, onShowError)}>
                         <BootstrapIcon icon="file-earmark-arrow-down" />
                     </Button>
                 </ShortlistItTooltip>
