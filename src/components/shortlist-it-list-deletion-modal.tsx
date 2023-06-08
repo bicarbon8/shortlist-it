@@ -12,7 +12,7 @@ type ShortlistItListDeletionModalProps = {
 function hideDeleteConfirmation(stateMgr: ShortlistItStateManager) {
     stateMgr.setState({
         ...stateMgr.state,
-        listToBeDeleted: undefined
+        listToBeDeleted: null
     });
 }
 
@@ -24,13 +24,14 @@ function confirmDeletion(listId: string, stateMgr: ShortlistItStateManager): voi
         store.set('lists', tmp);
         stateMgr.setState({
             ...stateMgr.state,
-            lists: tmp
+            lists: tmp,
+            listToBeDeleted: null
         });
     }
 }
 
 export function ShortlistItListDeletionModal(props: ShortlistItListDeletionModalProps) {
-    const listId = props.stateMgr.state.listToBeDeleted ?? '';
+    const listId = props.stateMgr.state.listToBeDeleted;
     const listTitle = props.stateMgr.state.lists.find(l => l.id === listId)?.title;
     return (
         <ShortlistItModal 
@@ -41,19 +42,17 @@ export function ShortlistItListDeletionModal(props: ShortlistItListDeletionModal
             show={!!(listId && listTitle)}
             onClose={() => hideDeleteConfirmation(props.stateMgr)}>
             <p>
-            are you certain you want to delete list titled: <i>{listTitle}</i> a deleted list can not be recovered. 
+            are you certain you want to delete list titled: <i>{listTitle}</i>? a deleted list can not be recovered. 
             would you rather archive this list instead?
             </p>
             <hr />
             <div className="d-flex justify-content-between">
                 <Button onClick={() => {
-                    hideDeleteConfirmation(props.stateMgr);
                     archiveList(listId, props.stateMgr);
                 }} variant="outline-dark">
                     Archive
                 </Button>
                 <Button onClick={() => {
-                    hideDeleteConfirmation(props.stateMgr);;
                     confirmDeletion(listId, props.stateMgr);
                 }} variant="outline-danger">
                     DELETE

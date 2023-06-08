@@ -78,7 +78,8 @@ function setListArchivedState(listId: string, archived: boolean, stateMgr: Short
         store.set('lists', lists);
         stateMgr.setState({
             ...stateMgr.state,
-            lists: lists
+            lists: lists,
+            listToBeDeleted: null
         });
     }
 }

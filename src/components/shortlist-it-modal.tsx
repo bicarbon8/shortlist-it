@@ -14,6 +14,14 @@ type ShortlistItModalState = {
     show: boolean;
 }
 
+function scrollToTop(): void {
+    const html = document.querySelector("html");
+    html.scrollTo({
+        top: 0,
+        behavior: 'instant' as ScrollBehavior
+    });
+}
+
 function preventScrolling(): void {
     const html = document.querySelector("html");
     if (html) {
@@ -34,6 +42,7 @@ export function ShortlistItModal(props: ShortlistItModalProps) {
     });
     
     if (props.show) {
+        scrollToTop();
         preventScrolling();
         return (
             <div className="overlay w-100 d-flex justify-content-center align-content-start">

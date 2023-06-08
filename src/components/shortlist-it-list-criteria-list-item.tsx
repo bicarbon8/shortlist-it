@@ -7,7 +7,6 @@ import { Shortlist } from "../types/shortlist";
 import { BootstrapIcon } from "./bootstrap-icon";
 import { ShortlistItTooltip } from "./shortlist-it-tooltip";
 import { ShortlistItStateManager } from "../types/shortlist-it-state-manager";
-import { getList, updateList } from "../component-actions/list-actions";
 import { store } from "../utilities/storage";
 
 type ShortlistItListCriteriaListItemProps = {
@@ -123,19 +122,11 @@ function validateCriteriaTemplateValues(criteriaRef: CriteriaRefContainer): Omit
     };
 }
 
-function deleteCriteria(listId: string, criteriaId: string, stateMgr: ShortlistItStateManager): void {
-    const list = getList(listId, stateMgr);
-    if (list) {
-        const index = list.criteria.findIndex(c => c.id === criteriaId);
-        if (index >= 0) {
-            const criteria = list.criteria[index];
-            const confirmed: boolean = window.confirm(`are you sure you want to delete criteria: '${criteria.name}' from list '${list.title}'? this action cannot be undone and will remove all values associated with the criteria from any entries in the list`)
-            if (confirmed) {
-                list.criteria.splice(index, 1);
-                updateList(listId, list, stateMgr);
-            }
-        }
-    }
+function deleteCriteria(criteriaId: string, stateMgr: ShortlistItStateManager): void {
+    stateMgr.setState({
+        ...stateMgr.state,
+        criteriaToBeDeleted: criteriaId
+    });
 }
 
 export function ShortlistItListCriteriaListItem(props: ShortlistItListCriteriaListItemProps) {
@@ -210,7 +201,7 @@ export function ShortlistItListCriteriaListItem(props: ShortlistItListCriteriaLi
                     </Button>
                 </ShortlistItTooltip>
                 <ShortlistItTooltip id={`delete-criteria-${props.criteria.id}`} text="Delete Criteria">
-                    <Button variant="danger" onClick={() => deleteCriteria(props.list.id, props.criteria.id, props.stateMgr)}>
+                    <Button variant="danger" onClick={() => deleteCriteria(props.criteria.id, props.stateMgr)}>
                         <BootstrapIcon icon="trash" />
                     </Button>
                 </ShortlistItTooltip>
