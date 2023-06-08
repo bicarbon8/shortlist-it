@@ -6,9 +6,9 @@ import { getList, updateList } from "../component-actions/list-actions";
 import { v4 } from "uuid";
 import { Shortlist } from "../types/shortlist";
 import { Criteria } from "../types/criteria/criteria";
-import { store } from "../utilities/storage";
+import ShortlistItCriteriaTemplateItem from "./shortlist-it-criteria-template-item";
 
-function addNewCriteria(listId: string, stateMgr: ShortlistItStateManager, templateId?: string): void {
+export function addNewCriteria(listId: string, stateMgr: ShortlistItStateManager, templateId?: string): void {
     const list = getList(listId, stateMgr);
     if (list) {
         let criteria: Criteria;
@@ -23,18 +23,6 @@ function addNewCriteria(listId: string, stateMgr: ShortlistItStateManager, templ
         }
         list.criteria.push(criteria);
         updateList(listId, list, stateMgr);
-    }
-}
-
-function deleteCriteriaTemplate(templateId: string, stateMgr: ShortlistItStateManager): void {
-    if (confirm(`are you sure you want to delete Criteria Template: '${templateId}'?`)) {
-        const criteriaTemplates = stateMgr.state.criteriaTemplates;
-        criteriaTemplates.delete(templateId);
-        store.set('criteriaTemplates', criteriaTemplates);
-        stateMgr.setState({
-            ...stateMgr.state,
-            criteriaTemplates: criteriaTemplates
-        });
     }
 }
 
@@ -61,20 +49,12 @@ export default function ShortlistItListCriteriaAddNewDropdown(props: ShortlistIt
                             <Dropdown.Toggle split variant="info" id="dropdown-split-basic" />
 
                             <Dropdown.Menu>
-                                {Array.from(props.stateMgr.state.criteriaTemplates.values()).map(c => {
-                                    return (
-                                        <Dropdown.Item key={c.name} onClick={() => null}>
-                                            <div className="d-flex flex-row justify-content-between">
-                                                <div className="flex-grow-1 pe-1" onClick={() => addNewCriteria(props.list.id, props.stateMgr, c.name)}>
-                                                    {c.name}
-                                                </div>
-                                                <Badge pill bg="danger">
-                                                    <BootstrapIcon icon="trash" onClick={() => deleteCriteriaTemplate(c.name, props.stateMgr)} />
-                                                </Badge>
-                                            </div>
-                                        </Dropdown.Item>
-                                    );
-                                })}
+                                {Array.from(props.stateMgr.state.criteriaTemplates.values()).map(c => <ShortlistItCriteriaTemplateItem 
+                                    key={c.name}
+                                    list={props.list}
+                                    stateMgr={props.stateMgr}
+                                    template={c}
+                                />)}
                             </Dropdown.Menu>
                         </>) : <></>
                     }
