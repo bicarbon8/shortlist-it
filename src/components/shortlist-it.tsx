@@ -147,7 +147,8 @@ export function ShortlistIt() {
         lists: store.get('lists', new Array<Shortlist>(...exampleLists)),
         filterText: store.get('filterText', ''),
         editingListMap: new Map<string, boolean>(),
-        editingListEntryMap: new Map<string, boolean>()
+        editingListEntryMap: new Map<string, boolean>(),
+        criteriaTemplates: store.get('criteriaTemplates', new Map<string, Omit<Criteria, 'id'>>())
     });
 
     const lists: Array<Shortlist> = getLists(state);

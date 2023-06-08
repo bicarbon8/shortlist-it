@@ -8,6 +8,7 @@ import { BootstrapIcon } from "./bootstrap-icon";
 import { ShortlistItTooltip } from "./shortlist-it-tooltip";
 import { ShortlistItStateManager } from "../types/shortlist-it-state-manager";
 import { getList, updateList } from "../component-actions/list-actions";
+import { store } from "../utilities/storage";
 
 type ShortlistItListCriteriaListItemProps = {
     stateMgr: ShortlistItStateManager;
@@ -71,8 +72,55 @@ function validateWeight(props: ShortlistItListCriteriaListItemProps, state: Shor
     });
 }
 
-function saveAsTemplate(listId: string, criteriaId: string, stateMgr: ShortlistItStateManager): void {
+function saveAsTemplate(criteriaRef: CriteriaRefContainer, stateMgr: ShortlistItStateManager): void {
+    const criteria = validateCriteriaTemplateValues(criteriaRef);
+    if (criteria) {
+        if (criteria.name) {
+            if (stateMgr.state.criteriaTemplates.has(criteria.name)) {
+                const result = confirm(`Criteria template named '${criteria.name}' is already in use. Are you sure you wish to overwrite it?`);
+                if (!result) {
+                    return;
+                }
+            }
+            const updated = stateMgr.state.criteriaTemplates;
+            updated.set(criteria.name, criteria);
+            store.set('criteriaTemplates', updated);
+            stateMgr.setState({
+                ...stateMgr.state,
+                criteriaTemplates: updated
+            });
+            alert(`new Criteria Template: '${criteria.name}' added`);
+        }
+    } else {
+        alert(`Criteria must have values set for all fields in order to be used as a Template`);
+    }
+}
 
+function validateCriteriaTemplateValues(criteriaRef: CriteriaRefContainer): Omit<Criteria, 'id'> {
+    const cName = criteriaRef.name.current?.value;
+    if (cName == null || cName == '') {
+        return null;
+    }
+    const cType = criteriaRef.type.current?.value;
+    if (cType == null || cType == '') {
+        return null;
+    }
+    const cValues = criteriaRef.values.current?.value;
+    if (cValues == null || cValues == '') {
+        return null;
+    }
+    const cWeight = criteriaRef.weight.current?.value;
+    if (cWeight == null || cWeight == '' || isNaN(Number(cWeight))) {
+        return null;
+    }
+    const cMulti = criteriaRef.multi.current?.checked;
+    return {
+        name: cName,
+        type: cType as CriteriaType,
+        values: cValues.split(',').map(v => v.trim()),
+        weight: Number(cWeight),
+        allowMultiple: cMulti
+    };
 }
 
 function deleteCriteria(listId: string, criteriaId: string, stateMgr: ShortlistItStateManager): void {
@@ -157,7 +205,7 @@ export function ShortlistItListCriteriaListItem(props: ShortlistItListCriteriaLi
             </div>
             <div className="d-flex flex-column justify-content-between ps-1">
                 <ShortlistItTooltip id={`save-criteria-template-${props.criteria.id}`} text="Save as Template">
-                    <Button variant="info" onClick={() => saveAsTemplate(props.list.id, props.criteria.id, props.stateMgr)}>
+                    <Button variant="info" onClick={() => saveAsTemplate(props.criteriaRef, props.stateMgr)}>
                         <BootstrapIcon icon="file-earmark-arrow-down" />
                     </Button>
                 </ShortlistItTooltip>

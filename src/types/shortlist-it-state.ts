@@ -1,3 +1,4 @@
+import { Criteria } from "./criteria/criteria";
 import { Shortlist } from "./shortlist";
 
 export type ShortlistItState = {
@@ -7,4 +8,5 @@ export type ShortlistItState = {
     filterText: string;
     editingListMap: Map<string, boolean>
     editingListEntryMap: Map<string, boolean>
+    criteriaTemplates: Map<string, Omit<Criteria, 'id'>>
 };
