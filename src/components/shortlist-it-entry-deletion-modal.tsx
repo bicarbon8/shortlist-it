@@ -33,28 +33,28 @@ function confirmDeletion(entryId: string, stateMgr: ShortlistItStateManager): vo
 }
 
 export function ShortlistItEntryDeletionModal(props: ShortlistItEntryDeletionModalProps) {
-    const criteriaId = props.stateMgr.state.entryToBeDeleted;
+    const entryId = props.stateMgr.state.entryToBeDeleted;
     let list: Shortlist;
     let entryDesc: string;
-    if (criteriaId) {
-        list = props.stateMgr.state.lists.find(l => l.entries.find(c => c.id === criteriaId) != null);
-        entryDesc = list.entries.find(l => l.id === criteriaId)?.description;
+    if (entryId) {
+        list = props.stateMgr.state.lists.find(l => l.entries.find(c => c.id === entryId) != null);
+        entryDesc = list?.entries.find(l => l.id === entryId)?.description;
     }
     return (
         <ShortlistItModal 
-            id={`delete-${criteriaId}`}
+            id={`delete-${entryId}`}
             variant="danger"
             heading="Warning!"
             dismissible={true}
-            show={!!(criteriaId && list && entryDesc)}
+            show={!!(entryId)}
             onClose={() => hideDeleteConfirmation(props.stateMgr)}>
             <p>
-            are you certain you want to delete Entry: <i>{entryDesc}</i> from list titled: <i>{list?.title}</i>? once deleted it can not be recovered.
+            are you certain you want to delete Entry: <i>{entryDesc ?? "''"}</i> from list titled: <i>{list?.title}</i>? once deleted it can not be recovered.
             </p>
             <hr />
             <div className="d-flex justify-content-end">
                 <Button onClick={() => {
-                    confirmDeletion(criteriaId, props.stateMgr);
+                    confirmDeletion(entryId, props.stateMgr);
                 }} variant="outline-danger">
                     DELETE
                 </Button>

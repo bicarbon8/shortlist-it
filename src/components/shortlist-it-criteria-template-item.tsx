@@ -1,22 +1,16 @@
 import { Badge, Dropdown } from "react-bootstrap";
 import { Criteria } from "../types/criteria/criteria";
 import { ShortlistItStateManager } from "../types/shortlist-it-state-manager";
-import { store } from "../utilities/storage";
 import { BootstrapIcon } from "./bootstrap-icon";
 import React from "react";
 import { addNewCriteria } from "./shortlist-it-list-criteria-add-new-dropdown";
 import { Shortlist } from "../types/shortlist";
 
 function deleteCriteriaTemplate(templateId: string, stateMgr: ShortlistItStateManager): void {
-    if (confirm(`are you sure you want to delete Criteria Template: '${templateId}'?`)) {
-        const criteriaTemplates = stateMgr.state.criteriaTemplates;
-        criteriaTemplates.delete(templateId);
-        store.set('criteriaTemplates', criteriaTemplates);
-        stateMgr.setState({
-            ...stateMgr.state,
-            criteriaTemplates: criteriaTemplates
-        });
-    }
+    stateMgr.setState({
+        ...stateMgr.state,
+        criteriaTemplateToBeDeleted: templateId
+    });
 }
 
 type ShortlistItCriteriaTemplateItemProps = {

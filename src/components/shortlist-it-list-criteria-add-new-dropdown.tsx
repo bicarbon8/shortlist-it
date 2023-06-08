@@ -1,5 +1,5 @@
 import React from "react";
-import { Badge, Button, ButtonGroup, Dropdown, ListGroupItem } from "react-bootstrap";
+import { Button, ButtonGroup, Dropdown, ListGroupItem } from "react-bootstrap";
 import { BootstrapIcon } from "./bootstrap-icon";
 import { ShortlistItStateManager } from "../types/shortlist-it-state-manager";
 import { getList, updateList } from "../component-actions/list-actions";

@@ -6,6 +6,7 @@ export type ShortlistItState = {
     showArchived: boolean,
     listToBeDeleted?: string;
     criteriaToBeDeleted?: string;
+    criteriaTemplateToBeDeleted?: string;
     entryToBeDeleted?: string;
     filterText: string;
     editingListMap: Map<string, boolean>
