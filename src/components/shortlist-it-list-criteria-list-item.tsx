@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Button, FloatingLabel, Form, ListGroupItem } from "react-bootstrap";
+import { Alert, Button, FloatingLabel, Form, ListGroupItem } from "react-bootstrap";
 import { Criteria } from "../types/criteria/criteria";
 import { CriteriaRefContainer } from "../types/criteria/criteria-ref-container";
 import { CriteriaType } from "../types/criteria/criteria-type";
@@ -7,7 +7,7 @@ import { Shortlist } from "../types/shortlist";
 import { BootstrapIcon } from "./bootstrap-icon";
 import { ShortlistItTooltip } from "./shortlist-it-tooltip";
 import { ShortlistItStateManager } from "../types/shortlist-it-state-manager";
-import { getList, updateList } from "../component-actions/list-actions";
+import { store } from "../utilities/storage";
 
 type ShortlistItListCriteriaListItemProps = {
     stateMgr: ShortlistItStateManager;
@@ -71,19 +71,62 @@ function validateWeight(props: ShortlistItListCriteriaListItemProps, state: Shor
     });
 }
 
-function deleteCriteria(listId: string, criteriaId: string, stateMgr: ShortlistItStateManager): void {
-    const list = getList(listId, stateMgr);
-    if (list) {
-        const index = list.criteria.findIndex(c => c.id === criteriaId);
-        if (index >= 0) {
-            const criteria = list.criteria[index];
-            const confirmed: boolean = window.confirm(`are you sure you want to delete criteria: '${criteria.name}' from list '${list.title}'? this action cannot be undone and will remove all values associated with the criteria from any entries in the list`)
-            if (confirmed) {
-                list.criteria.splice(index, 1);
-                updateList(listId, list, stateMgr);
+function saveAsTemplate(criteriaRef: CriteriaRefContainer, stateMgr: ShortlistItStateManager, success: () => void, exists: () => void, error: () => void, overwrite?: boolean): void {
+    const criteria = validateCriteriaTemplateValues(criteriaRef);
+    if (criteria) {
+        if (criteria.name) {
+            if (stateMgr.state.criteriaTemplates.has(criteria.name)) {
+                if (!overwrite) {
+                    exists();
+                    return;
+                }
             }
+            const updated = stateMgr.state.criteriaTemplates;
+            updated.set(criteria.name, criteria);
+            store.set('criteriaTemplates', updated);
+            stateMgr.setState({
+                ...stateMgr.state,
+                criteriaTemplates: updated
+            });
+            success();
         }
+    } else {
+        error();
     }
+}
+
+function validateCriteriaTemplateValues(criteriaRef: CriteriaRefContainer): Omit<Criteria, 'id'> {
+    const cName = criteriaRef.name.current?.value;
+    if (cName == null || cName == '') {
+        return null;
+    }
+    const cType = criteriaRef.type.current?.value;
+    if (cType == null || cType == '') {
+        return null;
+    }
+    const cValues = criteriaRef.values.current?.value;
+    if (cValues == null || cValues == '') {
+        return null;
+    }
+    const cWeight = criteriaRef.weight.current?.value;
+    if (cWeight == null || cWeight == '' || isNaN(Number(cWeight))) {
+        return null;
+    }
+    const cMulti = criteriaRef.multi.current?.checked;
+    return {
+        name: cName,
+        type: cType as CriteriaType,
+        values: cValues.split(',').map(v => v.trim()),
+        weight: Number(cWeight),
+        allowMultiple: cMulti
+    };
+}
+
+function deleteCriteria(criteriaId: string, stateMgr: ShortlistItStateManager): void {
+    stateMgr.setState({
+        ...stateMgr.state,
+        criteriaToBeDeleted: criteriaId
+    });
 }
 
 export function ShortlistItListCriteriaListItem(props: ShortlistItListCriteriaListItemProps) {
@@ -94,10 +137,45 @@ export function ShortlistItListCriteriaListItem(props: ShortlistItListCriteriaLi
         valuesError: false,
         weightError: false,
     });
+
+    const [showSaveTemplateSuccess, setShowSaveTemplateSuccess] = useState(false);
+    const onShowSuccess = () => {
+        setShowSaveTemplateSuccess(true);
+        window.setTimeout(() => setShowSaveTemplateSuccess(false), 5000);
+    }
+    const [showSaveTemplateExists, setShowSaveTemplateExists] = useState(false);
+    const onShowExists = () => {
+        setShowSaveTemplateExists(true);
+    }
+    const [showSaveTemplateError, setShowSaveTemplateError] = useState(false);
+    const onShowError = () => {
+        setShowSaveTemplateError(true);
+        window.setTimeout(() => setShowSaveTemplateError(false), 5000);
+    }
     
     return (
         <ListGroupItem id={props.criteria.id} variant="dark" className="d-flex flex-row justify-content-between criteria-list-item">
             <div className="d-flex flex-column justify-content-evently flex-grow-1 pe-1">
+                <Alert variant="danger" dismissible show={showSaveTemplateError}>
+                    Criteria must have all values set to valid values in order to be used as a Template
+                </Alert>
+                <Alert variant="warning" dismissible show={showSaveTemplateExists} onClose={() => setShowSaveTemplateExists(false)}>
+                    <div className="flex-row">
+                        <p className="flex-grow-1 pe-1">Criteria with same name already exists... do you wish to overwrite it?</p>
+                        <Button 
+                            variant="danger" 
+                            onClick={() => {
+                                setShowSaveTemplateExists(false);
+                                saveAsTemplate(props.criteriaRef, props.stateMgr, onShowSuccess, onShowExists, onShowError, true);
+                            }}
+                        >
+                            Overwrite
+                        </Button>
+                    </div>
+                </Alert>
+                <Alert variant="success" dismissible show={showSaveTemplateSuccess}>
+                    Criteria successfully saved as Template
+                </Alert>
                 <FloatingLabel controlId="criteriaName" label="Criteria Name">
                     <Form.Control 
                         ref={props.criteriaRef.name}
@@ -152,8 +230,13 @@ export function ShortlistItListCriteriaListItem(props: ShortlistItListCriteriaLi
                 </div>
             </div>
             <div className="d-flex flex-column justify-content-between ps-1">
+                <ShortlistItTooltip id={`save-criteria-template-${props.criteria.id}`} text="Save as Template">
+                    <Button variant="info" onClick={() => saveAsTemplate(props.criteriaRef, props.stateMgr, onShowSuccess, onShowExists, onShowError)}>
+                        <BootstrapIcon icon="file-earmark-arrow-down" />
+                    </Button>
+                </ShortlistItTooltip>
                 <ShortlistItTooltip id={`delete-criteria-${props.criteria.id}`} text="Delete Criteria">
-                    <Button variant="danger" onClick={() => deleteCriteria(props.list.id, props.criteria.id, props.stateMgr)}>
+                    <Button variant="danger" onClick={() => deleteCriteria(props.criteria.id, props.stateMgr)}>
                         <BootstrapIcon icon="trash" />
                     </Button>
                 </ShortlistItTooltip>

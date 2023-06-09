@@ -48,7 +48,7 @@ function getEditButton(props: ShortlistItListEntryProps, descRefObject: React.Re
                         </Button>
                     </ShortlistItTooltip>
                     <ShortlistItTooltip id={`delete-entry-${props.entry.id}`} text="Delete Entry" className="mt-2">
-                        <Button variant="danger" onClick={() => deleteEntry(props.list.id, props.entry.id, props.stateMgr)}>
+                        <Button variant="danger" onClick={() => deleteEntry(props.entry.id, props.stateMgr)}>
                             <BootstrapIcon icon="trash" />
                         </Button>
                     </ShortlistItTooltip>
@@ -151,18 +151,11 @@ function cancelListEntryEdits(listId: string, entryId: string, stateMgr: Shortli
     setEditingListEntryState(listId, entryId, false, stateMgr);
 }
 
-function deleteEntry(listId: string, entryId: string, stateMgr: ShortlistItStateManager): void {
-    const list = getList(listId, stateMgr);
-    const entry = getEntry(listId, entryId, stateMgr);
-    const confirmed: boolean = window.confirm(`Are you sure you want to delete entry described by: '${entry.description}' from list '${list.title}'? This action cannot be undone.`);
-    if (confirmed) {
-        const index = list.entries.findIndex(e => e.id === entryId);
-        if (index >= 0) {
-            let updated = list;
-            updated.entries.splice(index, 1);
-            updateList(listId, updated, stateMgr);
-        }
-    }
+function deleteEntry(entryId: string, stateMgr: ShortlistItStateManager): void {
+    stateMgr.setState({
+        ...stateMgr.state,
+        entryToBeDeleted: entryId
+    });
 }
 
 export function ShortlistItListEntry(props: ShortlistItListEntryProps) {
