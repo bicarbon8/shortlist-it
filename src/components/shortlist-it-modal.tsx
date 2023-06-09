@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { createRef, useEffect } from "react";
 import { Alert } from "react-bootstrap";
 
 type ShortlistItModalProps = JSX.ElementChildrenAttribute & {
@@ -9,18 +9,6 @@ type ShortlistItModalProps = JSX.ElementChildrenAttribute & {
     heading: string;
     onClose: () => void;
 };
-
-type ShortlistItModalState = {
-    show: boolean;
-}
-
-function scrollToTop(): void {
-    const html = document.querySelector("html");
-    html.scrollTo({
-        top: 0,
-        behavior: 'instant' as ScrollBehavior
-    });
-}
 
 function preventScrolling(): void {
     const html = document.querySelector("html");
@@ -37,23 +25,34 @@ function restoreScrolling(): void {
 }
 
 export function ShortlistItModal(props: ShortlistItModalProps) {
-    const [state, setState] = useState<ShortlistItModalState>({
-        show: props.show ?? true
-    });
+    const overlayRef = createRef<HTMLDivElement>();
+
+    useEffect(() => {
+        if (overlayRef.current) {
+            preventScrolling();
+            window.setTimeout(() => window.scrollTo({top: 0, behavior: 'instant' as ScrollBehavior}), 100);
+        } else {
+            restoreScrolling();
+        }
+    }, [props.show]);
     
     if (props.show) {
-        scrollToTop();
-        preventScrolling();
         return (
             <div className="overlay w-100 d-flex justify-content-center align-content-start">
-                <Alert className="m-3" id={props.id} variant={props.variant} dismissible={props.dismissible} onClose={() => props.onClose()}>
+                <Alert
+                    ref={overlayRef}
+                    className="m-3"
+                    id={props.id}
+                    variant={props.variant}
+                    dismissible={props.dismissible}
+                    onClose={() => props.onClose()}
+                >
                     <Alert.Heading>{props.heading}</Alert.Heading>
                     {props.children}
                 </Alert>
             </div>
         );
     } else {
-        restoreScrolling();
         return <></>;
     }
 }

@@ -95,8 +95,17 @@ export class Storage {
             if (containers?.length) {
                 container = containers.find(c => c.version === this.version);
                 if (!container) {
-                    container = containers.find(c => c.version.match(/^(1\.)([0-9]+\.)([0-9]+)$/));
-                    if (container) {
+                    const sameMajorVersion = containers.sort((a, b) => {
+                        if (a.version < b.version) {
+                            return 1;
+                        }
+                        if (a.version > b.version) {
+                            return -1;
+                        }
+                        return 0;
+                    }).find(c => c.version.match(/^(1\.)([0-9]+\.)([0-9]+)$/));
+                    if (sameMajorVersion) {
+                        container = {...sameMajorVersion, version: this.version};
                         (container.data.get('lists') as Array<Shortlist>).forEach(l => l.criteria.forEach(c => c.weight ??= 1));
                     }
                 }
