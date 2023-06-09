@@ -17,8 +17,8 @@ function list(props: ShortlistItListEntryValuesListProps): Shortlist {
     return getList(props.listId, props.stateMgr);
 }
 
-function isMultiselect(criteriaName: string, props: ShortlistItListEntryValuesListProps): boolean {
-    return list(props).criteria.find(c => c.name === criteriaName)?.allowMultiple || false;
+export function isMultiselect(criteriaName: string, list: Shortlist): boolean {
+    return list.criteria.find(c => c.name === criteriaName)?.allowMultiple || false;
 }
 
 export function ShortlistItListEntryValuesList(props: ShortlistItListEntryValuesListProps) {
@@ -32,7 +32,7 @@ export function ShortlistItListEntryValuesList(props: ShortlistItListEntryValues
                 entryId={props.entryId} 
                 criteriaName={criteriaName} 
                 stateMgr={props.stateMgr}
-                multiselect={isMultiselect(criteriaName, props)} />
+                multiselect={isMultiselect(criteriaName, list(props))} />
             )}
         </ListGroup>
     );

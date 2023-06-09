@@ -8,16 +8,16 @@ import { BootstrapIcon } from "./bootstrap-icon";
 import { ShortlistItListEntryValuesList } from "./shortlist-it-list-entry-values-list";
 import { ShortlistItTooltip } from "./shortlist-it-tooltip";
 import { ShortlistItStateManager } from "../types/shortlist-it-state-manager";
-import { getEntry, setEditingListEntryState, startEditingEntry } from "../component-actions/list-entry-actions";
+import { setEditingListEntryState, startEditingEntry } from "../component-actions/list-entry-actions";
 import { getList, updateList } from "../component-actions/list-actions";
 
-type ShortlistItListEntryProps = {
+export type ShortlistItListEntryProps = {
     stateMgr: ShortlistItStateManager;
     list: Shortlist;
     entry: Entry;
 };
 
-function getDescription(props: ShortlistItListEntryProps, descRefObject: React.RefObject<HTMLInputElement>) {
+export function getDescription(props: ShortlistItListEntryProps, descRefObject: React.RefObject<HTMLInputElement>) {
     if (isEditingEntry(props.list.id, props.entry.id, props.stateMgr)) {
         return (
             <FloatingLabel controlId="entryDescription" label="Entry Description">
@@ -30,7 +30,7 @@ function getDescription(props: ShortlistItListEntryProps, descRefObject: React.R
     }
 }
 
-function getEditButton(props: ShortlistItListEntryProps, descRefObject: React.RefObject<HTMLInputElement>, valuesRefs: Array<EntryValuesRefContainer>) {
+export function getEditButton(props: ShortlistItListEntryProps, descRefObject: React.RefObject<HTMLInputElement>, valuesRefs: Array<EntryValuesRefContainer>) {
     if (props.list.archived) {
         return <></>;
     } else {
@@ -91,7 +91,7 @@ function getValuesList(props: ShortlistItListEntryProps, valuesRefs: Array<Entry
     }
 }
 
-function saveChanges(props: ShortlistItListEntryProps, descRefObject: React.RefObject<HTMLInputElement>, valuesRefs: Array<EntryValuesRefContainer>): void {
+export function saveChanges(props: ShortlistItListEntryProps, descRefObject: React.RefObject<HTMLInputElement>, valuesRefs: Array<EntryValuesRefContainer>): void {
     const values = new Map<string, Array<string>>();
     valuesRefs.forEach(r => {
         const criteriaName = r.criteriaName;
@@ -108,7 +108,7 @@ function saveChanges(props: ShortlistItListEntryProps, descRefObject: React.RefO
     saveListEntryEdits(props.list.id, entry, props.stateMgr);
 }
 
-function createValuesRefs(criteriaName: string): EntryValuesRefContainer {
+export function createValuesRefs(criteriaName: string): EntryValuesRefContainer {
     return {
         criteriaName: criteriaName,
         values: React.createRef<HTMLSelectElement>()
@@ -131,7 +131,7 @@ function hasMissingData(props: ShortlistItListEntryProps): boolean {
     return false;
 }
 
-function isEditingEntry(listId: string, entryId: string, stateMgr: ShortlistItStateManager): boolean {
+export function isEditingEntry(listId: string, entryId: string, stateMgr: ShortlistItStateManager): boolean {
     return stateMgr.state.editingListEntryMap.get(`${listId}_${entryId}`) || false;
 }
 
@@ -159,8 +159,8 @@ function deleteEntry(entryId: string, stateMgr: ShortlistItStateManager): void {
 }
 
 export function ShortlistItListEntry(props: ShortlistItListEntryProps) {
-    let descRefObject = React.createRef<HTMLInputElement>();
-    let valuesRefs = props.list.criteria.map(c => createValuesRefs(c.name));
+    const descRefObject = React.createRef<HTMLInputElement>();
+    const valuesRefs = props.list.criteria.map(c => createValuesRefs(c.name));
     
     const variant = (props.list.archived) ? 'dark' : 'primary';
     const badgeColour = (props.list.archived) ? 'bg-secondary' : 'bg-primary';

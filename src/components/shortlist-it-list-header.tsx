@@ -10,6 +10,7 @@ import { ShortlistItMenu, ShortlistItMenuItem } from "./shortlist-it-menu";
 import { ShortlistItTooltip } from "./shortlist-it-tooltip";
 import { ShortlistItStateManager } from "../types/shortlist-it-state-manager";
 import { archiveList, setEditingListState, startEditingList, unarchiveList, updateList } from "../component-actions/list-actions";
+import { addNewEntry } from "./shortlist-it-list-body";
 
 export type ShortlistItListHeaderProps = {
     stateMgr: ShortlistItStateManager;
@@ -69,7 +70,8 @@ function getMenuItems(props: ShortlistItListHeaderProps): Array<ShortlistItMenuI
     if (props.list.archived) {
         items.push({text: 'restore', icon: 'arrow-counterclockwise', action: () => unarchiveList(props.list.id, props.stateMgr)});
     } else {
-        items.push({text: 'edit list', icon: 'pencil-square', action: () => startEditingList(props.list.id, props.stateMgr)});
+        items.push({text: 'edit criteria', icon: 'pencil-square', action: () => startEditingList(props.list.id, props.stateMgr)});
+        items.push({text: 'add entry', icon: 'plus-square', action: () => addNewEntry(props.list.id, props.stateMgr)});
         items.push({text: 'archive', icon: 'archive', action: () => archiveList(props.list.id, props.stateMgr)});
     }
     items.push(

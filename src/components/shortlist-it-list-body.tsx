@@ -9,7 +9,7 @@ import { ShortlistItStateManager } from "../types/shortlist-it-state-manager";
 import { getList, updateList } from "../component-actions/list-actions";
 import { startEditingEntry } from "../component-actions/list-entry-actions";
 
-type ShortlistItListBodyProps = {
+export type ShortlistItListBodyProps = {
     stateMgr: ShortlistItStateManager;
     list: Shortlist;
 }
@@ -31,7 +31,7 @@ function getAddEntryButton(props: ShortlistItListBodyProps) {
     }
 }
 
-function addNewEntry(listId: string, stateMgr: ShortlistItStateManager): void {
+export function addNewEntry(listId: string, stateMgr: ShortlistItStateManager): void {
     let updated = getList(listId, stateMgr);
     if (updated) {
         const entry: Entry = {
