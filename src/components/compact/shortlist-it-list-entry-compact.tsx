@@ -1,15 +1,15 @@
 import React from "react";
 import { Badge, Button, FloatingLabel, Form, ListGroupItem } from "react-bootstrap";
-import { Criteria } from "../types/criteria/criteria";
-import { Entry } from "../types/entries/entry";
-import { EntryValuesRefContainer } from "../types/entries/entry-values-ref-container";
-import { Shortlist } from "../types/shortlist";
-import { BootstrapIcon } from "./bootstrap-icon";
-import { ShortlistItListEntryValuesList } from "./shortlist-it-list-entry-values-list";
-import { ShortlistItTooltip } from "./shortlist-it-tooltip";
-import { ShortlistItStateManager } from "../types/shortlist-it-state-manager";
-import { setEditingListEntryState, startEditingEntry } from "../component-actions/list-entry-actions";
-import { getList, updateList } from "../component-actions/list-actions";
+import { Criteria } from "../../types/criteria/criteria";
+import { Entry } from "../../types/entries/entry";
+import { EntryValuesRefContainer } from "../../types/entries/entry-values-ref-container";
+import { Shortlist } from "../../types/shortlist";
+import { BootstrapIcon } from "../bootstrap-icon";
+import { ShortlistItListEntryValuesList } from "../shortlist-it-list-entry-values-list";
+import { ShortlistItTooltip } from "../shortlist-it-tooltip";
+import { ShortlistItStateManager } from "../../types/shortlist-it-state-manager";
+import { setEditingListEntryState, startEditingEntry } from "../../component-actions/list-entry-actions";
+import { getList, updateList } from "../../component-actions/list-actions";
 
 export type ShortlistItListEntryProps = {
     stateMgr: ShortlistItStateManager;
@@ -158,7 +158,7 @@ function deleteEntry(entryId: string, stateMgr: ShortlistItStateManager): void {
     });
 }
 
-export function ShortlistItListEntry(props: ShortlistItListEntryProps) {
+export function ShortlistItListEntryCompact(props: ShortlistItListEntryProps) {
     const descRefObject = React.createRef<HTMLInputElement>();
     const valuesRefs = props.list.criteria.map(c => createValuesRefs(c.name));
     

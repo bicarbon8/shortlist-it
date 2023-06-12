@@ -9,11 +9,11 @@ import { ShortlistItTooltip } from "./shortlist-it-tooltip";
 import { ShortlistItStateManager } from "../types/shortlist-it-state-manager";
 import { store } from "../utilities/storage";
 
-type ShortlistItListCriteriaListItemProps = {
+export type ShortlistItListCriteriaListItemProps = {
     stateMgr: ShortlistItStateManager;
     list: Shortlist;
     criteria: Criteria;
-    criteriaRef: CriteriaRefContainer;
+    criteriaRef?: CriteriaRefContainer;
 };
 
 type ShortlistItListCriteriaListItemState = {
@@ -129,7 +129,7 @@ function deleteCriteria(criteriaId: string, stateMgr: ShortlistItStateManager): 
     });
 }
 
-export function ShortlistItListCriteriaListItem(props: ShortlistItListCriteriaListItemProps) {
+export function ShortlistItListCriteriaItem(props: ShortlistItListCriteriaListItemProps) {
     const [state, setState] = useState<ShortlistItListCriteriaListItemState>({
         multiselectAllowed: !!(props.criteria.type !== 'yes-no'),
         valuesAllowed: !!(props.criteria.type !== 'yes-no'),

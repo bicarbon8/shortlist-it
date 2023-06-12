@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { Card } from "react-bootstrap";
-import { ShortlistItListBody } from "./shortlist-it-list-body";
+import { ShortlistItListBodyCompact } from "./compact/shortlist-it-list-body-compact";
 import { ShortlistItListHeader } from "./shortlist-it-list-header";
 import { Shortlist } from "../types/shortlist";
 import { ShortlistItStateManager } from "../types/shortlist-it-state-manager";
-import ShortlistItListBodyWide from "./widescreen/shortlist-it-list-body-wide";
+import ShortlistItListBodyWide from "./wide/shortlist-it-list-body-wide";
 
 export type ShortlistItListProps = {
     list: Shortlist;
@@ -32,7 +32,7 @@ export function ShortlistItList(props: ShortlistItListProps) {
                 <ShortlistItListHeader stateMgr={props.stateMgr} list={props.list} />
                 {(wide)
                     ? <ShortlistItListBodyWide stateMgr={props.stateMgr} list={props.list} />
-                    : <ShortlistItListBody stateMgr={props.stateMgr} list={props.list} />
+                    : <ShortlistItListBodyCompact stateMgr={props.stateMgr} list={props.list} />
                 }
             </Card.Body>
         </Card>

@@ -2,7 +2,7 @@ import React, { createRef, useEffect } from "react";
 import { Alert } from "react-bootstrap";
 
 type ShortlistItModalProps = JSX.ElementChildrenAttribute & {
-    id: string;
+    id?: string;
     variant?: string;
     dismissible?: boolean;
     show?: boolean;

@@ -1,13 +1,13 @@
 import React from "react";
 import { ListGroup, ListGroupItem } from "react-bootstrap";
-import { Entry } from "../types/entries/entry";
-import { Shortlist } from "../types/shortlist";
-import { BootstrapIcon } from "./bootstrap-icon";
-import { ShortlistItListEntry } from "./shortlist-it-list-entry";
+import { Entry } from "../../types/entries/entry";
+import { Shortlist } from "../../types/shortlist";
+import { BootstrapIcon } from "../bootstrap-icon";
+import { ShortlistItListEntryCompact } from "./shortlist-it-list-entry-compact";
 import { v4 } from "uuid";
-import { ShortlistItStateManager } from "../types/shortlist-it-state-manager";
-import { getList, updateList } from "../component-actions/list-actions";
-import { startEditingEntry } from "../component-actions/list-entry-actions";
+import { ShortlistItStateManager } from "../../types/shortlist-it-state-manager";
+import { getList, updateList } from "../../component-actions/list-actions";
+import { startEditingEntry } from "../../component-actions/list-entry-actions";
 
 export type ShortlistItListBodyProps = {
     stateMgr: ShortlistItStateManager;
@@ -44,10 +44,10 @@ export function addNewEntry(listId: string, stateMgr: ShortlistItStateManager): 
     }
 }
 
-export function ShortlistItListBody(props: ShortlistItListBodyProps) {
+export function ShortlistItListBodyCompact(props: ShortlistItListBodyProps) {
     return (
         <ListGroup>
-            {props.list.entries.map((entry: Entry) => <ShortlistItListEntry key={entry.id} stateMgr={props.stateMgr} list={props.list} entry={entry} />)}
+            {props.list.entries.map((entry: Entry) => <ShortlistItListEntryCompact key={entry.id} stateMgr={props.stateMgr} list={props.list} entry={entry} />)}
             {getAddEntryButton(props)}
         </ListGroup>
     );

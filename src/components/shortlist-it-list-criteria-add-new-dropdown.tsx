@@ -7,6 +7,7 @@ import { v4 } from "uuid";
 import { Shortlist } from "../types/shortlist";
 import { Criteria } from "../types/criteria/criteria";
 import ShortlistItCriteriaTemplateItem from "./shortlist-it-criteria-template-item";
+import { ShortlistItTooltip } from "./shortlist-it-tooltip";
 
 export function addNewCriteria(listId: string, stateMgr: ShortlistItStateManager, templateId?: string): void {
     const list = getList(listId, stateMgr);
@@ -33,34 +34,26 @@ type ShortlistItListCriteriaAddNewDropdownProps = {
 
 export default function ShortlistItListCriteriaAddNewDropdown(props: ShortlistItListCriteriaAddNewDropdownProps) {
     return (
-        <>
-            <ListGroupItem
-                variant="info"
-                key={`add_new_criteria_${props.list.id}`}
-                className="d-flex justify-content-center"
-            >
-                <Dropdown as={ButtonGroup} align="start">
-                    <Button variant="info" onClick={() => addNewCriteria(props.list.id, props.stateMgr)}>
-                        <BootstrapIcon icon="plus-lg" /> 
-                        Add New Criteria
-                    </Button>
-                    {(props.stateMgr.state.criteriaTemplates.size > 0) ? (
-                        <>
-                            <Dropdown.Toggle split variant="info" id="dropdown-split-basic" />
+        <ShortlistItTooltip id={`add-new-criteria-${props.list.id}`} text="Add New Criteria">
+            <Dropdown as={ButtonGroup} align="start">
+                <Button variant="outline-secondary" aria-label="Add New Criteria" onClick={() => addNewCriteria(props.list.id, props.stateMgr)}>
+                    <BootstrapIcon icon="plus-lg" />
+                </Button>
+                {(props.stateMgr.state.criteriaTemplates.size > 0) ? (
+                    <>
+                        <Dropdown.Toggle split variant="outline-secondary" id="dropdown-split-basic" />
 
-                            <Dropdown.Menu>
-                                {Array.from(props.stateMgr.state.criteriaTemplates.values()).map(c => <ShortlistItCriteriaTemplateItem 
-                                    key={c.name}
-                                    list={props.list}
-                                    stateMgr={props.stateMgr}
-                                    template={c}
-                                />)}
-                            </Dropdown.Menu>
-                        </>) : <></>
-                    }
-                </Dropdown>
-                
-            </ListGroupItem>
-        </>
+                        <Dropdown.Menu>
+                            {Array.from(props.stateMgr.state.criteriaTemplates.values()).map(c => <ShortlistItCriteriaTemplateItem 
+                                key={c.name}
+                                list={props.list}
+                                stateMgr={props.stateMgr}
+                                template={c}
+                            />)}
+                        </Dropdown.Menu>
+                    </>) : <></>
+                }
+            </Dropdown>
+        </ShortlistItTooltip>
     );
 }
