@@ -13,7 +13,7 @@ import { store } from "../../utilities/storage";
 import { ShortlistItTooltip } from "../shortlist-it-tooltip";
 import { createCriteriaRef } from "../shortlist-it-list-header";
 import ShortlistItListCriteriaAddNewDropdown from "../shortlist-it-list-criteria-add-new-dropdown";
-import { getList } from "../../component-actions/list-actions";
+import { getList, updateList } from "../../component-actions/list-actions";
 
 function getAddEntryButton(props: ShortlistItListBodyProps) {
     if (props.list.archived) {
@@ -146,18 +146,14 @@ function saveCriteria(listId: string, criteriaId: string, criteriaRef: CriteriaR
             const cIndex = list.criteria.findIndex(c => c.id === criteriaId);
             if (cIndex >= 0) {
                 list.criteria.splice(cIndex, 1, {...valid, id: criteriaId});
-                const lIndex = stateMgr.state.lists.findIndex(l => l.id === listId);
-                if (lIndex >= 0) {
-                    stateMgr.state.lists.splice(lIndex, 1, list);
-                    stateMgr.setState(stateMgr.state);
-                }
+                updateList(list.id, list, stateMgr);
             }
         }
         onClose();
     }
 }
 
-function deleteCriteria(criteriaId: string, stateMgr: ShortlistItStateManager): void {
+function confirmDeleteCriteria(criteriaId: string, stateMgr: ShortlistItStateManager): void {
     stateMgr.setState({
         ...stateMgr.state,
         criteriaToBeDeleted: criteriaId
@@ -297,7 +293,7 @@ export function ShortlistItCriteriaEditModal(props: ShortlistItCriteriaEditModal
                     <ShortlistItTooltip id={`delete-criteria-${props.criteria.id}`} text="Delete Criteria">
                         <Button variant="danger" onClick={() => {
                             props.onClose(); // close this modal...
-                            deleteCriteria(props.criteria.id, props.stateMgr); // ...and open confirmation modal
+                            confirmDeleteCriteria(props.criteria.id, props.stateMgr); // ...and open confirmation modal
                         }}>
                             <BootstrapIcon icon="trash" />
                         </Button>

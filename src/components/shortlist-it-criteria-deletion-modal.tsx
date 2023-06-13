@@ -46,10 +46,10 @@ export function ShortlistItCriteriaDeletionModal(props: ShortlistItCriteriaDelet
             variant="danger"
             heading="Warning!"
             dismissible={true}
-            show={!!(criteriaId && list && criteriaName)}
+            show={!!(criteriaId && list)}
             onClose={() => hideDeleteConfirmation(props.stateMgr)}>
             <p>
-            are you certain you want to delete Criteria named: <i>{criteriaName}</i> from list titled: <i>{list?.title}</i>? once deleted it can not be recovered.
+            are you certain you want to delete Criteria named: '<em>{criteriaName}</em>' from list titled: '<em>{list?.title}</em>'? once deleted it can not be recovered.
             </p>
             <hr />
             <div className="d-flex justify-content-end">
