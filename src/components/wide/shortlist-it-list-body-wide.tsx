@@ -7,7 +7,7 @@ import { Criteria } from "../../types/criteria/criteria";
 import { Shortlist } from "../../types/shortlist";
 import { ShortlistItStateManager } from "../../types/shortlist-it-state-manager";
 import { ShortlistItModal } from "../shortlist-it-modal";
-import { CriteriaType } from "../../types/criteria/criteria-type";
+import { CriteriaType, CriteriaTypeArray } from "../../types/criteria/criteria-type";
 import { CriteriaRefContainer } from "../../types/criteria/criteria-ref-container";
 import { store } from "../../utilities/storage";
 import { ShortlistItTooltip } from "../shortlist-it-tooltip";
@@ -40,51 +40,73 @@ type ShortlistItListCriteriaListItemState = {
     weightError: boolean;
 };
 
-function validateType(props: ShortlistItCriteriaEditModalProps, state: ShortlistItListCriteriaListItemState, setState: React.Dispatch<React.SetStateAction<ShortlistItListCriteriaListItemState>>): void {
-    const criteriaEl = document.getElementById(`${props.criteria.id}`) as HTMLDivElement;
-    const criteriaType: CriteriaType = (criteriaEl.querySelector('#criteriaType option:checked') as HTMLOptionElement)?.value as CriteriaType || 'worst-to-best';
-    const allow: boolean = !!(criteriaType !== 'yes-no');
-    setState({
-        ...state,
-        multiselectAllowed: allow, 
-        valuesAllowed: allow
-    });
+function getCriteriaModalElement(criteria: Criteria): HTMLDivElement {
+    return document.getElementById(criteria.id) as HTMLDivElement;
 }
 
-function validateName(props: ShortlistItCriteriaEditModalProps, state: ShortlistItListCriteriaListItemState, setState: React.Dispatch<React.SetStateAction<ShortlistItListCriteriaListItemState>>): void {
-    const criteriaEl = document.getElementById(`${props.criteria.id}`) as HTMLDivElement;
-    const criteriaName: string = (criteriaEl.querySelector('#criteriaName') as HTMLInputElement).value;
-    const invalid: boolean = (!criteriaName || criteriaName.match(/^[\s]+$/) !== null || props.list.criteria
-        .filter(i => i.id !== props.criteria.id)
-        .map(i => i.name)
+function getCriteriaModalType(criteria: Criteria): CriteriaType {
+    const criteriaEl = getCriteriaModalElement(criteria);
+    let criteriaType: CriteriaType;
+    if (criteriaEl) {
+        criteriaType = (criteriaEl.querySelector('#criteriaType option:checked') as HTMLOptionElement)?.value as CriteriaType;
+    } else {
+        criteriaType = criteria.type;
+    }
+    return criteriaType ?? 'worst-to-best';
+}
+
+function isCriteriaTypeValid(criteria: Criteria): boolean {
+    const criteriaType: CriteriaType = getCriteriaModalType(criteria);
+    return CriteriaTypeArray.includes(criteriaType);
+}
+
+function isCriteriaMultiselectAllowed(criteria: Criteria): boolean {
+    const criteriaType = getCriteriaModalType(criteria);
+    return criteriaType !== 'yes-no';
+}
+
+function doesCriteriaAllowValues(criteria: Criteria): boolean {
+    const criteriaType = getCriteriaModalType(criteria);
+    return criteriaType !== 'yes-no';
+}
+
+function isCriteriaNameValid(criteria: Criteria, list: Shortlist): boolean {
+    const criteriaEl = getCriteriaModalElement(criteria);
+    let criteriaName: string;
+    if (criteriaEl) {
+        criteriaName = (criteriaEl.querySelector('#criteriaName') as HTMLInputElement)?.value;
+    } else {
+        criteriaName = criteria.name ?? '';
+    }
+    const invalid: boolean = (!criteriaName || criteriaName.match(/^[\s]+$/) !== null || list.criteria
+        .filter(c => c.id !== criteria.id)
+        .map(c => c.name)
         .includes(criteriaName));
-    setState({
-        ...state,
-        nameError: invalid
-    });
+    return !invalid;
 }
 
-function validateValues(props: ShortlistItCriteriaEditModalProps, state: ShortlistItListCriteriaListItemState, setState: React.Dispatch<React.SetStateAction<ShortlistItListCriteriaListItemState>>): void {
-    const criteriaEl = document.getElementById(`${props.criteria.id}`) as HTMLDivElement;
-    const criteriaName: string = (criteriaEl.querySelector('#criteriaValues') as HTMLInputElement).value;
-    const invalid: boolean = (!criteriaName || criteriaName.match(/^[\s]+$/) !== null || props.list.criteria
-        .filter(i => i.id !== props.criteria.id)
-        .map(i => i.name)
-        .includes(criteriaName));
-    setState({
-        ...state,
-        valuesError: invalid
-    });
+function areCritieriaValuesValid(criteria: Criteria): boolean {
+    const criteriaEl = getCriteriaModalElement(criteria);
+    let criteriaValues: string
+    if (criteriaEl) {
+        criteriaValues = (criteriaEl.querySelector('#criteriaValues') as HTMLInputElement).value;
+    } else {
+        criteriaValues = criteria.values.join(',') ?? '';
+    }
+    const invalid: boolean = (!criteriaValues || criteriaValues.match(/^[\s]+$/) !== null);
+    return !invalid;
 }
 
-function validateWeight(props: ShortlistItCriteriaEditModalProps, state: ShortlistItListCriteriaListItemState, setState: React.Dispatch<React.SetStateAction<ShortlistItListCriteriaListItemState>>): void {
-    const criteriaEl = document.getElementById(`${props.criteria.id}`) as HTMLDivElement;
-    const criteriaWeight: string = (criteriaEl.querySelector('#criteriaWeight') as HTMLInputElement).value;
+function isCritieraWeightValid(criteria: Criteria): boolean {
+    const criteriaEl = getCriteriaModalElement(criteria);
+    let criteriaWeight: string;
+    if (criteriaEl) {
+        criteriaWeight = (criteriaEl.querySelector('#criteriaWeight') as HTMLInputElement)?.value;
+    } else {
+        criteriaWeight = String(criteria.weight) ?? '';
+    }
     const invalid: boolean = (isNaN(Number(criteriaWeight)) || criteriaWeight.match(/^((\+|-)?([0-9]+)(\.[0-9]+)?)|((\+|-)?\.?[0-9]+)$/) === null);
-    setState({
-        ...state,
-        weightError: invalid
-    });
+    return !invalid;
 }
 
 function saveAsTemplate(criteriaRef: CriteriaRefContainer, stateMgr: ShortlistItStateManager, success: () => void, exists: () => void, error: () => void, overwrite?: boolean): void {
@@ -150,6 +172,8 @@ function saveCriteria(listId: string, criteriaId: string, criteriaRef: CriteriaR
             }
         }
         onClose();
+    } else {
+
     }
 }
 
@@ -169,14 +193,6 @@ type ShortlistItCriteriaEditModalProps = {
 };
 
 export function ShortlistItCriteriaEditModal(props: ShortlistItCriteriaEditModalProps) {
-    const [state, setState] = useState<ShortlistItListCriteriaListItemState>({
-        multiselectAllowed: !!(props.criteria?.type !== 'yes-no'),
-        valuesAllowed: !!(props.criteria?.type !== 'yes-no'),
-        nameError: false,
-        valuesError: false,
-        weightError: false,
-    });
-
     const criteriaRef = createCriteriaRef(props.criteria);
 
     const [showSaveTemplateSuccess, setShowSaveTemplateSuccess] = useState(false);
@@ -193,6 +209,13 @@ export function ShortlistItCriteriaEditModal(props: ShortlistItCriteriaEditModal
         setShowSaveTemplateError(true);
         window.setTimeout(() => setShowSaveTemplateError(false), 5000);
     }
+
+    const [criteriaNameValid, setCriteriaNameValid] = useState(isCriteriaNameValid(props.criteria, props.list));
+    const [criteriaTypeValid, setCriteriaTypeValid] = useState(isCriteriaTypeValid(props.criteria));
+    const [criteriaValuesValid, setCriteriaValuesValid] = useState(areCritieriaValuesValid(props.criteria));
+    const [criteriaWeightValid, setCriteriaWeightValid] = useState(isCritieraWeightValid(props.criteria));
+    const [criteriaMultiselectAllowed, setCriteriaMultiselectAllowed] = useState(isCriteriaMultiselectAllowed(props.criteria));
+    const [criteriaValuesAllowed, setCriteriaValuesAllowed] = useState(doesCriteriaAllowValues(props.criteria));
     
     return (
         <ShortlistItModal
@@ -229,15 +252,20 @@ export function ShortlistItCriteriaEditModal(props: ShortlistItCriteriaEditModal
                             ref={criteriaRef.name}
                             type="text" 
                             defaultValue={props.criteria.name} 
-                            className={(state.nameError) ? 'is-invalid' : ''} 
-                            onChange={() => validateName(props, state, setState)} />
+                            className={(!criteriaNameValid) ? 'is-invalid' : ''} 
+                            onChange={() => setCriteriaNameValid(isCriteriaNameValid(props.criteria, props.list))} />
                     </FloatingLabel>
                     <FloatingLabel controlId="criteriaType" label="Criteria Type">
                         <Form.Select 
                             ref={criteriaRef.type}
-                            aria-label="Criteria Type Select" 
-                            defaultValue={props.criteria.type} 
-                            onChange={() => validateType(props, state, setState)}>
+                            aria-label="Criteria Type Select"
+                            defaultValue={props.criteria.type}
+                            className={(!criteriaTypeValid) ? 'is-invalid' : ''}
+                            onChange={() => {
+                                setCriteriaTypeValid(isCriteriaTypeValid(props.criteria));
+                                setCriteriaMultiselectAllowed(isCriteriaMultiselectAllowed(props.criteria));
+                                setCriteriaValuesAllowed(doesCriteriaAllowValues(props.criteria));
+                            }}>
                             <option value="worst-to-best">worst-to-best</option>
                             <option value="yes-no">yes-no</option>
                             <option value="positives">positives</option>
@@ -249,10 +277,10 @@ export function ShortlistItCriteriaEditModal(props: ShortlistItCriteriaEditModal
                             ref={criteriaRef.values}
                             type="text" 
                             placeholder="comma separated values" 
-                            defaultValue={(state.valuesAllowed) ? props.criteria.values.join(',') : 'yes,no'} 
-                            disabled={!state.valuesAllowed} 
-                            className={(state.valuesError) ? 'is-invalid' : ''}
-                            onChange={() => validateValues(props, state, setState)} />
+                            defaultValue={(criteriaValuesAllowed) ? props.criteria.values.join(',') : 'yes,no'} 
+                            disabled={!criteriaValuesAllowed} 
+                            className={(!criteriaValuesValid) ? 'is-invalid' : ''}
+                            onChange={() => setCriteriaValuesValid(areCritieriaValuesValid(props.criteria))} />
                     </FloatingLabel>
                     <div className="d-flex flex-row justify-content-between align-items-center">
                         <div className="d-flex flex-wrap align-content-around px-1">
@@ -262,8 +290,8 @@ export function ShortlistItCriteriaEditModal(props: ShortlistItCriteriaEditModal
                                 ref={criteriaRef.multi}
                                 type="switch" 
                                 aria-label="Allow Multiselect?" 
-                                defaultChecked={(state.multiselectAllowed) ? props.criteria.allowMultiple : false}
-                                disabled={!state.multiselectAllowed}
+                                defaultChecked={(criteriaMultiselectAllowed) ? props.criteria.allowMultiple : false}
+                                disabled={!criteriaMultiselectAllowed}
                             />
                         </div>
                         <FloatingLabel controlId="criteriaWeight" label="Weighting">
@@ -272,8 +300,8 @@ export function ShortlistItCriteriaEditModal(props: ShortlistItCriteriaEditModal
                                 type="text" 
                                 placeholder="numeric points multiplier"
                                 defaultValue={props.criteria.weight ?? 1} 
-                                className={(state.weightError) ? 'is-invalid' : ''}
-                                onChange={() => validateWeight(props, state, setState)} />
+                                className={(!criteriaWeightValid) ? 'is-invalid' : ''}
+                                onChange={() => setCriteriaWeightValid(isCritieraWeightValid(props.criteria))} />
                         </FloatingLabel>
                     </div>
                 </div>
