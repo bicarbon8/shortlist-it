@@ -37,7 +37,7 @@ type ShortlistItListCriteriaAddNewDropdownProps = {
 export default function ShortlistItListCriteriaAddNewDropdown(props: ShortlistItListCriteriaAddNewDropdownProps) {
     return (
         <ShortlistItTooltip id={`add-new-criteria-${props.list.id}`} text="Add New Criteria">
-            <Dropdown as={ButtonGroup} align="start">
+            <Dropdown as={ButtonGroup}>
                 <Button variant="outline-secondary" aria-label="Add New Criteria" onClick={() => addNewCriteria(props.list.id, props.stateMgr)}>
                     <BootstrapIcon icon="plus-lg" />
                 </Button>

@@ -37,7 +37,7 @@ type ShortlistItListCriteriaProps = {
 function ShortlistItListCriteria(props: ShortlistItListCriteriaProps) {
     const [editIcon, setEditIcon] = useState('pencil-square');
     return (
-        <th scope="col">
+        <th scope="col" className="d-none d-sm-table-cell">
             <ShortlistItCriteriaEditModal
                 stateMgr={props.stateMgr}
                 criteria={props.criteria}
