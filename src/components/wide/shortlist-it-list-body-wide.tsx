@@ -2,18 +2,12 @@ import React, { useState } from "react";
 import { ShortlistItListBodyProps, addNewEntry } from "../compact/shortlist-it-list-body-compact";
 import ShortlistItListEntryWide from "./shortlist-it-list-entry-wide";
 import { BootstrapIcon } from "../bootstrap-icon";
-import { Alert, Button, FloatingLabel, Form } from "react-bootstrap";
+import { Button } from "react-bootstrap";
 import { Criteria } from "../../types/criteria/criteria";
 import { Shortlist } from "../../types/shortlist";
 import { ShortlistItStateManager } from "../../types/shortlist-it-state-manager";
-import { ShortlistItModal } from "../shortlist-it-modal";
-import { CriteriaType, CriteriaTypeArray } from "../../types/criteria/criteria-type";
-import { CriteriaRefContainer } from "../../types/criteria/criteria-ref-container";
-import { store } from "../../utilities/storage";
 import { ShortlistItTooltip } from "../shortlist-it-tooltip";
-import { createCriteriaRef } from "../shortlist-it-list-header";
 import ShortlistItListCriteriaAddNewDropdown from "../shortlist-it-list-criteria-add-new-dropdown";
-import { getList, updateList } from "../../component-actions/list-actions";
 import ShortlistItCriteriaEditModal from "../shortlist-it-criteria-edit-modal";
 
 function getAddEntryButton(props: ShortlistItListBodyProps) {
@@ -32,14 +26,6 @@ function getAddEntryButton(props: ShortlistItListBodyProps) {
         );
     }
 }
-
-type ShortlistItListCriteriaListItemState = {
-    multiselectAllowed: boolean;
-    valuesAllowed: boolean;
-    nameError: boolean;
-    valuesError: boolean;
-    weightError: boolean;
-};
 
 type ShortlistItListCriteriaProps = {
     stateMgr: ShortlistItStateManager;

@@ -69,7 +69,7 @@ function getMenuItems(props: ShortlistItListHeaderProps): Array<ShortlistItMenuI
     if (props.list.archived) {
         items.push({text: 'restore', icon: 'arrow-counterclockwise', action: () => unarchiveList(props.list.id, props.stateMgr)});
     } else {
-        items.push({text: 'edit criteria', icon: 'pencil-square', action: () => startEditingList(props.list.id, props.stateMgr)});
+        items.push({text: 'edit list title', icon: 'pencil-square', action: () => startEditingList(props.list.id, props.stateMgr)});
         items.push({text: 'add entry', icon: 'plus-square', action: () => addNewEntry(props.list.id, props.stateMgr)});
         items.push({text: 'archive', icon: 'archive', action: () => archiveList(props.list.id, props.stateMgr)});
     }
@@ -149,7 +149,6 @@ export function ShortlistItListHeader(props: ShortlistItListHeaderProps) {
         <div className="d-flex flex-row justify-content-between">
             <div className="flex-grow-1 pe-1">
                 {getTitleContent(props, titleRefObject)}
-                <ShortlistItListCriteria stateMgr={props.stateMgr} list={props.list} />
             </div>
             <div className="text-center ps-1">{getMenuButtonContent(props, titleRefObject)}</div>
         </div>
