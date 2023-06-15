@@ -7,12 +7,8 @@ export function startEditingEntry(listId: string, entryId: string, stateMgr: Sho
 }
 
 export function setEditingListEntryState(listId: string, entryId: string, editing: boolean, stateMgr: ShortlistItStateManager): void {
-    const editingMap = stateMgr.state.editingListEntryMap;
-    editingMap.set(`${listId}_${entryId}`, editing);
-    stateMgr.setState({
-        ...stateMgr.state,
-        editingListEntryMap: editingMap
-    });
+    stateMgr.state.editingListEntryMap.set(`${listId}_${entryId}`, editing);
+    stateMgr.setState({...stateMgr.state});
 }
 
 export function getEntry(listId: string, entryId: string, stateMgr: ShortlistItStateManager): Entry {

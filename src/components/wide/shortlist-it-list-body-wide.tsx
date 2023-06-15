@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { ShortlistItListBodyProps, addNewEntry } from "../compact/shortlist-it-list-body-compact";
 import ShortlistItListEntryWide from "./shortlist-it-list-entry-wide";
 import { BootstrapIcon } from "../bootstrap-icon";
@@ -9,6 +9,7 @@ import { ShortlistItStateManager } from "../../types/shortlist-it-state-manager"
 import { ShortlistItTooltip } from "../shortlist-it-tooltip";
 import ShortlistItListCriteriaAddNewDropdown from "../shortlist-it-list-criteria-add-new-dropdown";
 import ShortlistItCriteriaEditModal from "../shortlist-it-criteria-edit-modal";
+import { startEditingCriteria, stopEditingCriteria } from "../../component-actions/list-criteria-actions";
 
 function getAddEntryButton(props: ShortlistItListBodyProps) {
     if (props.list.archived) {
@@ -34,7 +35,6 @@ type ShortlistItListCriteriaProps = {
 };
 
 function ShortlistItListCriteria(props: ShortlistItListCriteriaProps) {
-    const [editing, setEditing] = useState(false);
     const [editIcon, setEditIcon] = useState('pencil-square');
     return (
         <th scope="col">
@@ -42,19 +42,19 @@ function ShortlistItListCriteria(props: ShortlistItListCriteriaProps) {
                 stateMgr={props.stateMgr}
                 criteria={props.criteria}
                 list={props.list}
-                onClose={() => setEditing(false)}
+                onClose={() => stopEditingCriteria(props.stateMgr)}
                 onSave={() => {
                     setEditIcon('check-circle');
                     setTimeout(() => setEditIcon('pencil-square'), 3000);
                 }}
-                show={editing} />
+                show={props.stateMgr.state.editingCriteriaId === props.criteria.id} />
             <div className="d-flex flex-nowrap align-items-end">
                 {(props.list.archived) ? <></> : <ShortlistItTooltip id={`edit-criteria-${props.criteria.id}`} text="Edit Criteria">
                     <BootstrapIcon
                         icon={editIcon}
                         onClick={() => {
-                            if (!editing) {
-                                setEditing(true);
+                            if (props.stateMgr.state.editingCriteriaId == null) {
+                                startEditingCriteria(props.criteria.id, props.stateMgr);
                             }
                         }} />
                 </ShortlistItTooltip>}<p className="d-flex flex-wrap mb-0 ps-1">{props.criteria.name}</p>

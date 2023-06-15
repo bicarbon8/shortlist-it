@@ -136,10 +136,8 @@ export function isEditingList(listId: string, stateMgr: ShortlistItStateManager)
 }
 
 function deleteList(listId: string, stateMgr: ShortlistItStateManager): void {
-    stateMgr.setState({
-        ...stateMgr.state,
-        listToBeDeleted: listId
-    });
+    stateMgr.state.listToBeDeleted = listId;
+    stateMgr.setState({...stateMgr.state});
 }
 
 export function ShortlistItListHeader(props: ShortlistItListHeaderProps) {

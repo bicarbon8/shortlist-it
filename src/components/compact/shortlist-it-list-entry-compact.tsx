@@ -152,10 +152,8 @@ function cancelListEntryEdits(listId: string, entryId: string, stateMgr: Shortli
 }
 
 function deleteEntry(entryId: string, stateMgr: ShortlistItStateManager): void {
-    stateMgr.setState({
-        ...stateMgr.state,
-        entryToBeDeleted: entryId
-    });
+    stateMgr.state.entryToBeDeleted = entryId;
+    stateMgr.setState({...stateMgr.state});
 }
 
 export function ShortlistItListEntryCompact(props: ShortlistItListEntryProps) {

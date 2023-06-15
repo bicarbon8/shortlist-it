@@ -11,6 +11,7 @@ import { getList, updateList } from "../component-actions/list-actions";
 import { CriteriaRefContainer } from "../types/criteria/criteria-ref-container";
 import { CriteriaType, CriteriaTypeArray } from "../types/criteria/criteria-type";
 import { store } from "../utilities/storage";
+import { stopEditingCriteria } from "../component-actions/list-criteria-actions";
 
 function getCriteriaModalElement(criteria: Criteria): HTMLDivElement {
     return document.getElementById(criteria.id) as HTMLDivElement;
@@ -91,13 +92,9 @@ function saveAsTemplate(criteriaRef: CriteriaRefContainer, stateMgr: ShortlistIt
                     return;
                 }
             }
-            const updated = stateMgr.state.criteriaTemplates;
-            updated.set(criteria.name, criteria);
-            store.set('criteriaTemplates', updated);
-            stateMgr.setState({
-                ...stateMgr.state,
-                criteriaTemplates: updated
-            });
+            stateMgr.state.criteriaTemplates.set(criteria.name, criteria);
+            store.set('criteriaTemplates', stateMgr.state.criteriaTemplates);
+            stateMgr.setState({...stateMgr.state});
             success();
         }
     } else {
@@ -149,10 +146,8 @@ function saveCriteria(listId: string, criteriaId: string, criteriaRef: CriteriaR
 }
 
 function confirmDeleteCriteria(criteriaId: string, stateMgr: ShortlistItStateManager): void {
-    stateMgr.setState({
-        ...stateMgr.state,
-        criteriaToBeDeleted: criteriaId
-    });
+    stateMgr.state.criteriaToBeDeleted = criteriaId;
+    stateMgr.setState({...stateMgr.state});
 }
 
 type ShortlistItCriteriaEditModalProps = {
@@ -302,7 +297,8 @@ export default function ShortlistItCriteriaEditModal(props: ShortlistItCriteriaE
                     </ShortlistItTooltip>
                     <ShortlistItTooltip id={`delete-criteria-${props.criteria.id}`} text="Delete Criteria">
                         <Button variant="danger" aria-label="Delete Criteria" onClick={() => {
-                            props.onClose(); // close this modal...
+                            props.onClose();
+                            stopEditingCriteria(props.stateMgr);
                             confirmDeleteCriteria(props.criteria.id, props.stateMgr); // ...and open confirmation modal
                         }}>
                             <BootstrapIcon icon="trash" />

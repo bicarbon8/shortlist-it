@@ -10,24 +10,19 @@ type ShortlistItCriteriaDeletionModalProps = {
 };
 
 function hideDeleteConfirmation(stateMgr: ShortlistItStateManager) {
-    stateMgr.setState({
-        ...stateMgr.state,
-        criteriaToBeDeleted: null
-    });
+    stateMgr.state.criteriaToBeDeleted = null;
+    stateMgr.setState({...stateMgr.state});
 }
 
 function confirmDeletion(criteriaId: string, stateMgr: ShortlistItStateManager): void {
     const listIndex = stateMgr.state.lists.findIndex(l => l.criteria.find(c => c.id === criteriaId));
     if (listIndex >= 0) {
-        const list = stateMgr.state.lists[listIndex];
-        const criteriaIndex = list.criteria.findIndex(c => c.id === criteriaId);
+        const criteriaIndex = stateMgr.state.lists[listIndex].criteria.findIndex(c => c.id === criteriaId);
         if (criteriaIndex >= 0) {
-            list.criteria.splice(criteriaIndex, 1);
+            stateMgr.state.lists[listIndex].criteria.splice(criteriaIndex, 1);
             store.set('lists', stateMgr.state.lists);
-            stateMgr.setState({
-                ...stateMgr.state,
-                criteriaToBeDeleted: null
-            });
+            hideDeleteConfirmation(stateMgr);
+            stateMgr.setState({...stateMgr.state});
         }
     }
 }

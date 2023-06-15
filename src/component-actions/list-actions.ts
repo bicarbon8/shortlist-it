@@ -23,17 +23,13 @@ export function getList(id: string, stateMgr: ShortlistItStateManager): Shortlis
  * @param stateMgr the `ShortlistItStateManager` instance used to read and update state
  */
 export function updateList(listId: string, updated: Partial<Shortlist>, stateMgr: ShortlistItStateManager): void {
-    const allLists = stateMgr.state.lists;
-    const index = allLists.findIndex(l => l.id === listId);
+    const index = stateMgr.state.lists.findIndex(l => l.id === listId);
     if (index >= 0) {
-        const orig = allLists[index];
+        const orig = stateMgr.state.lists[index];
         const merged = rankingCalculator.rankEntries({...orig, ...updated});
-        allLists.splice(index, 1, merged);
-        store.set('lists', allLists);
-        stateMgr.setState({
-            ...stateMgr.state,
-            lists: allLists
-        });
+        stateMgr.state.lists.splice(index, 1, merged);
+        store.set('lists', stateMgr.state.lists);
+        stateMgr.setState({...stateMgr.state});
     }
 }
 
@@ -54,12 +50,8 @@ export function startEditingList(listId: string, stateMgr: ShortlistItStateManag
  * @param stateMgr the `ShortlistItStateManager` instance used to read and update state
  */
 export function setEditingListState(listId: string, editing: boolean, stateMgr: ShortlistItStateManager): void {
-    const editingMap = stateMgr.state.editingListMap;
-    editingMap.set(listId, editing);
-    stateMgr.setState({
-        ...stateMgr.state,
-        editingListMap: editingMap
-    });
+    stateMgr.state.editingListMap.set(listId, editing);
+    stateMgr.setState({...stateMgr.state});
 }
 
 export function archiveList(listId: string, stateMgr: ShortlistItStateManager): void {
@@ -73,13 +65,9 @@ export function unarchiveList(listId: string, stateMgr: ShortlistItStateManager)
 function setListArchivedState(listId: string, archived: boolean, stateMgr: ShortlistItStateManager) {
     const listIndex = stateMgr.state.lists.findIndex(l => l.id === listId);
     if (listIndex >= 0) {
-        const lists = stateMgr.state.lists;
-        lists[listIndex].archived = archived;
-        store.set('lists', lists);
-        stateMgr.setState({
-            ...stateMgr.state,
-            lists: lists,
-            listToBeDeleted: null
-        });
+        stateMgr.state.lists[listIndex].archived = archived;
+        store.set('lists', stateMgr.state.lists);
+        stateMgr.state.listToBeDeleted = null;
+        stateMgr.setState({...stateMgr.state});
     }
 }

@@ -81,13 +81,9 @@ function saveAsTemplate(criteriaRef: CriteriaRefContainer, stateMgr: ShortlistIt
                     return;
                 }
             }
-            const updated = stateMgr.state.criteriaTemplates;
-            updated.set(criteria.name, criteria);
-            store.set('criteriaTemplates', updated);
-            stateMgr.setState({
-                ...stateMgr.state,
-                criteriaTemplates: updated
-            });
+            stateMgr.state.criteriaTemplates.set(criteria.name, criteria);
+            store.set('criteriaTemplates', stateMgr.state.criteriaTemplates);
+            stateMgr.setState({...stateMgr.state});
             success();
         }
     } else {
@@ -123,10 +119,8 @@ function validateCriteriaTemplateValues(criteriaRef: CriteriaRefContainer): Omit
 }
 
 function deleteCriteria(criteriaId: string, stateMgr: ShortlistItStateManager): void {
-    stateMgr.setState({
-        ...stateMgr.state,
-        criteriaToBeDeleted: criteriaId
-    });
+    stateMgr.state.criteriaToBeDeleted = criteriaId;
+    stateMgr.setState({...stateMgr.state});
 }
 
 export function ShortlistItListCriteriaItem(props: ShortlistItListCriteriaListItemProps) {

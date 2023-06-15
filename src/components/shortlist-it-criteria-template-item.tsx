@@ -7,10 +7,8 @@ import { addNewCriteria } from "./shortlist-it-list-criteria-add-new-dropdown";
 import { Shortlist } from "../types/shortlist";
 
 function deleteCriteriaTemplate(templateId: string, stateMgr: ShortlistItStateManager): void {
-    stateMgr.setState({
-        ...stateMgr.state,
-        criteriaTemplateToBeDeleted: templateId
-    });
+    stateMgr.state.criteriaTemplateToBeDeleted = templateId;
+    stateMgr.setState({...stateMgr.state});
 }
 
 type ShortlistItCriteriaTemplateItemProps = {

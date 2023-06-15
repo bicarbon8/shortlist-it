@@ -9,20 +9,16 @@ type ShortlistItCriteriaTemplateDeletionModalProps = {
 };
 
 function hideDeleteConfirmation(stateMgr: ShortlistItStateManager) {
-    stateMgr.setState({
-        ...stateMgr.state,
-        criteriaTemplateToBeDeleted: null
-    });
+    stateMgr.state.criteriaTemplateToBeDeleted = null;
+    stateMgr.setState({...stateMgr.state});
 }
 
 function confirmDeletion(templateId: string, stateMgr: ShortlistItStateManager): void {
     if (stateMgr.state.criteriaTemplates.has(templateId)) {
         stateMgr.state.criteriaTemplates.delete(templateId);
         store.set('criteriaTemplates', stateMgr.state.criteriaTemplates);
-        stateMgr.setState({
-            ...stateMgr.state,
-            criteriaTemplateToBeDeleted: null
-        });
+        hideDeleteConfirmation(stateMgr);
+        stateMgr.setState({...stateMgr.state});
     }
 }
 

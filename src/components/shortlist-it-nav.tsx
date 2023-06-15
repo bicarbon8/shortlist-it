@@ -16,21 +16,17 @@ export type ShortlistItNavProps = {
 };
 
 function refreshState(stateMgr: ShortlistItStateManager): void {
-    stateMgr.setState({
-        ...stateMgr.state,
-        showArchived: store.get('showArchived', false),
-        lists: store.get('lists', new Array<Shortlist>()),
-        filterText: store.get('filterText', '')
-    });
+    stateMgr.state.showArchived = store.get('showArchived', false);
+    stateMgr.state.lists = store.get('lists', new Array<Shortlist>());
+    stateMgr.state.filterText = store.get('filterText', '');
+    stateMgr.setState({...stateMgr.state});
 }
 
 function clearFilter(stateMgr: ShortlistItStateManager): void {
     const input = document.querySelector('#filter-lists-input') as HTMLInputElement;
     input.value = '';
-    stateMgr.setState({
-        ...stateMgr.state,
-        filterText: ''
-    });
+    stateMgr.state.filterText = '';
+    stateMgr.setState({...stateMgr.state});
 }
 
 function importLists(stateMgr: ShortlistItStateManager): void {
@@ -108,13 +104,9 @@ function addNewList(stateMgr: ShortlistItStateManager): void {
         entries: new Array<Entry>(),
         criteria: new Array<Criteria>()
     };
-    const allLists = stateMgr.state.lists;
-    allLists.unshift(list);
-    store.set('lists', allLists);
-    stateMgr.setState({
-        ...stateMgr.state,
-        lists: allLists
-    });
+    stateMgr.state.lists.unshift(list);
+    store.set('lists', stateMgr.state.lists);
+    stateMgr.setState({...stateMgr.state});
     startEditingList(list.id, stateMgr);
 }
 
@@ -156,10 +148,10 @@ export function ShortlistItNav(props: ShortlistItNavProps) {
                             id="display-archived"
                             label="View Archived Lists"
                             checked={props.stateMgr.state.showArchived}
-                            onChange={e => props.stateMgr.setState({
-                                ...props.stateMgr.state,
-                                showArchived: e.target.checked
-                            })}
+                            onChange={e => {
+                                props.stateMgr.state.showArchived = e.target.checked;
+                                props.stateMgr.setState(props.stateMgr.state);
+                            }}
                         />
                     </Navbar.Text>
                     <Nav>
@@ -171,10 +163,10 @@ export function ShortlistItNav(props: ShortlistItNavProps) {
                                     placeholder="enter filter term(s)"
                                     aria-label="Filter"
                                     defaultValue={props.stateMgr.state.filterText}
-                                    onChange={(e) => props.stateMgr.setState({
-                                        ...props.stateMgr.state,
-                                        filterText: e.target.value
-                                    })}
+                                    onChange={(e) => {
+                                        props.stateMgr.state.filterText = e.target.value;
+                                        props.stateMgr.setState(props.stateMgr.state);
+                                    }}
                                     aria-describedby="filter-lists-clear-button"
                                 />
                                 <Button 

@@ -8,6 +8,7 @@ import { Shortlist } from "../types/shortlist";
 import { Criteria } from "../types/criteria/criteria";
 import ShortlistItCriteriaTemplateItem from "./shortlist-it-criteria-template-item";
 import { ShortlistItTooltip } from "./shortlist-it-tooltip";
+import { startEditingCriteria } from "../component-actions/list-criteria-actions";
 
 export function addNewCriteria(listId: string, stateMgr: ShortlistItStateManager, templateId?: string): void {
     const list = getList(listId, stateMgr);
@@ -24,6 +25,7 @@ export function addNewCriteria(listId: string, stateMgr: ShortlistItStateManager
         }
         list.criteria.push(criteria);
         updateList(listId, list, stateMgr);
+        startEditingCriteria(criteria.id, stateMgr);
     }
 }
 
