@@ -160,7 +160,7 @@ function validateCriteriaTemplateValues(criteriaRef: CriteriaRefContainer): Omit
     };
 }
 
-function saveCriteria(listId: string, criteriaId: string, criteriaRef: CriteriaRefContainer, stateMgr: ShortlistItStateManager, onClose: () => void): void {
+function saveCriteria(listId: string, criteriaId: string, criteriaRef: CriteriaRefContainer, stateMgr: ShortlistItStateManager): boolean {
     const valid = validateCriteriaTemplateValues(criteriaRef);
     if (valid) {
         const list = getList(listId, stateMgr);
@@ -171,10 +171,9 @@ function saveCriteria(listId: string, criteriaId: string, criteriaRef: CriteriaR
                 updateList(list.id, list, stateMgr);
             }
         }
-        onClose();
-    } else {
-
+        return true;
     }
+    return false;
 }
 
 function confirmDeleteCriteria(criteriaId: string, stateMgr: ShortlistItStateManager): void {
@@ -189,6 +188,7 @@ type ShortlistItCriteriaEditModalProps = {
     list: Shortlist
     criteria: Criteria;
     onClose: () => void;
+    onSave: () => void;
     show: boolean;
 };
 
@@ -196,16 +196,16 @@ export function ShortlistItCriteriaEditModal(props: ShortlistItCriteriaEditModal
     const criteriaRef = createCriteriaRef(props.criteria);
 
     const [showSaveTemplateSuccess, setShowSaveTemplateSuccess] = useState(false);
-    const onShowSuccess = () => {
+    const onSaveTemplateSuccess = () => {
         setShowSaveTemplateSuccess(true);
         window.setTimeout(() => setShowSaveTemplateSuccess(false), 5000);
     }
     const [showSaveTemplateExists, setShowSaveTemplateExists] = useState(false);
-    const onShowExists = () => {
+    const onTemplateExists = () => {
         setShowSaveTemplateExists(true);
     }
-    const [showSaveTemplateError, setShowSaveTemplateError] = useState(false);
-    const onShowError = () => {
+    const [showSaveError, setShowSaveTemplateError] = useState(false);
+    const onSaveError = () => {
         setShowSaveTemplateError(true);
         window.setTimeout(() => setShowSaveTemplateError(false), 5000);
     }
@@ -227,8 +227,8 @@ export function ShortlistItCriteriaEditModal(props: ShortlistItCriteriaEditModal
         >
             <div id={props.criteria.id} className="d-flex flex-row justify-content-between criteria-list-item">
                 <div className="d-flex flex-column justify-content-evently flex-grow-1 pe-1">
-                    <Alert variant="danger" dismissible show={showSaveTemplateError}>
-                        Criteria must have all values set to valid values in order to be used as a Template
+                    <Alert variant="danger" dismissible show={showSaveError}>
+                        Criteria must have all values set to valid values in order to be Saved or used as a Template
                     </Alert>
                     <Alert variant="warning" dismissible show={showSaveTemplateExists} onClose={() => setShowSaveTemplateExists(false)}>
                         <div className="flex-row">
@@ -237,7 +237,7 @@ export function ShortlistItCriteriaEditModal(props: ShortlistItCriteriaEditModal
                                 variant="danger" 
                                 onClick={() => {
                                     setShowSaveTemplateExists(false);
-                                    saveAsTemplate(criteriaRef, props.stateMgr, onShowSuccess, onShowExists, onShowError, true);
+                                    saveAsTemplate(criteriaRef, props.stateMgr, onSaveTemplateSuccess, onTemplateExists, onSaveError, true);
                                 }}
                             >
                                 Overwrite
@@ -308,13 +308,18 @@ export function ShortlistItCriteriaEditModal(props: ShortlistItCriteriaEditModal
                 <div className="d-flex flex-column justify-content-between ps-1">
                     <ShortlistItTooltip id={`save-criteria-${props.criteria.id}`} text="Save Criteria">
                         <Button variant="success" onClick={() => {
-                            saveCriteria(props.list.id, props.criteria.id, criteriaRef, props.stateMgr, props.onClose);
+                            if (saveCriteria(props.list.id, props.criteria.id, criteriaRef, props.stateMgr)) {
+                                props.onClose();
+                                props.onSave?.();
+                            } else {
+                                onSaveError();
+                            }
                         }}>
                             <BootstrapIcon icon="check" />
                         </Button>
                     </ShortlistItTooltip>
                     <ShortlistItTooltip id={`save-criteria-template-${props.criteria.id}`} text="Save as Template">
-                        <Button variant="info" onClick={() => saveAsTemplate(criteriaRef, props.stateMgr, onShowSuccess, onShowExists, onShowError)}>
+                        <Button variant="info" onClick={() => saveAsTemplate(criteriaRef, props.stateMgr, onSaveTemplateSuccess, onTemplateExists, onSaveError)}>
                             <BootstrapIcon icon="file-earmark-arrow-down" />
                         </Button>
                     </ShortlistItTooltip>
@@ -340,6 +345,7 @@ type ShortlistItListCriteriaProps = {
 
 function ShortlistItListCriteria(props: ShortlistItListCriteriaProps) {
     const [editing, setEditing] = useState(false);
+    let editIcon = 'pencil-square';
     return (
         <th scope="col">
             <ShortlistItCriteriaEditModal
@@ -347,11 +353,15 @@ function ShortlistItListCriteria(props: ShortlistItListCriteriaProps) {
                 criteria={props.criteria}
                 list={props.list}
                 onClose={() => setEditing(false)}
+                onSave={() => {
+                    editIcon = 'check-square';
+                    setTimeout(() => editIcon = 'pencil-square', 3000);
+                }}
                 show={editing} />
             <div className="d-flex flex-nowrap align-items-end">
                 {(props.list.archived) ? <></> : <ShortlistItTooltip id={`edit-criteria-${props.criteria.id}`} text="Edit Criteria">
                     <BootstrapIcon
-                        icon="pencil-square"
+                        icon={editIcon}
                         onClick={() => {
                             if (!editing) {
                                 setEditing(true);
