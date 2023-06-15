@@ -38,8 +38,39 @@ body {
   background: rgba(0, 0, 0, 0.5);
 }
 
-.sticky {
+.sticky-vertical {
   position: -webkit-sticky;
   position: sticky;
   top: 60px;
+}
+.sticky-horizontal {
+  position: -webkit-sticky;
+  position: sticky;
+  left: 0px;
+}
+
+table {
+  border-collapse: separate;
+  border-spacing: 0px;
+}
+.table-fixed-2-cols td:first-child, th:first-child {
+  position: -webkit-sticky;
+  position: sticky;
+  left: 0px;
+  z-index: 2;
+  width: 50px;
+}
+.table-fixed-2-cols td:nth-child(2), th:nth-child(2) {
+  position: -webkit-sticky;
+  position: sticky;
+  left: 50px;
+  z-index: 2;
+  border-right: 1px dashed dimgray;
+}
+.table-fixed-right-col {
+  position: -webkit-sticky;
+  position: sticky;
+  right: 0px;
+  z-index: 2;
+  border-left: 1px dashed dimgray;
 }

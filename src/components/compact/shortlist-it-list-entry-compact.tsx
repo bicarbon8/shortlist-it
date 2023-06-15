@@ -36,7 +36,7 @@ export function getEditButton(props: ShortlistItListEntryProps, descRefObject: R
     } else {
         if (isEditingEntry(props.list.id, props.entry.id, props.stateMgr)) {
             return (
-                <div className="d-flex flex-column justify-content-evenly align-content-start sticky">
+                <div className="d-flex flex-column justify-content-evenly align-content-start sticky-vertical">
                     <ShortlistItTooltip id={`save-changes-${props.entry.id}`} text="Save Changes" className="mb-2">
                         <Button variant="success" onClick={() => saveChanges(props, descRefObject, valuesRefs)}>
                             <BootstrapIcon icon="check" />

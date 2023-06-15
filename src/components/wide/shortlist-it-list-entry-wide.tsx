@@ -48,7 +48,7 @@ export default function ShortlistItListEntryWide(props: ShortlistItListEntryProp
             <td><Badge pill={true} className={badgeColour}>{props.entry.ranking}</Badge></td>
             <td>{getDescription(props, descRefObject)}</td>
             {props.list.criteria.map(c => <td key={c.id}>{getValue(props, valuesRefs.find(e => e.criteriaName === c.name))}</td>)}
-            {(props.list.archived) ? <></> : <td>{getEditButton(props, descRefObject, valuesRefs)}</td>}
+            {(props.list.archived) ? <></> : <td className="table-fixed-right-col">{getEditButton(props, descRefObject, valuesRefs)}</td>}
         </tr>
     );
 }

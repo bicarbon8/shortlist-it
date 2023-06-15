@@ -39,7 +39,7 @@ function getTitleContent(props: ShortlistItListHeaderProps, titleRefObject: Reac
 function getMenuButtonContent(props: ShortlistItListHeaderProps, titleRefObject: React.RefObject<HTMLInputElement>) {
     if (isEditingList(props.list.id, props.stateMgr)) {
         return (
-            <div className="d-flex flex-column justify-content-evenly align-content-start sticky">
+            <div className="d-flex flex-column justify-content-evenly align-content-start sticky-vertical">
                 <ShortlistItTooltip id={`save-list-edits-${props.list.id}`} text="Save Changes" className="mb-2">
                     <Button variant="success" onClick={() => saveChanges(props, titleRefObject)}>
                         <BootstrapIcon icon="check" />
