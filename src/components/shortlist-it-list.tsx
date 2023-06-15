@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { Card } from "react-bootstrap";
-import { ShortlistItListBodyCompact } from "./compact/shortlist-it-list-body-compact";
 import { ShortlistItListHeader } from "./shortlist-it-list-header";
 import { Shortlist } from "../types/shortlist";
 import { ShortlistItStateManager } from "../types/shortlist-it-state-manager";
@@ -27,13 +26,10 @@ export function ShortlistItList(props: ShortlistItListProps) {
     });
 
     return (
-        <Card id={props.list.id} className={`m-1 min-width-300 ${bgColor}`}>
+        <Card id={props.list.id} className={`m-1 w-100 ${bgColor}`}>
             <Card.Body className="d-flex flex-column justify-content-center align-content-center">
                 <ShortlistItListHeader stateMgr={props.stateMgr} list={props.list} />
-                {(wide)
-                    ? <ShortlistItListBodyWide stateMgr={props.stateMgr} list={props.list} />
-                    : <ShortlistItListBodyCompact stateMgr={props.stateMgr} list={props.list} />
-                }
+                <ShortlistItListBodyWide stateMgr={props.stateMgr} list={props.list} />
             </Card.Body>
         </Card>
     );

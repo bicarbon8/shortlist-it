@@ -4,22 +4,6 @@ body {
   padding: 0px;
 }
 
-.min-width-300 {
-  min-width: 300px;
-}
-
-.min-width-200 {
-  min-width: 200px;
-}
-
-.min-width-150 {
-  min-width: 150px;
-}
-
-.max-width-700 {
-  max-width: 700px;
-}
-
 .clickable {
   cursor: pointer;
 }
