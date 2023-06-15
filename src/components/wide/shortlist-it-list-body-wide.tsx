@@ -307,7 +307,7 @@ export function ShortlistItCriteriaEditModal(props: ShortlistItCriteriaEditModal
                 </div>
                 <div className="d-flex flex-column justify-content-between ps-1">
                     <ShortlistItTooltip id={`save-criteria-${props.criteria.id}`} text="Save Criteria">
-                        <Button variant="success" onClick={() => {
+                        <Button variant="success" aria-label="Save Criteria" onClick={() => {
                             if (saveCriteria(props.list.id, props.criteria.id, criteriaRef, props.stateMgr)) {
                                 props.onClose();
                                 props.onSave?.();
@@ -318,13 +318,18 @@ export function ShortlistItCriteriaEditModal(props: ShortlistItCriteriaEditModal
                             <BootstrapIcon icon="check" />
                         </Button>
                     </ShortlistItTooltip>
+                    <ShortlistItTooltip id={`cancel-edit-criteria-${props.criteria.id}`} text="Cancel Edit">
+                        <Button variant="warning" aria-label="Cancel Edit" onClick={() => props.onClose()}>
+                            <BootstrapIcon icon="x-circle" />
+                        </Button>
+                    </ShortlistItTooltip>
                     <ShortlistItTooltip id={`save-criteria-template-${props.criteria.id}`} text="Save as Template">
-                        <Button variant="info" onClick={() => saveAsTemplate(criteriaRef, props.stateMgr, onSaveTemplateSuccess, onTemplateExists, onSaveError)}>
+                        <Button variant="info" aria-label="Save as Template" onClick={() => saveAsTemplate(criteriaRef, props.stateMgr, onSaveTemplateSuccess, onTemplateExists, onSaveError)}>
                             <BootstrapIcon icon="file-earmark-arrow-down" />
                         </Button>
                     </ShortlistItTooltip>
                     <ShortlistItTooltip id={`delete-criteria-${props.criteria.id}`} text="Delete Criteria">
-                        <Button variant="danger" onClick={() => {
+                        <Button variant="danger" aria-label="Delete Criteria" onClick={() => {
                             props.onClose(); // close this modal...
                             confirmDeleteCriteria(props.criteria.id, props.stateMgr); // ...and open confirmation modal
                         }}>
@@ -345,7 +350,7 @@ type ShortlistItListCriteriaProps = {
 
 function ShortlistItListCriteria(props: ShortlistItListCriteriaProps) {
     const [editing, setEditing] = useState(false);
-    let editIcon = 'pencil-square';
+    const [editIcon, setEditIcon] = useState('pencil-square');
     return (
         <th scope="col">
             <ShortlistItCriteriaEditModal
@@ -354,8 +359,8 @@ function ShortlistItListCriteria(props: ShortlistItListCriteriaProps) {
                 list={props.list}
                 onClose={() => setEditing(false)}
                 onSave={() => {
-                    editIcon = 'check-square';
-                    setTimeout(() => editIcon = 'pencil-square', 3000);
+                    setEditIcon('check-circle');
+                    setTimeout(() => setEditIcon('pencil-square'), 3000);
                 }}
                 show={editing} />
             <div className="d-flex flex-nowrap align-items-end">
