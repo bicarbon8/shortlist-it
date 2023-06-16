@@ -165,7 +165,7 @@ export function ShortlistItNav(props: ShortlistItNavProps) {
                                     defaultValue={props.stateMgr.state.filterText}
                                     onChange={(e) => {
                                         props.stateMgr.state.filterText = e.target.value;
-                                        props.stateMgr.setState(props.stateMgr.state);
+                                        props.stateMgr.setState({...props.stateMgr.state});
                                     }}
                                     aria-describedby="filter-lists-clear-button"
                                 />
