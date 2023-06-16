@@ -11,14 +11,18 @@ type ShortlistItModalProps = JSX.ElementChildrenAttribute & {
 };
 
 function preventScrolling(): void {
-    const html = document.querySelector("html");
+    const html = document.querySelector<HTMLElement>("html");
     if (html) {
         html.style.overflow = "hidden";
+        const overlay = document.querySelector<HTMLDivElement>(".overlay .alert");
+        if (overlay) {
+            overlay.style.overflow = "auto";
+        }
     }
 }
 
 function restoreScrolling(): void {
-    const html = document.querySelector("html");
+    const html = document.querySelector<HTMLElement>("html");
     if (html) {
         html.style.overflow = "auto";
     }

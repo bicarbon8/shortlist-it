@@ -9,6 +9,7 @@ import { getList, updateList } from "../component-actions/list-actions";
 import { stopEditingCriteria } from "../component-actions/list-criteria-actions";
 import { Entry } from "../types/entries/entry";
 import { getEntry, stopEditingEntry } from "../component-actions/list-entry-actions";
+import { auto } from "@popperjs/core";
 
 function Multiselect(props: {id: string, label: string, selectedValues: Array<string>, allValues: Array<string>}) {
     return (
@@ -150,8 +151,8 @@ export default function ShortlistItEntryEditModal(props: ShortlistItEntryEditMod
                         }
                     })}
                 </div>
-                <div className="d-flex flex-column justify-content-between ps-1">
-                    <ShortlistItTooltip id={`save-entry-${entry.id}`} text="Save Entry">
+                <div className="d-flex flex-column justify-content-top ps-1">
+                    <ShortlistItTooltip id={`save-entry-${entry.id}`} className="pb-1" text="Save Entry">
                         <Button variant="success" aria-label="Save Criteria" onClick={() => {
                             if (saveEntry()) {
                                 stopEditingEntry(props.stateMgr);
@@ -162,12 +163,12 @@ export default function ShortlistItEntryEditModal(props: ShortlistItEntryEditMod
                             <BootstrapIcon icon="check" />
                         </Button>
                     </ShortlistItTooltip>
-                    <ShortlistItTooltip id={`cancel-edit-entry-${entry.id}`} text="Cancel Edit">
+                    <ShortlistItTooltip id={`cancel-edit-entry-${entry.id}`} className="pb-1" text="Cancel Edit">
                         <Button variant="warning" aria-label="Cancel Edit" onClick={() => stopEditingEntry(props.stateMgr)}>
                             <BootstrapIcon icon="x-circle" />
                         </Button>
                     </ShortlistItTooltip>
-                    <ShortlistItTooltip id={`delete-entry-${entry.id}`} text="Delete Entry">
+                    <ShortlistItTooltip id={`delete-entry-${entry.id}`} className="pb-1" text="Delete Entry">
                         <Button variant="danger" aria-label="Delete Criteria" onClick={() => {
                             stopEditingCriteria(props.stateMgr);
                             confirmDeleteEntry(entry.id, props.stateMgr); // ...and open confirmation modal
