@@ -55,3 +55,11 @@ table {
   right: 0px;
   border-left: 1px dashed dimgray;
 }
+
+.alert {
+  overflow: hidden;
+}
+.alert-body {
+  overflow-y: auto;
+  height: 87vh;
+}

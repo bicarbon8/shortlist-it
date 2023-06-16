@@ -9,7 +9,6 @@ import { getList, updateList } from "../component-actions/list-actions";
 import { stopEditingCriteria } from "../component-actions/list-criteria-actions";
 import { Entry } from "../types/entries/entry";
 import { getEntry, stopEditingEntry } from "../component-actions/list-entry-actions";
-import { auto } from "@popperjs/core";
 
 function Multiselect(props: {id: string, label: string, selectedValues: Array<string>, allValues: Array<string>}) {
     return (
@@ -41,7 +40,7 @@ function Dropdown(props: {id: string, label: string, selectedValues: Array<strin
         invalid = '';
     }
     return (
-        <FloatingLabel className="w-100" controlId={`values-select-${props.label}`} label={props.label}>
+        <FloatingLabel className="w-100 pb-1" controlId={`values-select-${props.label}`} label={props.label}>
             <Form.Select
                 id={props.id}
                 aria-label={`Values Select for ${props.label}`}
@@ -120,7 +119,32 @@ export default function ShortlistItEntryEditModal(props: ShortlistItEntryEditMod
             variant="light"
             dismissible={true}
             onClose={() => stopEditingEntry(props.stateMgr)}
-            heading="Edit Entry"
+            heading={() => {
+                return (
+                    <div className="d-flex flex-row ps-1">
+                        <p className="flex-grow-1">Edit Entry</p>
+                        <ShortlistItTooltip id={`save-entry-${entry.id}`} className="pe-1" text="Save Entry">
+                            <Button variant="success" aria-label="Save Criteria" onClick={() => {
+                                if (saveEntry()) {
+                                    stopEditingEntry(props.stateMgr);
+                                } else {
+                                    onSaveError();
+                                }
+                            }}>
+                                <BootstrapIcon icon="check" />
+                            </Button>
+                        </ShortlistItTooltip>
+                        <ShortlistItTooltip id={`delete-entry-${entry.id}`} text="Delete Entry">
+                            <Button variant="danger" aria-label="Delete Criteria" onClick={() => {
+                                stopEditingCriteria(props.stateMgr);
+                                confirmDeleteEntry(entry.id, props.stateMgr); // ...and open confirmation modal
+                            }}>
+                                <BootstrapIcon icon="trash" />
+                            </Button>
+                        </ShortlistItTooltip>
+                    </div>
+                )
+            }}
             show={true}
         >
             <div ref={entryRef} className="d-flex flex-row justify-content-between">
@@ -128,9 +152,10 @@ export default function ShortlistItEntryEditModal(props: ShortlistItEntryEditMod
                     <Alert variant="danger" dismissible show={showSaveError}>
                         Entry must have all values set to valid values in order to be Saved
                     </Alert>
-                    <FloatingLabel controlId={`description-${entry.id}`} label="Entry Description">
+                    <FloatingLabel controlId={`description-${entry.id}`} label="Description">
                         <Form.Control type="text" defaultValue={entry.description} />
                     </FloatingLabel>
+                    <hr />
                     {list.criteria.map(c => {
                         const selectedValues = entry.values.get(c.name) ?? new Array<string>();
                         const allValues = allPossibleValues(c);
@@ -151,32 +176,6 @@ export default function ShortlistItEntryEditModal(props: ShortlistItEntryEditMod
                                 allValues={allValues} />
                         }
                     })}
-                </div>
-                <div className="d-flex flex-column justify-content-top ps-1">
-                    <ShortlistItTooltip id={`save-entry-${entry.id}`} className="pb-1" text="Save Entry">
-                        <Button variant="success" aria-label="Save Criteria" onClick={() => {
-                            if (saveEntry()) {
-                                stopEditingEntry(props.stateMgr);
-                            } else {
-                                onSaveError();
-                            }
-                        }}>
-                            <BootstrapIcon icon="check" />
-                        </Button>
-                    </ShortlistItTooltip>
-                    <ShortlistItTooltip id={`cancel-edit-entry-${entry.id}`} className="pb-1" text="Cancel Edit">
-                        <Button variant="warning" aria-label="Cancel Edit" onClick={() => stopEditingEntry(props.stateMgr)}>
-                            <BootstrapIcon icon="x-circle" />
-                        </Button>
-                    </ShortlistItTooltip>
-                    <ShortlistItTooltip id={`delete-entry-${entry.id}`} className="pb-1" text="Delete Entry">
-                        <Button variant="danger" aria-label="Delete Criteria" onClick={() => {
-                            stopEditingCriteria(props.stateMgr);
-                            confirmDeleteEntry(entry.id, props.stateMgr); // ...and open confirmation modal
-                        }}>
-                            <BootstrapIcon icon="trash" />
-                        </Button>
-                    </ShortlistItTooltip>
                 </div>
             </div>
         </ShortlistItModal>

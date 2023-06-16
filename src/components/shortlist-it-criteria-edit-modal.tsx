@@ -285,11 +285,6 @@ export default function ShortlistItCriteriaEditModal(props: ShortlistItCriteriaE
                             <BootstrapIcon icon="check" />
                         </Button>
                     </ShortlistItTooltip>
-                    <ShortlistItTooltip id={`cancel-edit-criteria-${criteria.id}`} text="Cancel Edit">
-                        <Button variant="warning" aria-label="Cancel Edit" onClick={() => stopEditingCriteria(props.stateMgr)}>
-                            <BootstrapIcon icon="x-circle" />
-                        </Button>
-                    </ShortlistItTooltip>
                     <ShortlistItTooltip id={`save-criteria-template-${criteria.id}`} text="Save as Template">
                         <Button variant="info" aria-label="Save as Template" onClick={() => saveAsTemplate(criteriaRef, props.stateMgr, onSaveTemplateSuccess, onTemplateExists, onSaveError)}>
                             <BootstrapIcon icon="file-earmark-arrow-down" />

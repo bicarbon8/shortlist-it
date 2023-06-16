@@ -6,7 +6,7 @@ type ShortlistItModalProps = JSX.ElementChildrenAttribute & {
     variant?: string;
     dismissible?: boolean;
     show?: boolean;
-    heading: string;
+    heading: string | (() => {});
     onClose: () => void;
 };
 
@@ -14,17 +14,13 @@ function preventScrolling(): void {
     const html = document.querySelector<HTMLElement>("html");
     if (html) {
         html.style.overflow = "hidden";
-        const overlay = document.querySelector<HTMLDivElement>(".overlay .alert");
-        if (overlay) {
-            overlay.style.overflow = "auto";
-        }
     }
 }
 
 function restoreScrolling(): void {
     const html = document.querySelector<HTMLElement>("html");
     if (html) {
-        html.style.overflow = "auto";
+        html.style.overflowY = "auto";
     }
 }
 
@@ -45,14 +41,13 @@ export function ShortlistItModal(props: ShortlistItModalProps) {
             <div className="overlay w-100 d-flex justify-content-center align-content-start">
                 <Alert
                     ref={overlayRef}
-                    className="m-3"
+                    className="m-3 w-75"
                     id={props.id}
                     variant={props.variant}
                     dismissible={props.dismissible}
-                    onClose={() => props.onClose()}
-                >
-                    <Alert.Heading>{props.heading}</Alert.Heading>
-                    {props.children}
+                    onClose={() => props.onClose()}>
+                    <Alert.Heading>{(typeof props.heading === 'string') ? props.heading : props.heading()}</Alert.Heading>
+                    <div className="alert-body">{props.children}</div>
                 </Alert>
             </div>
         );
