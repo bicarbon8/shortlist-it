@@ -19,7 +19,7 @@ type ShortlistItCriteriaTemplateItemProps = {
 
 export default function ShortlistItCriteriaTemplateItem(props: ShortlistItCriteriaTemplateItemProps) {
     return (
-        <Dropdown.Item key={props.template.name} onClick={() => null}>
+        <Dropdown.Item onClick={() => null}>
             <div className="d-flex flex-row justify-content-between">
                 <div className="flex-col pe-1" onClick={() => addNewCriteria(props.list.id, props.stateMgr, props.template.name)}>
                     <p className="mb-0">{props.template.name}</p>

@@ -41,9 +41,15 @@ export default function ShortlistItListCriteriaAddNewDropdown(props: ShortlistIt
                 <Button variant="outline-secondary" aria-label="Add New Criteria" onClick={() => addNewCriteria(props.list.id, props.stateMgr)}>
                     <BootstrapIcon icon="plus-lg" />
                 </Button>
-                {(props.stateMgr.state.criteriaTemplates.size > 0) ? (
+                {(props.stateMgr.state.criteriaTemplates.size > 0) &&
                     <>
-                        <Dropdown.Toggle split variant="outline-secondary" id="dropdown-split-basic" />
+                        <Dropdown.Toggle
+                            split
+                            variant="outline-secondary"
+                            id="dropdown-split-basic"
+                            onClick={() => {
+                                
+                            }} />
 
                         <Dropdown.Menu>
                             {Array.from(props.stateMgr.state.criteriaTemplates.values()).map(c => <ShortlistItCriteriaTemplateItem 
@@ -53,7 +59,7 @@ export default function ShortlistItListCriteriaAddNewDropdown(props: ShortlistIt
                                 template={c}
                             />)}
                         </Dropdown.Menu>
-                    </>) : <></>
+                    </>
                 }
             </Dropdown>
         </ShortlistItTooltip>

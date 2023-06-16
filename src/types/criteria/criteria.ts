@@ -8,3 +8,10 @@ export type Criteria = {
     allowMultiple?: boolean;
     weight: number;
 };
+
+export module Criteria {
+    export function nameToElementId(name: string): string {
+        const formatted = name?.replace(' ', '-') ?? 'unknown';
+        return `criteria-name-${formatted}`;
+    }
+}

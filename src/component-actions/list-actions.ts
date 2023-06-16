@@ -50,7 +50,7 @@ export function startEditingList(listId: string, stateMgr: ShortlistItStateManag
  * @param stateMgr the `ShortlistItStateManager` instance used to read and update state
  */
 export function setEditingListState(listId: string, editing: boolean, stateMgr: ShortlistItStateManager): void {
-    stateMgr.state.editingListMap.set(listId, editing);
+    stateMgr.state.editingListTitleMap.set(listId, editing);
     stateMgr.setState({...stateMgr.state});
 }
 

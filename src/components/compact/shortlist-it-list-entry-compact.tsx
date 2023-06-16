@@ -1,15 +1,13 @@
 import React from "react";
-import { Badge, Button, FloatingLabel, Form, ListGroupItem } from "react-bootstrap";
-import { Criteria } from "../../types/criteria/criteria";
+import { Badge, FloatingLabel, Form, ListGroupItem } from "react-bootstrap";
 import { Entry } from "../../types/entries/entry";
 import { EntryValuesRefContainer } from "../../types/entries/entry-values-ref-container";
 import { Shortlist } from "../../types/shortlist";
-import { BootstrapIcon } from "../bootstrap-icon";
 import { ShortlistItListEntryValuesList } from "../shortlist-it-list-entry-values-list";
-import { ShortlistItTooltip } from "../shortlist-it-tooltip";
 import { ShortlistItStateManager } from "../../types/shortlist-it-state-manager";
-import { setEditingListEntryState, startEditingEntry } from "../../component-actions/list-entry-actions";
 import { getList, updateList } from "../../component-actions/list-actions";
+import ShortlistItListEntryEditButton from "../shortlist-it-list-entry-edit-button";
+import { stopEditingEntry } from "../../component-actions/list-entry-actions";
 
 export type ShortlistItListEntryProps = {
     stateMgr: ShortlistItStateManager;
@@ -27,54 +25,6 @@ export function getDescription(props: ShortlistItListEntryProps, descRefObject: 
     } else {
         const textColour = (props.list.archived) ? 'text-muted' : 'text-dark';
         return <span className={textColour}>{props.entry.description}</span>;
-    }
-}
-
-export function getEditButton(props: ShortlistItListEntryProps, descRefObject: React.RefObject<HTMLInputElement>, valuesRefs: Array<EntryValuesRefContainer>) {
-    if (props.list.archived) {
-        return <></>;
-    } else {
-        if (isEditingEntry(props.list.id, props.entry.id, props.stateMgr)) {
-            return (
-                <div className="d-flex flex-column justify-content-evenly align-content-start sticky-vertical">
-                    <ShortlistItTooltip id={`save-changes-${props.entry.id}`} text="Save Changes" className="mb-2">
-                        <Button variant="success" onClick={() => saveChanges(props, descRefObject, valuesRefs)}>
-                            <BootstrapIcon icon="check" />
-                        </Button>
-                    </ShortlistItTooltip>
-                    <ShortlistItTooltip id={`cancel-edits-${props.entry.id}`} text="Cancel Edits" className="my-2">
-                        <Button variant="warning" onClick={() => cancelListEntryEdits(props.list.id, props.entry.id, props.stateMgr)}>
-                            <BootstrapIcon icon="x-circle" />
-                        </Button>
-                    </ShortlistItTooltip>
-                    <ShortlistItTooltip id={`delete-entry-${props.entry.id}`} text="Delete Entry" className="mt-2">
-                        <Button variant="danger" onClick={() => deleteEntry(props.entry.id, props.stateMgr)}>
-                            <BootstrapIcon icon="trash" />
-                        </Button>
-                    </ShortlistItTooltip>
-                </div>
-            );
-        } else {
-            let icon: string;
-            let tooltip: string;
-            let iconBackground: string;
-            if (hasMissingData(props)) {
-                icon = 'exclamation-triangle';
-                tooltip = 'Missing Data - click to set values';
-                iconBackground = 'bg-warning';
-            } else {
-                icon = 'pencil-square';
-                tooltip = 'Edit Entry';
-                iconBackground = '';
-            }
-            return (
-                <ShortlistItTooltip id={`edit-entry-${props.entry.id}`} text={tooltip}>
-                    <div className="clickable" onClick={() => startEditingEntry(props.list.id, props.entry.id, props.stateMgr)}>
-                        <BootstrapIcon className={iconBackground} icon={icon} />
-                    </div>
-                </ShortlistItTooltip>
-            );
-        }
     }
 }
 
@@ -115,24 +65,8 @@ export function createValuesRefs(criteriaName: string): EntryValuesRefContainer 
     };
 }
 
-function hasMissingData(props: ShortlistItListEntryProps): boolean {
-    const criteriaNames: Array<string> = Array.from(props.list.criteria.map(c => c.name))
-        .filter(name => name && name !== '');
-    for (var i=0; i<criteriaNames.length; i++) {
-        const key = criteriaNames[i];
-        const vals = props.entry.values.get(key);
-        if (!vals || vals.length === 0) {
-            const criteria: Criteria = props.list.criteria.find(c => c.name === key);
-            if (!criteria.allowMultiple) {
-                return true;
-            }
-        }
-    }
-    return false;
-}
-
 export function isEditingEntry(listId: string, entryId: string, stateMgr: ShortlistItStateManager): boolean {
-    return stateMgr.state.editingListEntryMap.get(`${listId}_${entryId}`) || false;
+    return stateMgr.state.editingEntryId === entryId;
 }
 
 function saveListEntryEdits(listId: string, entry: Entry, stateMgr: ShortlistItStateManager): void {
@@ -142,18 +76,9 @@ function saveListEntryEdits(listId: string, entry: Entry, stateMgr: ShortlistItS
         if (index >= 0) {
             list.entries.splice(index, 1, entry);
             updateList(listId, list, stateMgr);
-            setEditingListEntryState(listId, entry.id, false, stateMgr);
+            stopEditingEntry(stateMgr);
         }
     }
-}
-
-function cancelListEntryEdits(listId: string, entryId: string, stateMgr: ShortlistItStateManager): void {
-    setEditingListEntryState(listId, entryId, false, stateMgr);
-}
-
-function deleteEntry(entryId: string, stateMgr: ShortlistItStateManager): void {
-    stateMgr.state.entryToBeDeleted = entryId;
-    stateMgr.setState({...stateMgr.state});
 }
 
 export function ShortlistItListEntryCompact(props: ShortlistItListEntryProps) {
@@ -171,8 +96,11 @@ export function ShortlistItListEntryCompact(props: ShortlistItListEntryProps) {
                     {getDescription(props, descRefObject)}
                     {getValuesList(props, valuesRefs)}
                 </span> 
-                <span className="text-center px-1"> 
-                    {getEditButton(props, descRefObject, valuesRefs)}
+                <span className="text-center px-1">
+                    <ShortlistItListEntryEditButton
+                        list={props.list}
+                        entry={props.entry}
+                        stateMgr={props.stateMgr} />
                 </span>
             </div>
         </ListGroupItem>

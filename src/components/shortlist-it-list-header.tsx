@@ -132,7 +132,7 @@ function cancelListEdits(listId: string, stateMgr: ShortlistItStateManager): voi
 }
 
 export function isEditingList(listId: string, stateMgr: ShortlistItStateManager): boolean {
-    return stateMgr.state.editingListMap.get(listId) || false;
+    return stateMgr.state.editingListTitleMap.get(listId) || false;
 }
 
 function deleteList(listId: string, stateMgr: ShortlistItStateManager): void {

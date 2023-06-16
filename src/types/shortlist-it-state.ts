@@ -9,8 +9,8 @@ export type ShortlistItState = {
     criteriaTemplateToBeDeleted?: string;
     entryToBeDeleted?: string;
     filterText: string;
-    editingListMap: Map<string, boolean>;
-    editingListEntryMap: Map<string, boolean>;
+    editingListTitleMap: Map<string, boolean>;
+    editingEntryId?: string;
     editingCriteriaId?: string;
     criteriaTemplates: Map<string, Omit<Criteria, 'id'>>;
 };
