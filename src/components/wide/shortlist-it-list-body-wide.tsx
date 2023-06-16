@@ -66,14 +66,14 @@ function ShortlistItListCriteria(props: ShortlistItListCriteriaProps) {
 export default function ShortlistItListBodyWide(props: ShortlistItListBodyProps) {
     const variant = (props.list.archived) ? 'table-secondary' : 'table-dark';
     return (
-        <div style={{overflowX: 'auto'}}>
+        <div className="table-responsive">
             <table className="table table-hover table-striped table-fixed-2-cols pb-0 mb-0">
                 <thead>
                     <tr className={variant}>
                         <th scope="col">rank</th>
                         <th scope="col">description</th>
                         {props.list.criteria.map(c => <ShortlistItListCriteria key={c.id} criteria={c} list={props.list} stateMgr={props.stateMgr} />)}
-                        {(props.list.archived) ? <></> : <th scope="col" className="table-fixed-right-col"><ShortlistItListCriteriaAddNewDropdown stateMgr={props.stateMgr} list={props.list} /></th>}
+                        {(props.list.archived) ? <></> : <th scope="col" className="d-flex justify-content-end table-fixed-right-col"><ShortlistItListCriteriaAddNewDropdown stateMgr={props.stateMgr} list={props.list} /></th>}
                     </tr>
                 </thead>
                 <tbody>
