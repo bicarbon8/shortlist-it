@@ -90,7 +90,8 @@ export default function ShortlistItEntryEditModal(props: ShortlistItEntryEditMod
         return {
             id: entry.id,
             description: desc,
-            values: values
+            values: values,
+            listId: list.id
         };
     };
     const confirmDeleteEntry = (entryId: string, stateMgr: ShortlistItStateManager): void => {
@@ -105,8 +106,8 @@ export default function ShortlistItEntryEditModal(props: ShortlistItEntryEditMod
             if (cIndex >= 0) {
                 list.entries.splice(cIndex, 1, entry);
                 updateList(list.id, list, props.stateMgr);
+                return true;
             }
-            return true;
         }
         return false;
     };

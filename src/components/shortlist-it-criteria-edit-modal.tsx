@@ -11,7 +11,7 @@ import { getList, updateList } from "../component-actions/list-actions";
 import { CriteriaRefContainer } from "../types/criteria/criteria-ref-container";
 import { CriteriaType, CriteriaTypeArray } from "../types/criteria/criteria-type";
 import { store } from "../utilities/storage";
-import { stopEditingCriteria } from "../component-actions/list-criteria-actions";
+import { getCriteria, stopEditingCriteria } from "../component-actions/list-criteria-actions";
 
 function getCriteriaModalElement(criteria: Criteria): HTMLDivElement {
     return document.getElementById(criteria.id) as HTMLDivElement;
@@ -152,15 +152,16 @@ function confirmDeleteCriteria(criteriaId: string, stateMgr: ShortlistItStateMan
 
 type ShortlistItCriteriaEditModalProps = {
     stateMgr: ShortlistItStateManager;
-    list: Shortlist
-    criteria: Criteria;
-    onClose: () => void;
-    onSave: () => void;
-    show: boolean;
 };
 
 export default function ShortlistItCriteriaEditModal(props: ShortlistItCriteriaEditModalProps) {
-    const criteriaRef = createCriteriaRef(props.criteria);
+    if (!props.stateMgr.state.editingCriteriaId) {
+        return <></>;
+    }
+
+    const criteria = getCriteria(props.stateMgr.state.editingCriteriaId, props.stateMgr);
+    const list = getList(criteria.listId, props.stateMgr);
+    const criteriaRef = createCriteriaRef(criteria);
 
     const [showSaveTemplateSuccess, setShowSaveTemplateSuccess] = useState(false);
     const onSaveTemplateSuccess = () => {
@@ -177,22 +178,22 @@ export default function ShortlistItCriteriaEditModal(props: ShortlistItCriteriaE
         window.setTimeout(() => setShowSaveTemplateError(false), 5000);
     }
 
-    const [criteriaNameValid, setCriteriaNameValid] = useState(isCriteriaNameValid(props.criteria, props.list));
-    const [criteriaTypeValid, setCriteriaTypeValid] = useState(isCriteriaTypeValid(props.criteria));
-    const [criteriaValuesValid, setCriteriaValuesValid] = useState(areCritieriaValuesValid(props.criteria));
-    const [criteriaWeightValid, setCriteriaWeightValid] = useState(isCritieraWeightValid(props.criteria));
-    const [criteriaMultiselectAllowed, setCriteriaMultiselectAllowed] = useState(isCriteriaMultiselectAllowed(props.criteria));
-    const [criteriaValuesAllowed, setCriteriaValuesAllowed] = useState(doesCriteriaAllowValues(props.criteria));
+    const [criteriaNameValid, setCriteriaNameValid] = useState(isCriteriaNameValid(criteria, list));
+    const [criteriaTypeValid, setCriteriaTypeValid] = useState(isCriteriaTypeValid(criteria));
+    const [criteriaValuesValid, setCriteriaValuesValid] = useState(areCritieriaValuesValid(criteria));
+    const [criteriaWeightValid, setCriteriaWeightValid] = useState(isCritieraWeightValid(criteria));
+    const [criteriaMultiselectAllowed, setCriteriaMultiselectAllowed] = useState(isCriteriaMultiselectAllowed(criteria));
+    const [criteriaValuesAllowed, setCriteriaValuesAllowed] = useState(doesCriteriaAllowValues(criteria));
     
     return (
         <ShortlistItModal
             variant="light"
             dismissible={true}
-            onClose={props.onClose}
+            onClose={() => stopEditingCriteria(props.stateMgr)}
             heading="Edit Critieria"
-            show={props.show}
+            show={true}
         >
-            <div id={props.criteria.id} className="d-flex flex-row justify-content-between criteria-list-item">
+            <div id={criteria.id} className="d-flex flex-row justify-content-between criteria-list-item">
                 <div className="d-flex flex-column justify-content-evently flex-grow-1 pe-1">
                     <Alert variant="danger" dismissible show={showSaveError}>
                         Criteria must have all values set to valid values in order to be Saved or used as a Template
@@ -218,20 +219,20 @@ export default function ShortlistItCriteriaEditModal(props: ShortlistItCriteriaE
                         <Form.Control 
                             ref={criteriaRef.name}
                             type="text" 
-                            defaultValue={props.criteria.name} 
+                            defaultValue={criteria.name} 
                             className={(!criteriaNameValid) ? 'is-invalid' : ''} 
-                            onChange={() => setCriteriaNameValid(isCriteriaNameValid(props.criteria, props.list))} />
+                            onChange={() => setCriteriaNameValid(isCriteriaNameValid(criteria, list))} />
                     </FloatingLabel>
                     <FloatingLabel controlId="criteriaType" label="Criteria Type">
                         <Form.Select 
                             ref={criteriaRef.type}
                             aria-label="Criteria Type Select"
-                            defaultValue={props.criteria.type}
+                            defaultValue={criteria.type}
                             className={(!criteriaTypeValid) ? 'is-invalid' : ''}
                             onChange={() => {
-                                setCriteriaTypeValid(isCriteriaTypeValid(props.criteria));
-                                setCriteriaMultiselectAllowed(isCriteriaMultiselectAllowed(props.criteria));
-                                setCriteriaValuesAllowed(doesCriteriaAllowValues(props.criteria));
+                                setCriteriaTypeValid(isCriteriaTypeValid(criteria));
+                                setCriteriaMultiselectAllowed(isCriteriaMultiselectAllowed(criteria));
+                                setCriteriaValuesAllowed(doesCriteriaAllowValues(criteria));
                             }}>
                             <option value="worst-to-best">worst-to-best</option>
                             <option value="yes-no">yes-no</option>
@@ -244,10 +245,10 @@ export default function ShortlistItCriteriaEditModal(props: ShortlistItCriteriaE
                             ref={criteriaRef.values}
                             type="text" 
                             placeholder="comma separated values" 
-                            defaultValue={(criteriaValuesAllowed) ? props.criteria.values.join(',') : 'yes,no'} 
+                            defaultValue={(criteriaValuesAllowed) ? criteria.values.join(',') : 'yes,no'} 
                             disabled={!criteriaValuesAllowed} 
                             className={(!criteriaValuesValid) ? 'is-invalid' : ''}
-                            onChange={() => setCriteriaValuesValid(areCritieriaValuesValid(props.criteria))} />
+                            onChange={() => setCriteriaValuesValid(areCritieriaValuesValid(criteria))} />
                     </FloatingLabel>
                     <div className="d-flex flex-row justify-content-between align-items-center">
                         <div className="d-flex flex-wrap align-content-around px-1">
@@ -257,7 +258,7 @@ export default function ShortlistItCriteriaEditModal(props: ShortlistItCriteriaE
                                 ref={criteriaRef.multi}
                                 type="switch" 
                                 aria-label="Allow Multiselect?" 
-                                defaultChecked={(criteriaMultiselectAllowed) ? props.criteria.allowMultiple : false}
+                                defaultChecked={(criteriaMultiselectAllowed) ? criteria.allowMultiple : false}
                                 disabled={!criteriaMultiselectAllowed}
                             />
                         </div>
@@ -266,18 +267,17 @@ export default function ShortlistItCriteriaEditModal(props: ShortlistItCriteriaE
                                 ref={criteriaRef.weight}
                                 type="text" 
                                 placeholder="numeric points multiplier"
-                                defaultValue={props.criteria.weight ?? 1} 
+                                defaultValue={criteria.weight ?? 1} 
                                 className={(!criteriaWeightValid) ? 'is-invalid' : ''}
-                                onChange={() => setCriteriaWeightValid(isCritieraWeightValid(props.criteria))} />
+                                onChange={() => setCriteriaWeightValid(isCritieraWeightValid(criteria))} />
                         </FloatingLabel>
                     </div>
                 </div>
                 <div className="d-flex flex-column justify-content-between ps-1">
-                    <ShortlistItTooltip id={`save-criteria-${props.criteria.id}`} text="Save Criteria">
+                    <ShortlistItTooltip id={`save-criteria-${criteria.id}`} text="Save Criteria">
                         <Button variant="success" aria-label="Save Criteria" onClick={() => {
-                            if (saveCriteria(props.list.id, props.criteria.id, criteriaRef, props.stateMgr)) {
-                                props.onClose();
-                                props.onSave?.();
+                            if (saveCriteria(list.id, criteria.id, criteriaRef, props.stateMgr)) {
+                                stopEditingCriteria(props.stateMgr);
                             } else {
                                 onSaveError();
                             }
@@ -285,21 +285,20 @@ export default function ShortlistItCriteriaEditModal(props: ShortlistItCriteriaE
                             <BootstrapIcon icon="check" />
                         </Button>
                     </ShortlistItTooltip>
-                    <ShortlistItTooltip id={`cancel-edit-criteria-${props.criteria.id}`} text="Cancel Edit">
-                        <Button variant="warning" aria-label="Cancel Edit" onClick={() => props.onClose()}>
+                    <ShortlistItTooltip id={`cancel-edit-criteria-${criteria.id}`} text="Cancel Edit">
+                        <Button variant="warning" aria-label="Cancel Edit" onClick={() => stopEditingCriteria(props.stateMgr)}>
                             <BootstrapIcon icon="x-circle" />
                         </Button>
                     </ShortlistItTooltip>
-                    <ShortlistItTooltip id={`save-criteria-template-${props.criteria.id}`} text="Save as Template">
+                    <ShortlistItTooltip id={`save-criteria-template-${criteria.id}`} text="Save as Template">
                         <Button variant="info" aria-label="Save as Template" onClick={() => saveAsTemplate(criteriaRef, props.stateMgr, onSaveTemplateSuccess, onTemplateExists, onSaveError)}>
                             <BootstrapIcon icon="file-earmark-arrow-down" />
                         </Button>
                     </ShortlistItTooltip>
-                    <ShortlistItTooltip id={`delete-criteria-${props.criteria.id}`} text="Delete Criteria">
+                    <ShortlistItTooltip id={`delete-criteria-${criteria.id}`} text="Delete Criteria">
                         <Button variant="danger" aria-label="Delete Criteria" onClick={() => {
-                            props.onClose();
                             stopEditingCriteria(props.stateMgr);
-                            confirmDeleteCriteria(props.criteria.id, props.stateMgr); // ...and open confirmation modal
+                            confirmDeleteCriteria(criteria.id, props.stateMgr); // ...and open confirmation modal
                         }}>
                             <BootstrapIcon icon="trash" />
                         </Button>

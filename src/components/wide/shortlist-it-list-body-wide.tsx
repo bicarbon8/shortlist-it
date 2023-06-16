@@ -1,5 +1,5 @@
-import React, { useMemo, useState } from "react";
-import { ShortlistItListBodyProps, addNewEntry } from "../compact/shortlist-it-list-body-compact";
+import React, { useState } from "react";
+import { ShortlistItListBodyProps } from "../compact/shortlist-it-list-body-compact";
 import ShortlistItListEntryWide from "./shortlist-it-list-entry-wide";
 import { BootstrapIcon } from "../bootstrap-icon";
 import { Button } from "react-bootstrap";
@@ -8,24 +8,20 @@ import { Shortlist } from "../../types/shortlist";
 import { ShortlistItStateManager } from "../../types/shortlist-it-state-manager";
 import { ShortlistItTooltip } from "../shortlist-it-tooltip";
 import ShortlistItListCriteriaAddNewDropdown from "../shortlist-it-list-criteria-add-new-dropdown";
-import ShortlistItCriteriaEditModal from "../shortlist-it-criteria-edit-modal";
-import { startEditingCriteria, stopEditingCriteria } from "../../component-actions/list-criteria-actions";
+import { startEditingCriteria } from "../../component-actions/list-criteria-actions";
+import { addNewEntry } from "../../component-actions/list-entry-actions";
 
-function getAddEntryButton(props: ShortlistItListBodyProps) {
-    if (props.list.archived) {
-        return <></>;
-    } else {
-        return (
-            <tr className="table-secondary">
-                <td colSpan={3 + props.list.criteria.length}>
-                    <Button size="sm" variant="outline-secondary" className="sticky-horizontal" onClick={() => addNewEntry(props.list.id, props.stateMgr)}>
-                        <BootstrapIcon icon="plus-lg" /> 
-                        Add New Entry
-                    </Button>
-                </td>
-            </tr>
-        );
-    }
+function AddEntryButton(props: ShortlistItListBodyProps) {
+    return (
+        <tr className="table-secondary">
+            <td colSpan={3 + props.list.criteria.length}>
+                <Button size="sm" variant="outline-secondary" className="sticky-horizontal" onClick={() => addNewEntry(props.list.id, props.stateMgr)}>
+                    <BootstrapIcon icon="plus-lg" /> 
+                    Add New Entry
+                </Button>
+            </td>
+        </tr>
+    );
 }
 
 type ShortlistItListCriteriaProps = {
@@ -38,16 +34,6 @@ function ShortlistItListCriteria(props: ShortlistItListCriteriaProps) {
     const [editIcon, setEditIcon] = useState('pencil-square');
     return (
         <th scope="col" className="d-none d-sm-table-cell">
-            <ShortlistItCriteriaEditModal
-                stateMgr={props.stateMgr}
-                criteria={props.criteria}
-                list={props.list}
-                onClose={() => stopEditingCriteria(props.stateMgr)}
-                onSave={() => {
-                    setEditIcon('check-circle');
-                    setTimeout(() => setEditIcon('pencil-square'), 3000);
-                }}
-                show={props.stateMgr.state.editingCriteriaId === props.criteria.id} />
             <div className="d-flex flex-nowrap align-items-end">
                 {(props.list.archived) ? <></> : <ShortlistItTooltip id={`edit-criteria-${props.criteria.id}`} text="Edit Criteria">
                     <BootstrapIcon
@@ -91,7 +77,7 @@ export default function ShortlistItListBodyWide(props: ShortlistItListBodyProps)
                             />
                         );
                     })}
-                    {getAddEntryButton(props)}
+                    {(!props.list.archived) && <AddEntryButton {...props} />}
                 </tbody>
             </table>
         </div>

@@ -3,8 +3,8 @@ import { Criteria } from "../types/criteria/criteria";
 import { ShortlistItStateManager } from "../types/shortlist-it-state-manager";
 import { BootstrapIcon } from "./bootstrap-icon";
 import React from "react";
-import { addNewCriteria } from "./shortlist-it-list-criteria-add-new-dropdown";
 import { Shortlist } from "../types/shortlist";
+import { addNewCriteria } from "../component-actions/list-criteria-actions";
 
 function deleteCriteriaTemplate(templateId: string, stateMgr: ShortlistItStateManager): void {
     stateMgr.state.criteriaTemplateToBeDeleted = templateId;

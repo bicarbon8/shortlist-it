@@ -1,5 +1,7 @@
+import { v4 } from "uuid";
 import { Entry } from "../types/entries/entry";
 import { ShortlistItStateManager } from "../types/shortlist-it-state-manager";
+import { getList, updateList } from "./list-actions";
 
 export function startEditingEntry(entryId: string, stateMgr: ShortlistItStateManager): void {
     stateMgr.state.editingEntryId = entryId;
@@ -19,6 +21,22 @@ export function getEntry(entryId: string, stateMgr: ShortlistItStateManager): En
         }
         return entry != null;
     }));
-    entry.listId = list.id;
+    if (entry) {
+        entry.listId = list.id;
+    }
     return entry;
+}
+
+export function addNewEntry(listId: string, stateMgr: ShortlistItStateManager): void {
+    let updated = getList(listId, stateMgr);
+    if (updated) {
+        const entry: Entry = {
+            id: v4(),
+            values: new Map<string, Array<string>>(),
+            listId: listId
+        }
+        updated.entries.push(entry);
+        updateList(listId, updated, stateMgr);
+        startEditingEntry(entry.id, stateMgr);
+    }
 }

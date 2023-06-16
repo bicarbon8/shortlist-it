@@ -13,6 +13,7 @@ import { ShortlistItCriteriaDeletionModal } from "./shortlist-it-criteria-deleti
 import { ShortlistItEntryDeletionModal } from "./shortlist-it-entry-deletion-modal";
 import { ShortlistItCriteriaTemplateDeletionModal } from "./shortlist-it-criteria-template-deletion-modal";
 import ShortlistItEntryEditModal from "./shortlist-it-entry-edit-modal";
+import ShortlistItCriteriaEditModal from "./shortlist-it-criteria-edit-modal";
 
 function getLists(state: ShortlistItState): Array<Shortlist> {
     let lists = state.lists;
@@ -162,6 +163,7 @@ export function ShortlistIt() {
             <ShortlistItEntryDeletionModal stateMgr={{state, setState}} />
             <ShortlistItCriteriaDeletionModal stateMgr={{state, setState}} />
             <ShortlistItCriteriaTemplateDeletionModal stateMgr={{state, setState}} />
+            <ShortlistItCriteriaEditModal stateMgr={{state, setState}} />
             <ShortlistItEntryEditModal stateMgr={{state, setState}} />
             <ShortlistItNav stateMgr={{state, setState}} />
             <div className="d-flex justify-content-evenly align-items-start flex-wrap flex-sm-row flex-column">

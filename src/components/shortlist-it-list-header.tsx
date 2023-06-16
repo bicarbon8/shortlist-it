@@ -5,12 +5,11 @@ import { CriteriaRefContainer } from "../types/criteria/criteria-ref-container";
 import { CriteriaType } from "../types/criteria/criteria-type";
 import { Shortlist } from "../types/shortlist";
 import { BootstrapIcon } from "./bootstrap-icon";
-import { ShortlistItListCriteria } from "./shortlist-it-list-criteria";
 import { ShortlistItMenu, ShortlistItMenuItem } from "./shortlist-it-menu";
 import { ShortlistItTooltip } from "./shortlist-it-tooltip";
 import { ShortlistItStateManager } from "../types/shortlist-it-state-manager";
 import { archiveList, setEditingListState, startEditingList, unarchiveList, updateList } from "../component-actions/list-actions";
-import { addNewEntry } from "./compact/shortlist-it-list-body-compact";
+import { addNewEntry } from "../component-actions/list-entry-actions";
 
 export type ShortlistItListHeaderProps = {
     stateMgr: ShortlistItStateManager;

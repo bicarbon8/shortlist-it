@@ -7,7 +7,7 @@ import { ShortlistItListEntryCompact } from "./shortlist-it-list-entry-compact";
 import { v4 } from "uuid";
 import { ShortlistItStateManager } from "../../types/shortlist-it-state-manager";
 import { getList, updateList } from "../../component-actions/list-actions";
-import { startEditingEntry } from "../../component-actions/list-entry-actions";
+import { addNewEntry, startEditingEntry } from "../../component-actions/list-entry-actions";
 
 export type ShortlistItListBodyProps = {
     stateMgr: ShortlistItStateManager;
@@ -28,19 +28,6 @@ function getAddEntryButton(props: ShortlistItListBodyProps) {
                 Add New Entry
             </ListGroupItem>
         );
-    }
-}
-
-export function addNewEntry(listId: string, stateMgr: ShortlistItStateManager): void {
-    let updated = getList(listId, stateMgr);
-    if (updated) {
-        const entry: Entry = {
-            id: v4(),
-            values: new Map<string, Array<string>>()
-        }
-        updated.entries.push(entry);
-        updateList(listId, updated, stateMgr);
-        startEditingEntry(listId, entry.id, stateMgr);
     }
 }
 
