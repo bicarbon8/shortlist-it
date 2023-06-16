@@ -150,7 +150,7 @@ export function ShortlistItNav(props: ShortlistItNavProps) {
                             checked={props.stateMgr.state.showArchived}
                             onChange={e => {
                                 props.stateMgr.state.showArchived = e.target.checked;
-                                props.stateMgr.setState(props.stateMgr.state);
+                                props.stateMgr.setState({...props.stateMgr.state});
                             }}
                         />
                     </Navbar.Text>
