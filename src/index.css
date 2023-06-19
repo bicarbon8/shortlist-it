@@ -58,8 +58,13 @@ table {
 
 .alert {
   overflow: hidden;
+  min-width: 50vw;
+  max-width: 90vw;
+  min-height: 25vh;
+  max-height: 90vh;
 }
 .alert-body {
   overflow-y: auto;
-  height: 87vh;
+  max-height: 80vh;
+  min-height: 20vh;
 }

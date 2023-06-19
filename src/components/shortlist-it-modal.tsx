@@ -41,7 +41,7 @@ export function ShortlistItModal(props: ShortlistItModalProps) {
             <div className="overlay w-100 d-flex justify-content-center align-content-start">
                 <Alert
                     ref={overlayRef}
-                    className="m-3 w-75"
+                    className="m-3"
                     id={props.id}
                     variant={props.variant}
                     dismissible={props.dismissible}
