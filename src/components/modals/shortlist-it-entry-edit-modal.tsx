@@ -2,12 +2,13 @@ import React, { createRef, useState } from "react";
 import { Criteria } from "../../types/criteria/criteria";
 import { ShortlistItStateManager } from "../../types/shortlist-it-state-manager";
 import { ShortlistItModal } from "./shortlist-it-modal";
-import { Alert, Button, Col, FloatingLabel, Form } from "react-bootstrap";
+import { Alert, Anchor, Button, Col, FloatingLabel, Form } from "react-bootstrap";
 import { ShortlistItTooltip } from "../shortlist-it-tooltip";
 import { BootstrapIcon } from "../bootstrap-icon";
 import { getList, updateList } from "../../component-actions/list-actions";
 import { Entry } from "../../types/entries/entry";
 import { getEntry, stopEditingEntry } from "../../component-actions/list-entry-actions";
+import { startEditingCriteria } from "../../component-actions/list-criteria-actions";
 
 function Multiselect(props: {id: string, label: string, selectedValues: Array<string>, allValues: Array<string>}) {
     return (
@@ -17,7 +18,7 @@ function Multiselect(props: {id: string, label: string, selectedValues: Array<st
                 as="select"
                 multiple
                 defaultValue={props.selectedValues}>
-                {props.allValues.map(val => <ValueNode key={val} val={val} selectedValues={props.selectedValues} />)}
+                {props.allValues.map(val => <ValueOptionNode key={val} val={val} selectedValues={props.selectedValues} />)}
             </Form.Control>
         </Form.Group>
     );
@@ -47,15 +48,52 @@ function Dropdown(props: {id: string, label: string, selectedValues: Array<strin
                 className={invalid}
                 onChange={(e) => validateSelection(e.target)}>
                 <option value="" disabled={true} hidden={true}>Choose value...</option>
-                {props.allValues.map(val => <ValueNode key={val} val={val} selectedValues={props.selectedValues} />)}
+                {props.allValues.map(val => <ValueOptionNode key={val} val={val} selectedValues={props.selectedValues} />)}
             </Form.Select>
         </FloatingLabel>
     );
 }
 
-function ValueNode(props: {val: string, selectedValues: Array<string>}) {
+function ValueOptionNode(props: {val: string, selectedValues: Array<string>}) {
     const selected: boolean = !!(props.selectedValues.includes(props.val));
     return <option key={props.val} value={props.val} defaultChecked={selected}>{props.val}</option>;
+}
+
+type ShortlistItEntryValueProps = {
+    entryId: string;
+    criteria: Criteria;
+    selectedValues: Array<string>;
+    stateMgr: ShortlistItStateManager;
+}
+
+function ShortlistItEntryValue(props: ShortlistItEntryValueProps) {
+    const id = `${Criteria.nameToElementId(props.criteria.name)}-${props.entryId}`;
+    const allValues = props.criteria.values || new Array<string>();
+    return (
+        <>
+            {(props.criteria.allowMultiple)
+                ? <Multiselect
+                    id={id}
+                    label={props.criteria.name}
+                    selectedValues={props.selectedValues}
+                    allValues={allValues}/>
+                : <Dropdown 
+                    id={id}
+                    label={props.criteria.name}
+                    selectedValues={props.selectedValues}
+                    allValues={allValues} />
+            }
+            <div className="text-end">
+                <Anchor
+                    onClick={() => {
+                        stopEditingEntry(props.stateMgr);
+                        startEditingCriteria(props.criteria.id, props.stateMgr);
+                    }}>
+                    <p className="text-muted" style={{fontSize: '0.65em'}}>edit Criteria: "<em>{props.criteria.name}</em>" instead...</p>
+                </Anchor>
+            </div>
+        </>
+    );
 }
 
 type ShortlistItEntryEditModalProps = {
@@ -105,9 +143,6 @@ export default function ShortlistItEntryEditModal(props: ShortlistItEntryEditMod
         }
         return false;
     };
-    const allPossibleValues = (criteria: Criteria): Array<string> => {
-        return criteria.values || new Array<string>();
-    }
     
     return (
         <ShortlistItModal
@@ -120,13 +155,16 @@ export default function ShortlistItEntryEditModal(props: ShortlistItEntryEditMod
                     <div className="d-flex flex-row ps-1">
                         <p className="flex-grow-1">Edit Entry</p>
                         <ShortlistItTooltip id={`save-entry-${entry?.id}`} className="pe-1" text="Save Entry">
-                            <Button variant="success" aria-label="Save Criteria" onClick={() => {
-                                if (saveEntry()) {
-                                    stopEditingEntry(props.stateMgr);
-                                } else {
-                                    onSaveError();
-                                }
-                            }}>
+                            <Button
+                                variant="success"
+                                aria-label="Save Entry"
+                                onClick={() => {
+                                    if (saveEntry()) {
+                                        stopEditingEntry(props.stateMgr);
+                                    } else {
+                                        onSaveError();
+                                    }
+                                }}>
                                 <BootstrapIcon icon="check" />
                             </Button>
                         </ShortlistItTooltip>
@@ -142,7 +180,7 @@ export default function ShortlistItEntryEditModal(props: ShortlistItEntryEditMod
                 )
             }}
         >
-            <div ref={entryRef} className="d-flex flex-row justify-content-between">
+            <div ref={entryRef} className="d-flex flex-row justify-content-between" style={{minWidth: "70vw"}}>
                 <div className="d-flex flex-column justify-content-evently flex-grow-1 pe-1">
                     <Alert variant="danger" dismissible show={showSaveError}>
                         Entry must have all values set to valid values in order to be Saved
@@ -153,23 +191,15 @@ export default function ShortlistItEntryEditModal(props: ShortlistItEntryEditMod
                     <hr />
                     {list?.criteria.map(c => {
                         const selectedValues = entry?.values.get(c.name) ?? new Array<string>();
-                        const allValues = allPossibleValues(c);
-                        const id = `${Criteria.nameToElementId(c.name)}-${entry?.id}`;
-                        if (c.allowMultiple) {
-                            return <Multiselect
-                                key={id}
-                                id={id}
-                                label={c.name}
+                        const key = `${Criteria.nameToElementId(c.name)}-${entry?.id}`;
+                        return (
+                            <ShortlistItEntryValue
+                                key={key}
+                                criteria={c}
+                                entryId={entry?.id}
                                 selectedValues={selectedValues}
-                                allValues={allValues}/>;
-                        } else {
-                            return <Dropdown 
-                                key={id}
-                                id={id}
-                                label={c.name}
-                                selectedValues={selectedValues}
-                                allValues={allValues} />
-                        }
+                                stateMgr={props.stateMgr} />
+                        );
                     })}
                 </div>
             </div>
