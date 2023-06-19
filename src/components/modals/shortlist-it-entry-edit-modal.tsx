@@ -6,7 +6,6 @@ import { Alert, Button, Col, FloatingLabel, Form } from "react-bootstrap";
 import { ShortlistItTooltip } from "../shortlist-it-tooltip";
 import { BootstrapIcon } from "../bootstrap-icon";
 import { getList, updateList } from "../../component-actions/list-actions";
-import { stopEditingCriteria } from "../../component-actions/list-criteria-actions";
 import { Entry } from "../../types/entries/entry";
 import { getEntry, stopEditingEntry } from "../../component-actions/list-entry-actions";
 
@@ -64,12 +63,8 @@ type ShortlistItEntryEditModalProps = {
 };
 
 export default function ShortlistItEntryEditModal(props: ShortlistItEntryEditModalProps) {
-    if (!props.stateMgr.state.editingEntryId) {
-        return <></>;
-    }
-
-    const entry = getEntry(props.stateMgr.state.editingEntryId, props.stateMgr);
-    const list = getList(entry.listId, props.stateMgr);
+    const entry = (props.stateMgr.state.editingEntryId) ? getEntry(props.stateMgr.state.editingEntryId, props.stateMgr) : null;
+    const list = (entry) ? getList(entry.listId, props.stateMgr) : null;
     const [showSaveError, setShowSaveError] = useState(false);
     const entryRef = createRef<HTMLDivElement>();
     const onSaveError = () => {
@@ -77,7 +72,7 @@ export default function ShortlistItEntryEditModal(props: ShortlistItEntryEditMod
         window.setTimeout(() => setShowSaveError(false), 5000);
     }
     const isEntryValid = (ref: React.RefObject<HTMLDivElement>): Entry => {
-        const desc = ref.current?.querySelector<HTMLInputElement>(`#description-${entry.id}`)?.value;
+        const desc = ref.current?.querySelector<HTMLInputElement>(`#description-${entry?.id}`)?.value;
         if (desc == null || desc == '') {
             return null;
         }
@@ -87,10 +82,10 @@ export default function ShortlistItEntryEditModal(props: ShortlistItEntryEditMod
             values.set(c.name, options?.filter(o => o.selected).map(o => o.value));
         });
         return {
-            id: entry.id,
+            id: entry?.id,
             description: desc,
             values: values,
-            listId: list.id
+            listId: list?.id
         };
     };
     const confirmDeleteEntry = (entryId: string, stateMgr: ShortlistItStateManager): void => {
@@ -101,10 +96,10 @@ export default function ShortlistItEntryEditModal(props: ShortlistItEntryEditMod
     const saveEntry = (): boolean => {
         const entry = isEntryValid(entryRef);
         if (entry) {
-            const cIndex = list.entries.findIndex(e => e.id === entry.id);
+            const cIndex = list.entries.findIndex(e => e.id === entry?.id);
             if (cIndex >= 0) {
                 list.entries.splice(cIndex, 1, entry);
-                updateList(list.id, list, props.stateMgr);
+                updateList(list?.id, list, props.stateMgr);
                 return true;
             }
         }
@@ -119,11 +114,12 @@ export default function ShortlistItEntryEditModal(props: ShortlistItEntryEditMod
             variant="light"
             dismissible={true}
             onClose={() => stopEditingEntry(props.stateMgr)}
+            show={entry != null}
             heading={() => {
                 return (
                     <div className="d-flex flex-row ps-1">
                         <p className="flex-grow-1">Edit Entry</p>
-                        <ShortlistItTooltip id={`save-entry-${entry.id}`} className="pe-1" text="Save Entry">
+                        <ShortlistItTooltip id={`save-entry-${entry?.id}`} className="pe-1" text="Save Entry">
                             <Button variant="success" aria-label="Save Criteria" onClick={() => {
                                 if (saveEntry()) {
                                     stopEditingEntry(props.stateMgr);
@@ -134,10 +130,10 @@ export default function ShortlistItEntryEditModal(props: ShortlistItEntryEditMod
                                 <BootstrapIcon icon="check" />
                             </Button>
                         </ShortlistItTooltip>
-                        <ShortlistItTooltip id={`delete-entry-${entry.id}`} text="Delete Entry">
-                            <Button variant="danger" aria-label="Delete Criteria" onClick={() => {
-                                stopEditingCriteria(props.stateMgr);
-                                confirmDeleteEntry(entry.id, props.stateMgr); // ...and open confirmation modal
+                        <ShortlistItTooltip id={`delete-entry-${entry?.id}`} text="Delete Entry">
+                            <Button variant="danger" aria-label="Delete Entry" onClick={() => {
+                                stopEditingEntry(props.stateMgr);
+                                confirmDeleteEntry(entry?.id, props.stateMgr); // ...and open confirmation modal
                             }}>
                                 <BootstrapIcon icon="trash" />
                             </Button>
@@ -145,21 +141,20 @@ export default function ShortlistItEntryEditModal(props: ShortlistItEntryEditMod
                     </div>
                 )
             }}
-            show={true}
         >
             <div ref={entryRef} className="d-flex flex-row justify-content-between">
                 <div className="d-flex flex-column justify-content-evently flex-grow-1 pe-1">
                     <Alert variant="danger" dismissible show={showSaveError}>
                         Entry must have all values set to valid values in order to be Saved
                     </Alert>
-                    <FloatingLabel controlId={`description-${entry.id}`} label="Description">
-                        <Form.Control type="text" defaultValue={entry.description} />
+                    <FloatingLabel controlId={`description-${entry?.id}`} label="Description">
+                        <Form.Control type="text" defaultValue={entry?.description} />
                     </FloatingLabel>
                     <hr />
-                    {list.criteria.map(c => {
-                        const selectedValues = entry.values.get(c.name) ?? new Array<string>();
+                    {list?.criteria.map(c => {
+                        const selectedValues = entry?.values.get(c.name) ?? new Array<string>();
                         const allValues = allPossibleValues(c);
-                        const id = `${Criteria.nameToElementId(c.name)}-${entry.id}`;
+                        const id = `${Criteria.nameToElementId(c.name)}-${entry?.id}`;
                         if (c.allowMultiple) {
                             return <Multiselect
                                 key={id}

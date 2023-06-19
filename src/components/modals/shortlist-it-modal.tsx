@@ -20,7 +20,7 @@ function preventScrolling(): void {
 function restoreScrolling(): void {
     const html = document.querySelector<HTMLElement>("html");
     if (html) {
-        html.style.overflowY = "auto";
+        html.style.overflow = "auto";
     }
 }
 
