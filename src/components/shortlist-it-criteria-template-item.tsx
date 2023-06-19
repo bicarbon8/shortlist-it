@@ -1,15 +1,10 @@
-import { Badge, Button, Dropdown, ListGroupItem } from "react-bootstrap";
+import { Badge, Button, ListGroupItem } from "react-bootstrap";
 import { Criteria } from "../types/criteria/criteria";
 import { ShortlistItStateManager } from "../types/shortlist-it-state-manager";
-import { BootstrapIcon } from "./bootstrap-icon";
-import React, { DOMAttributes } from "react";
+import { BootstrapIcon } from "./utilities/bootstrap-icon";
+import React from "react";
 import { Shortlist } from "../types/shortlist";
 import { addNewCriteria } from "../component-actions/list-criteria-actions";
-
-function deleteCriteriaTemplate(templateId: string, stateMgr: ShortlistItStateManager): void {
-    stateMgr.state.criteriaTemplateToBeDeleted = templateId;
-    stateMgr.setState({...stateMgr.state});
-}
 
 type ShortlistItCriteriaTemplateItemProps = {
     stateMgr: ShortlistItStateManager;
@@ -18,6 +13,11 @@ type ShortlistItCriteriaTemplateItemProps = {
 };
 
 export default function ShortlistItCriteriaTemplateItem(props: ShortlistItCriteriaTemplateItemProps) {
+    const deleteCriteriaTemplate = (templateId: string, stateMgr: ShortlistItStateManager): void => {
+        stateMgr.state.criteriaTemplateToBeDeleted = templateId;
+        stateMgr.setState({...stateMgr.state});
+    };
+    
     return (
         <ListGroupItem>
             <div className="d-flex flex-row justify-content-between">

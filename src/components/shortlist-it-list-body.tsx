@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import ShortlistItListEntry from "./shortlist-it-list-entry";
-import { BootstrapIcon } from "./bootstrap-icon";
+import { BootstrapIcon } from "./utilities/bootstrap-icon";
 import { Button } from "react-bootstrap";
 import { Criteria } from "../types/criteria/criteria";
 import { Shortlist } from "../types/shortlist";
 import { ShortlistItStateManager } from "../types/shortlist-it-state-manager";
-import { ShortlistItTooltip } from "./shortlist-it-tooltip";
+import { ShortlistItTooltip } from "./utilities/shortlist-it-tooltip";
 import ShortlistItListCriteriaAddNewDropdown from "./shortlist-it-list-criteria-add-new-dropdown";
 import { startEditingCriteria } from "../component-actions/list-criteria-actions";
 import { addNewEntry } from "../component-actions/list-entry-actions";
@@ -34,7 +34,7 @@ function ShortlistItListCriteria(props: ShortlistItListCriteriaProps) {
     return (
         <th scope="col" className="d-none d-sm-table-cell">
             <div className="d-flex flex-nowrap align-items-end">
-                {(props.list.archived) ? <></> : <ShortlistItTooltip id={`edit-criteria-${props.criteria.id}`} text="Edit Criteria">
+                {(!props.list.archived) && <ShortlistItTooltip id={`edit-criteria-${props.criteria.id}`} text="Edit Criteria">
                     <BootstrapIcon
                         icon={editIcon}
                         onClick={() => {

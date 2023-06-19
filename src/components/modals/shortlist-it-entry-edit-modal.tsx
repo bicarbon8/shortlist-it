@@ -1,10 +1,10 @@
 import React, { createRef, useState } from "react";
 import { Criteria } from "../../types/criteria/criteria";
 import { ShortlistItStateManager } from "../../types/shortlist-it-state-manager";
-import { ShortlistItModal } from "./shortlist-it-modal";
+import { ShortlistItModal } from "../utilities/shortlist-it-modal";
 import { Alert, Anchor, Button, Col, FloatingLabel, Form } from "react-bootstrap";
-import { ShortlistItTooltip } from "../shortlist-it-tooltip";
-import { BootstrapIcon } from "../bootstrap-icon";
+import { ShortlistItTooltip } from "../utilities/shortlist-it-tooltip";
+import { BootstrapIcon } from "../utilities/bootstrap-icon";
 import { getList, updateList } from "../../component-actions/list-actions";
 import { Entry } from "../../types/entries/entry";
 import { getEntry, stopEditingEntry } from "../../component-actions/list-entry-actions";

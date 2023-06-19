@@ -1,6 +1,6 @@
 import React from "react";
 import { ShortlistItStateManager } from "../../types/shortlist-it-state-manager";
-import { ShortlistItModal } from "./shortlist-it-modal";
+import { ShortlistItModal } from "../utilities/shortlist-it-modal";
 import { Button } from "react-bootstrap";
 import { store } from "../../utilities/storage";
 import { Shortlist } from "../../types/shortlist";

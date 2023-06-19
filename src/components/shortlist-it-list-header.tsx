@@ -4,25 +4,20 @@ import { Criteria } from "../types/criteria/criteria";
 import { CriteriaRefContainer } from "../types/criteria/criteria-ref-container";
 import { CriteriaType } from "../types/criteria/criteria-type";
 import { Shortlist } from "../types/shortlist";
-import { BootstrapIcon } from "./bootstrap-icon";
-import { ShortlistItMenu, ShortlistItMenuItem } from "./shortlist-it-menu";
-import { ShortlistItTooltip } from "./shortlist-it-tooltip";
+import { BootstrapIcon } from "./utilities/bootstrap-icon";
+import { ShortlistItMenu, ShortlistItMenuItem } from "./utilities/shortlist-it-menu";
+import { ShortlistItTooltip } from "./utilities/shortlist-it-tooltip";
 import { ShortlistItStateManager } from "../types/shortlist-it-state-manager";
 import { archiveList, setEditingListState, startEditingList, unarchiveList, updateList } from "../component-actions/list-actions";
 import { addNewEntry } from "../component-actions/list-entry-actions";
 
-export type ShortlistItListHeaderProps = {
-    stateMgr: ShortlistItStateManager;
-    list: Shortlist;
-}
-
-function getTitleContent(props: ShortlistItListHeaderProps, titleRefObject: React.RefObject<HTMLInputElement>) {
+function ShortlistItHeaderTitle(props: {list: Shortlist, titleRefObject: React.RefObject<HTMLInputElement>, stateMgr: ShortlistItStateManager}) {
     if (isEditingList(props.list.id, props.stateMgr)) {
         return (
             <>
                 <FloatingLabel controlId={`title-input-${props.list.id}`} label="List Title">
                     <Form.Control 
-                        ref={titleRefObject}
+                        ref={props.titleRefObject}
                         type="text" 
                         placeholder="enter title or description" 
                         defaultValue={props.list.title}
@@ -35,12 +30,27 @@ function getTitleContent(props: ShortlistItListHeaderProps, titleRefObject: Reac
     }
 }
 
-function getMenuButtonContent(props: ShortlistItListHeaderProps, titleRefObject: React.RefObject<HTMLInputElement>) {
+function ShortlistItListHeaderMenu(props: {list: Shortlist, titleRefObject: React.RefObject<HTMLInputElement>, stateMgr: ShortlistItStateManager}) {
+    const getMenuItems = (props: ShortlistItListHeaderProps): Array<ShortlistItMenuItem> => {
+        const items = new Array<ShortlistItMenuItem>();
+        if (props.list.archived) {
+            items.push({text: 'restore', icon: 'arrow-counterclockwise', action: () => unarchiveList(props.list.id, props.stateMgr)});
+        } else {
+            items.push({text: 'edit list title', icon: 'pencil-square', action: () => startEditingList(props.list.id, props.stateMgr)});
+            items.push({text: 'add entry', icon: 'plus-square', action: () => addNewEntry(props.list.id, props.stateMgr)});
+            items.push({text: 'archive', icon: 'archive', action: () => archiveList(props.list.id, props.stateMgr)});
+        }
+        items.push(
+            {text: 'delete', icon: 'trash', action: () => deleteList(props.list.id, props.stateMgr)}
+        );
+        return items;
+    };
+
     if (isEditingList(props.list.id, props.stateMgr)) {
         return (
             <div className="d-flex flex-column justify-content-evenly align-content-start sticky-vertical">
                 <ShortlistItTooltip id={`save-list-edits-${props.list.id}`} text="Save Changes" className="mb-2">
-                    <Button variant="success" onClick={() => saveChanges(props, titleRefObject)}>
+                    <Button variant="success" onClick={() => saveChanges(props, props.titleRefObject)}>
                         <BootstrapIcon icon="check" />
                     </Button>
                 </ShortlistItTooltip>
@@ -61,21 +71,6 @@ function getMenuButtonContent(props: ShortlistItListHeaderProps, titleRefObject:
             </ShortlistItMenu>
         );
     }
-}
-
-function getMenuItems(props: ShortlistItListHeaderProps): Array<ShortlistItMenuItem> {
-    const items = new Array<ShortlistItMenuItem>();
-    if (props.list.archived) {
-        items.push({text: 'restore', icon: 'arrow-counterclockwise', action: () => unarchiveList(props.list.id, props.stateMgr)});
-    } else {
-        items.push({text: 'edit list title', icon: 'pencil-square', action: () => startEditingList(props.list.id, props.stateMgr)});
-        items.push({text: 'add entry', icon: 'plus-square', action: () => addNewEntry(props.list.id, props.stateMgr)});
-        items.push({text: 'archive', icon: 'archive', action: () => archiveList(props.list.id, props.stateMgr)});
-    }
-    items.push(
-        {text: 'delete', icon: 'trash', action: () => deleteList(props.list.id, props.stateMgr)}
-    );
-    return items;
 }
 
 export function createCriteriaRef(criteria: Criteria): CriteriaRefContainer {
@@ -130,7 +125,7 @@ function cancelListEdits(listId: string, stateMgr: ShortlistItStateManager): voi
     setEditingListState(listId, false, stateMgr);
 }
 
-export function isEditingList(listId: string, stateMgr: ShortlistItStateManager): boolean {
+function isEditingList(listId: string, stateMgr: ShortlistItStateManager): boolean {
     return stateMgr.state.editingListTitleMap.get(listId) || false;
 }
 
@@ -139,15 +134,22 @@ function deleteList(listId: string, stateMgr: ShortlistItStateManager): void {
     stateMgr.setState({...stateMgr.state});
 }
 
+type ShortlistItListHeaderProps = {
+    stateMgr: ShortlistItStateManager;
+    list: Shortlist;
+}
+
 export function ShortlistItListHeader(props: ShortlistItListHeaderProps) {
     const titleRefObject = React.createRef<HTMLInputElement>();
 
     return (
         <div className="d-flex flex-row justify-content-between">
             <div className="flex-grow-1 pe-1">
-                {getTitleContent(props, titleRefObject)}
+                <ShortlistItHeaderTitle list={props.list} titleRefObject={titleRefObject} stateMgr={props.stateMgr} />
             </div>
-            <div className="text-center ps-1">{getMenuButtonContent(props, titleRefObject)}</div>
+            <div className="text-center ps-1">
+                <ShortlistItListHeaderMenu list={props.list} titleRefObject={titleRefObject} stateMgr={props.stateMgr} />
+            </div>
         </div>
     );
 }

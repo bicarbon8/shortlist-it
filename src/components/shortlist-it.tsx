@@ -5,8 +5,8 @@ import { Entry } from "../types/entries/entry";
 import { Criteria } from "../types/criteria/criteria";
 import { CriteriaType } from "../types/criteria/criteria-type";
 import { store } from "../utilities/storage";
-import { ShortlistItList } from "./shortlist-it-list";
-import { ShortlistItNav } from "./shortlist-it-nav";
+import ShortlistItList from "./shortlist-it-list";
+import ShortlistItNav from "./shortlist-it-nav";
 import { ShortlistItState } from "../types/shortlist-it-state";
 import { ShortlistItListDeletionModal } from "./modals/shortlist-it-list-deletion-modal";
 import { ShortlistItCriteriaDeletionModal } from "./modals/shortlist-it-criteria-deletion-modal";
@@ -147,7 +147,7 @@ const exampleLists: Array<Shortlist> = [
     }
 ];
 
-export function ShortlistIt() {
+export default function ShortlistIt() {
     const [state, setState] = useState<ShortlistItState>({
         showArchived: store.get('showArchived', false),
         lists: store.get('lists', new Array<Shortlist>(...exampleLists)),

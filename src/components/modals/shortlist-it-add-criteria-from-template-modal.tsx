@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { ShortlistItStateManager } from "../../types/shortlist-it-state-manager";
 import ShortlistItCriteriaTemplateItem from "../shortlist-it-criteria-template-item";
-import { ShortlistItModal } from "./shortlist-it-modal";
+import { ShortlistItModal } from "../utilities/shortlist-it-modal";
 import { getList } from "../../component-actions/list-actions";
 import { ListGroup } from "react-bootstrap";
 

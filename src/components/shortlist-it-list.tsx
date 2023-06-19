@@ -10,14 +10,13 @@ export type ShortlistItListProps = {
     stateMgr: ShortlistItStateManager;
 };
 
-function isWide(width: number): boolean {
-    return width >= 768;
-}
-
-export function ShortlistItList(props: ShortlistItListProps) {
+export default function ShortlistItList(props: ShortlistItListProps) {
+    const isWide = (width: number): boolean => {
+        return width >= 768;
+    };
     const bgColor = (props.list.archived) ? 'bg-secondary' : '';
     const [wide, setWide] = useState(isWide(window.innerWidth));
-    function handleResize() {
+    const handleResize = () => {
         setWide(isWide(window.innerWidth));
     }
     useEffect(() => {

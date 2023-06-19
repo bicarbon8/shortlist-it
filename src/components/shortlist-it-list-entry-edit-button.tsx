@@ -2,8 +2,8 @@ import React from "react";
 import { Shortlist } from "../types/shortlist";
 import { Entry } from "../types/entries/entry";
 import { ShortlistItStateManager } from "../types/shortlist-it-state-manager";
-import { ShortlistItTooltip } from "./shortlist-it-tooltip";
-import { BootstrapIcon } from "./bootstrap-icon";
+import { ShortlistItTooltip } from "./utilities/shortlist-it-tooltip";
+import { BootstrapIcon } from "./utilities/bootstrap-icon";
 import { startEditingEntry } from "../component-actions/list-entry-actions";
 
 type ShortlistItListEntryEditButtonProps = {

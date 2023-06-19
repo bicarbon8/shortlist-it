@@ -1,6 +1,6 @@
 import React from "react";
 import { Navbar, Nav, Container, Button, Form, InputGroup, ButtonGroup } from "react-bootstrap";
-import { BootstrapIcon } from "./bootstrap-icon";
+import { BootstrapIcon } from "./utilities/bootstrap-icon";
 import { saveAs } from 'file-saver';
 import { ExternalFile } from "../types/external-file";
 import { Shortlist } from "../types/shortlist";
@@ -97,20 +97,20 @@ async function saveToFile(data: ExternalFile): Promise<void> {
     await file.close();
 }
 
-function addNewList(stateMgr: ShortlistItStateManager): void {
-    const list: Shortlist = {
-        id: v4(),
-        title: `New Shortlist (${stateMgr.state.lists.length + 1})`,
-        entries: new Array<Entry>(),
-        criteria: new Array<Criteria>()
+export default function ShortlistItNav(props: ShortlistItNavProps) {
+    const addNewList = (): void => {
+        const list: Shortlist = {
+            id: v4(),
+            title: `New Shortlist (${props.stateMgr.state.lists.length + 1})`,
+            entries: new Array<Entry>(),
+            criteria: new Array<Criteria>()
+        };
+        props.stateMgr.state.lists.unshift(list);
+        store.set('lists', props.stateMgr.state.lists);
+        props.stateMgr.setState({...props.stateMgr.state});
+        startEditingList(list.id, props.stateMgr);
     };
-    stateMgr.state.lists.unshift(list);
-    store.set('lists', stateMgr.state.lists);
-    stateMgr.setState({...stateMgr.state});
-    startEditingList(list.id, stateMgr);
-}
 
-export function ShortlistItNav(props: ShortlistItNavProps) {
     return (
         <Navbar sticky="top" collapseOnSelect expand="md" bg="dark" variant="dark">
             <Container fluid className="d-flex justify-content-between">
@@ -119,7 +119,7 @@ export function ShortlistItNav(props: ShortlistItNavProps) {
                 <Navbar.Collapse id="navbarScroll" className="justify-content-end">
                     <Nav>
                         <Nav.Item className="p-1">
-                            <Button variant="outline-success" onClick={() => addNewList(props.stateMgr)}>
+                            <Button variant="outline-success" onClick={() => addNewList()}>
                                 <BootstrapIcon icon="plus-lg" />
                                 <span className="ps-2">Add New List</span>
                             </Button>
