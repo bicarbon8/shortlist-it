@@ -4,6 +4,7 @@ import ShortlistItCriteriaTemplateItem from "../shortlist-it-criteria-template-i
 import { ShortlistItModal } from "../utilities/shortlist-it-modal";
 import { getList } from "../../component-actions/list-actions";
 import { ListGroup } from "react-bootstrap";
+import { addNewCriteria } from "../../component-actions/list-criteria-actions";
 
 type ShortlistItAddCriteriaFromTemplateModalProps = {
     stateMgr: ShortlistItStateManager;
@@ -21,24 +22,35 @@ export default function ShortlistItAddCriteriaFromTemplateModal(props: Shortlist
         props.stateMgr.state.criteriaTemplateToBeDeleted,
         props.stateMgr.state.editingCriteriaId
     ]);
-    return (
-        <ShortlistItModal
-            dismissible
-            heading="Add Criteria From Template"
-            onClose={() => closeModal()}
-            show={list != null}
-            variant="light">
-            <ListGroup>
-                {Array.from(props.stateMgr.state.criteriaTemplates.values()).map(t => {
-                    return (
-                        <ShortlistItCriteriaTemplateItem
-                            key={t.name}
-                            list={list}
-                            stateMgr={props.stateMgr}
-                            template={t}/>
-                    );
-                })}
-            </ListGroup>
-        </ShortlistItModal>
-    );
+
+    if (props.stateMgr.state.criteriaTemplates.size > 0) {
+        return (
+            <ShortlistItModal
+                dismissible
+                heading="Add Criteria From Template"
+                onClose={() => closeModal()}
+                show={list != null}
+                variant="light">
+                <ListGroup>
+                    <ShortlistItCriteriaTemplateItem
+                        list={list}
+                        stateMgr={props.stateMgr} />
+                    {Array.from(props.stateMgr.state.criteriaTemplates.values()).map(t => {
+                        return (
+                            <ShortlistItCriteriaTemplateItem
+                                key={t.name}
+                                list={list}
+                                stateMgr={props.stateMgr}
+                                template={t}/>
+                        );
+                    })}
+                </ListGroup>
+            </ShortlistItModal>
+        );
+    }
+    if (list) {
+        addNewCriteria(list?.id, props.stateMgr);
+        closeModal();
+    }
+    return <></>;
 }

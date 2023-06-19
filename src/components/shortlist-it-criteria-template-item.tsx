@@ -9,7 +9,7 @@ import { addNewCriteria } from "../component-actions/list-criteria-actions";
 type ShortlistItCriteriaTemplateItemProps = {
     stateMgr: ShortlistItStateManager;
     list: Shortlist;
-    template: Omit<Criteria, 'id'>;
+    template?: Omit<Criteria, 'id'>;
 };
 
 export default function ShortlistItCriteriaTemplateItem(props: ShortlistItCriteriaTemplateItemProps) {
@@ -17,19 +17,22 @@ export default function ShortlistItCriteriaTemplateItem(props: ShortlistItCriter
         stateMgr.state.criteriaTemplateToBeDeleted = templateId;
         stateMgr.setState({...stateMgr.state});
     };
+
+    const name = (props.template) ? props.template.name : 'New Blank Criteria';
+    const cType = (props.template) ? props.template.type : '';
     
     return (
         <ListGroupItem>
             <div className="d-flex flex-row justify-content-between">
-                <Button className="flex-col pe-1 flex-grow-1" variant="outline-primary" onClick={() => addNewCriteria(props.list.id, props.stateMgr, props.template.name)}>
-                    <p className="mb-0">{props.template.name}</p>
-                    <p className="mb-0 text-muted" style={{fontSize: '0.65em'}}>{props.template.type}</p>
+                <Button className="flex-col pe-1 flex-grow-1" variant="outline-primary" onClick={() => addNewCriteria(props.list.id, props.stateMgr, props.template?.name)}>
+                    <p className="mb-0">{name}</p>
+                    <p className="mb-0 text-muted" style={{fontSize: '0.65em'}}>{cType}</p>
                 </Button>
                 <div> &nbsp; </div>
                 <div className="flex-col">
-                    <Badge pill bg="danger" onClick={() => deleteCriteriaTemplate(props.template.name, props.stateMgr)}>
+                    {(props.template) && <Badge pill bg="danger" onClick={() => deleteCriteriaTemplate(props.template?.name, props.stateMgr)}>
                         <BootstrapIcon icon="trash" />
-                    </Badge>
+                    </Badge>}
                     <div className="flex-grow-1"> </div>
                 </div>
             </div>

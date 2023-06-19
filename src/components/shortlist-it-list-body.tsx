@@ -10,7 +10,7 @@ import ShortlistItListCriteriaAddNewDropdown from "./shortlist-it-list-criteria-
 import { startEditingCriteria } from "../component-actions/list-criteria-actions";
 import { addNewEntry } from "../component-actions/list-entry-actions";
 
-function AddEntryButton(props: ShortlistItListBodyProps) {
+function ShortlistItListBodyFinalRow(props: ShortlistItListBodyProps) {
     return (
         <tr className="table-secondary">
             <td> &nbsp; </td>
@@ -20,7 +20,21 @@ function AddEntryButton(props: ShortlistItListBodyProps) {
                     Add New Entry
                 </Button>
             </td>
-            {(props.list.criteria.length > 0) && <td colSpan={props.list.criteria.length} className="d-none d-sm-table-cell"> &nbsp; </td>}
+            {(props.list.criteria.length > 0) 
+                && <td colSpan={props.list.criteria.length} className="d-none d-sm-table-cell">
+                    <Button
+                        variant="outline-secondary"
+                        size="sm"
+                        aria-label="Add New Criteria"
+                        className="text-nowrap"
+                        onClick={() => {
+                            props.stateMgr.state.addCriteriaFromTemplateToList = props.list.id;
+                            props.stateMgr.setState({...props.stateMgr.state});
+                        }}>
+                        <BootstrapIcon icon="plus-lg" />
+                        Add New Criteria
+                    </Button>
+                </td>}
             <td className="table-fixed-right-col"> &nbsp; </td>
         </tr>
     );
@@ -66,11 +80,7 @@ export default function ShortlistItListBody(props: ShortlistItListBodyProps) {
                         <th scope="col">rank</th>
                         <th scope="col">description</th>
                         {props.list.criteria.map(c => <ShortlistItListCriteria key={c.id} criteria={c} list={props.list} stateMgr={props.stateMgr} />)}
-                        {(!props.list.archived) && (
-                            <th scope="col" className="d-flex justify-content-end table-fixed-right-col">
-                                <ShortlistItListCriteriaAddNewDropdown stateMgr={props.stateMgr} list={props.list} />
-                            </th>
-                        )}
+                        <th scope="col" className="table-fixed-right-col"> </th>
                     </tr>
                 </thead>
                 <tbody>
@@ -84,7 +94,7 @@ export default function ShortlistItListBody(props: ShortlistItListBodyProps) {
                             />
                         );
                     })}
-                    {(!props.list.archived) && <AddEntryButton {...props} />}
+                    {(!props.list.archived) && <ShortlistItListBodyFinalRow {...props} />}
                 </tbody>
             </table>
         </div>
