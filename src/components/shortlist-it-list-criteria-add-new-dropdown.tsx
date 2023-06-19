@@ -31,12 +31,7 @@ export default function ShortlistItListCriteriaAddNewDropdown(props: ShortlistIt
                             }} />
 
                         <Dropdown.Menu>
-                            {Array.from(props.stateMgr.state.criteriaTemplates.values()).map(c => <ShortlistItCriteriaTemplateItem 
-                                key={c.name}
-                                list={props.list}
-                                stateMgr={props.stateMgr}
-                                template={c}
-                            />)}
+                            
                         </Dropdown.Menu>
                     </>
                 }
