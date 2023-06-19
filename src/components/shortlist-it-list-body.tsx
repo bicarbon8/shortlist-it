@@ -59,7 +59,10 @@ function ShortlistItListCriteria(props: ShortlistItListCriteriaProps) {
                                 startEditingCriteria(props.criteria.id, props.stateMgr);
                             }
                         }} />
-                </ShortlistItTooltip>}<p className="text-nowrap mb-0 ps-1">{props.criteria.name}</p>
+                </ShortlistItTooltip>}
+                <ShortlistItTooltip id={`criteria-name-${props.criteria.id}`} text={props.criteria.name}>
+                    <p className="text-nowrap mb-0 ps-1 text-truncate" aria-label={props.criteria.name}>{props.criteria.name}</p>
+                </ShortlistItTooltip>
             </div>
         </th>
     )

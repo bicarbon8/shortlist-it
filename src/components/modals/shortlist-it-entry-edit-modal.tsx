@@ -13,7 +13,7 @@ import { startEditingCriteria } from "../../component-actions/list-criteria-acti
 function Multiselect(props: {id: string, label: string, selectedValues: Array<string>, allValues: Array<string>}) {
     return (
         <Form.Group as={Col} controlId={props.id}>
-            <Form.Label column="sm">{props.label}</Form.Label>
+            <Form.Label column="sm" className="text-truncate">{props.label}</Form.Label>
             <Form.Control
                 as="select"
                 multiple
@@ -83,13 +83,13 @@ function ShortlistItEntryValue(props: ShortlistItEntryValueProps) {
                     selectedValues={props.selectedValues}
                     allValues={allValues} />
             }
-            <div className="text-end">
+            <div className="text-start">
                 <Anchor
                     onClick={() => {
                         stopEditingEntry(props.stateMgr);
                         startEditingCriteria(props.criteria.id, props.stateMgr);
                     }}>
-                    <p className="text-muted" style={{fontSize: '0.65em'}}>edit Criteria: "<em>{props.criteria.name}</em>" instead...</p>
+                    <p className="text-muted text-truncate" style={{fontSize: '0.65em'}}>edit Criteria: "<em>{props.criteria.name}</em>" instead</p>
                 </Anchor>
             </div>
         </>
