@@ -34,14 +34,13 @@ export default function ShortlistItListEntry(props: ShortlistItListEntryProps) {
                     </td>
                 );
             })}
-            {(!props.list.archived) && (
-                <td className="table-fixed-right-col text-end">
-                    <ShortlistItListEntryEditButton
+            <td className="table-fixed-right-col text-end">
+                {(!props.list.archived) && (<ShortlistItListEntryEditButton
                         list={props.list}
                         entry={props.entry}
                         stateMgr={props.stateMgr}/>
-                </td>
-            )}
+                )}
+            </td>
         </tr>
     );
 }
