@@ -1,8 +1,8 @@
-import { Badge, Dropdown } from "react-bootstrap";
+import { Badge, Button, Dropdown, ListGroupItem } from "react-bootstrap";
 import { Criteria } from "../types/criteria/criteria";
 import { ShortlistItStateManager } from "../types/shortlist-it-state-manager";
 import { BootstrapIcon } from "./bootstrap-icon";
-import React from "react";
+import React, { DOMAttributes } from "react";
 import { Shortlist } from "../types/shortlist";
 import { addNewCriteria } from "../component-actions/list-criteria-actions";
 
@@ -19,12 +19,13 @@ type ShortlistItCriteriaTemplateItemProps = {
 
 export default function ShortlistItCriteriaTemplateItem(props: ShortlistItCriteriaTemplateItemProps) {
     return (
-        <Dropdown.Item onClick={() => null}>
+        <ListGroupItem>
             <div className="d-flex flex-row justify-content-between">
-                <div className="flex-col pe-1" onClick={() => addNewCriteria(props.list.id, props.stateMgr, props.template.name)}>
+                <Button className="flex-col pe-1 flex-grow-1" variant="outline-primary" onClick={() => addNewCriteria(props.list.id, props.stateMgr, props.template.name)}>
                     <p className="mb-0">{props.template.name}</p>
                     <p className="mb-0 text-muted" style={{fontSize: '0.65em'}}>{props.template.type}</p>
-                </div>
+                </Button>
+                <div> &nbsp; </div>
                 <div className="flex-col">
                     <Badge pill bg="danger" onClick={() => deleteCriteriaTemplate(props.template.name, props.stateMgr)}>
                         <BootstrapIcon icon="trash" />
@@ -32,6 +33,6 @@ export default function ShortlistItCriteriaTemplateItem(props: ShortlistItCriter
                     <div className="flex-grow-1"> </div>
                 </div>
             </div>
-        </Dropdown.Item>
+        </ListGroupItem>
     );
 }

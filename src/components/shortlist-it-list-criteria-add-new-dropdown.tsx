@@ -26,7 +26,8 @@ export default function ShortlistItListCriteriaAddNewDropdown(props: ShortlistIt
                             variant="outline-secondary"
                             id="dropdown-split-basic"
                             onClick={() => {
-                                
+                                props.stateMgr.state.addCriteriaFromTemplateToList = props.list.id;
+                                props.stateMgr.setState({...props.stateMgr.state});
                             }} />
 
                         <Dropdown.Menu>
