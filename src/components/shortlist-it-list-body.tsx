@@ -13,12 +13,15 @@ import { addNewEntry } from "../component-actions/list-entry-actions";
 function AddEntryButton(props: ShortlistItListBodyProps) {
     return (
         <tr className="table-secondary">
-            <td colSpan={3 + props.list.criteria.length}>
-                <Button size="sm" variant="outline-secondary" className="sticky-horizontal" onClick={() => addNewEntry(props.list.id, props.stateMgr)}>
+            <td> &nbsp; </td>
+            <td>
+                <Button size="sm" variant="outline-secondary" className="sticky-horizontal text-nowrap" onClick={() => addNewEntry(props.list.id, props.stateMgr)}>
                     <BootstrapIcon icon="plus-lg" /> 
                     Add New Entry
                 </Button>
             </td>
+            {(props.list.criteria.length > 0) && <td colSpan={props.list.criteria.length} className="d-none d-sm-table-cell"> &nbsp; </td>}
+            <td className="table-fixed-right-col"> &nbsp; </td>
         </tr>
     );
 }
