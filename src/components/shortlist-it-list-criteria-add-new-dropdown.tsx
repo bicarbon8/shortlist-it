@@ -29,10 +29,6 @@ export default function ShortlistItListCriteriaAddNewDropdown(props: ShortlistIt
                                 props.stateMgr.state.addCriteriaFromTemplateToList = props.list.id;
                                 props.stateMgr.setState({...props.stateMgr.state});
                             }} />
-
-                        <Dropdown.Menu>
-                            
-                        </Dropdown.Menu>
                     </>
                 }
             </Dropdown>
