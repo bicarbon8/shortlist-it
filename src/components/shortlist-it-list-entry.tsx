@@ -1,10 +1,9 @@
 import { Badge } from "react-bootstrap";
-import { ShortlistItListEntryProps } from "../compact/shortlist-it-list-entry-compact";
 import React from "react";
-import ShortlistItListEntryEditButton from "../shortlist-it-list-entry-edit-button";
-import { Entry } from "../../types/entries/entry";
-import { Shortlist } from "../../types/shortlist";
-import ShortlistItEntryEditModal from "../shortlist-it-entry-edit-modal";
+import ShortlistItListEntryEditButton from "./shortlist-it-list-entry-edit-button";
+import { Entry } from "../types/entries/entry";
+import { Shortlist } from "../types/shortlist";
+import { ShortlistItStateManager } from "../types/shortlist-it-state-manager";
 
 function ShortlistItListEntryValue(props: {list: Shortlist, entry: Entry, criteriaName: string}) {
     const textColour = (props.list.archived) ? 'text-muted' : 'text-dark';
@@ -22,7 +21,13 @@ function ShortlistItListEntryValue(props: {list: Shortlist, entry: Entry, criter
     );
 }
 
-export default function ShortlistItListEntryWide(props: ShortlistItListEntryProps) {
+type ShortlistItListEntryProps = {
+    list: Shortlist;
+    stateMgr: ShortlistItStateManager;
+    entry: Entry;
+}
+
+export default function ShortlistItListEntry(props: ShortlistItListEntryProps) {
     const variant = (props.list.archived) ? 'table-light' : 'table-primary';
     const badgeColour = (props.list.archived) ? 'bg-secondary' : 'bg-primary';
     const textColour = (props.list.archived) ? 'text-muted' : 'text-dark';

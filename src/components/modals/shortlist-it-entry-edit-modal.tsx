@@ -1,14 +1,14 @@
 import React, { createRef, useState } from "react";
-import { Criteria } from "../types/criteria/criteria";
-import { ShortlistItStateManager } from "../types/shortlist-it-state-manager";
+import { Criteria } from "../../types/criteria/criteria";
+import { ShortlistItStateManager } from "../../types/shortlist-it-state-manager";
 import { ShortlistItModal } from "./shortlist-it-modal";
 import { Alert, Button, Col, FloatingLabel, Form } from "react-bootstrap";
-import { ShortlistItTooltip } from "./shortlist-it-tooltip";
-import { BootstrapIcon } from "./bootstrap-icon";
-import { getList, updateList } from "../component-actions/list-actions";
-import { stopEditingCriteria } from "../component-actions/list-criteria-actions";
-import { Entry } from "../types/entries/entry";
-import { getEntry, stopEditingEntry } from "../component-actions/list-entry-actions";
+import { ShortlistItTooltip } from "../shortlist-it-tooltip";
+import { BootstrapIcon } from "../bootstrap-icon";
+import { getList, updateList } from "../../component-actions/list-actions";
+import { stopEditingCriteria } from "../../component-actions/list-criteria-actions";
+import { Entry } from "../../types/entries/entry";
+import { getEntry, stopEditingEntry } from "../../component-actions/list-entry-actions";
 
 function Multiselect(props: {id: string, label: string, selectedValues: Array<string>, allValues: Array<string>}) {
     return (

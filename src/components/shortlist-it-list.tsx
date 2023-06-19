@@ -3,7 +3,7 @@ import { Card } from "react-bootstrap";
 import { ShortlistItListHeader } from "./shortlist-it-list-header";
 import { Shortlist } from "../types/shortlist";
 import { ShortlistItStateManager } from "../types/shortlist-it-state-manager";
-import ShortlistItListBodyWide from "./wide/shortlist-it-list-body-wide";
+import ShortlistItListBody from "./shortlist-it-list-body";
 
 export type ShortlistItListProps = {
     list: Shortlist;
@@ -29,7 +29,7 @@ export function ShortlistItList(props: ShortlistItListProps) {
         <Card id={props.list.id} className={`m-1 w-100 ${bgColor}`}>
             <Card.Body className="d-flex flex-column justify-content-center align-content-center">
                 <ShortlistItListHeader stateMgr={props.stateMgr} list={props.list} />
-                <ShortlistItListBodyWide stateMgr={props.stateMgr} list={props.list} />
+                <ShortlistItListBody stateMgr={props.stateMgr} list={props.list} />
             </Card.Body>
         </Card>
     );

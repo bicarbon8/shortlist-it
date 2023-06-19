@@ -1,8 +1,8 @@
 import React from "react";
-import { ShortlistItStateManager } from "../types/shortlist-it-state-manager";
+import { ShortlistItStateManager } from "../../types/shortlist-it-state-manager";
 import { ShortlistItModal } from "./shortlist-it-modal";
 import { Button } from "react-bootstrap";
-import { store } from "../utilities/storage";
+import { store } from "../../utilities/storage";
 
 type ShortlistItCriteriaTemplateDeletionModalProps = {
     stateMgr: ShortlistItStateManager;

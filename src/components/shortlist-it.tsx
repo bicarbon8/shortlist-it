@@ -8,13 +8,13 @@ import { store } from "../utilities/storage";
 import { ShortlistItList } from "./shortlist-it-list";
 import { ShortlistItNav } from "./shortlist-it-nav";
 import { ShortlistItState } from "../types/shortlist-it-state";
-import { ShortlistItListDeletionModal } from "./shortlist-it-list-deletion-modal";
-import { ShortlistItCriteriaDeletionModal } from "./shortlist-it-criteria-deletion-modal";
-import { ShortlistItEntryDeletionModal } from "./shortlist-it-entry-deletion-modal";
-import { ShortlistItCriteriaTemplateDeletionModal } from "./shortlist-it-criteria-template-deletion-modal";
-import ShortlistItEntryEditModal from "./shortlist-it-entry-edit-modal";
-import ShortlistItCriteriaEditModal from "./shortlist-it-criteria-edit-modal";
-import ShortlistItAddCriteriaFromTemplateModal from "./shortlist-it-add-criteria-from-template-modal";
+import { ShortlistItListDeletionModal } from "./modals/shortlist-it-list-deletion-modal";
+import { ShortlistItCriteriaDeletionModal } from "./modals/shortlist-it-criteria-deletion-modal";
+import { ShortlistItEntryDeletionModal } from "./modals/shortlist-it-entry-deletion-modal";
+import { ShortlistItCriteriaTemplateDeletionModal } from "./modals/shortlist-it-criteria-template-deletion-modal";
+import ShortlistItEntryEditModal from "./modals/shortlist-it-entry-edit-modal";
+import ShortlistItCriteriaEditModal from "./modals/shortlist-it-criteria-edit-modal";
+import ShortlistItAddCriteriaFromTemplateModal from "./modals/shortlist-it-add-criteria-from-template-modal";
 
 function getLists(state: ShortlistItState): Array<Shortlist> {
     let lists = state.lists;

@@ -1,17 +1,17 @@
 import React, { useState } from "react";
-import { Criteria } from "../types/criteria/criteria";
-import { Shortlist } from "../types/shortlist";
-import { ShortlistItStateManager } from "../types/shortlist-it-state-manager";
-import { createCriteriaRef } from "./shortlist-it-list-header";
+import { Criteria } from "../../types/criteria/criteria";
+import { Shortlist } from "../../types/shortlist";
+import { ShortlistItStateManager } from "../../types/shortlist-it-state-manager";
+import { createCriteriaRef } from "../shortlist-it-list-header";
 import { ShortlistItModal } from "./shortlist-it-modal";
 import { Alert, Button, FloatingLabel, Form } from "react-bootstrap";
-import { ShortlistItTooltip } from "./shortlist-it-tooltip";
-import { BootstrapIcon } from "./bootstrap-icon";
-import { getList, updateList } from "../component-actions/list-actions";
-import { CriteriaRefContainer } from "../types/criteria/criteria-ref-container";
-import { CriteriaType, CriteriaTypeArray } from "../types/criteria/criteria-type";
-import { store } from "../utilities/storage";
-import { getCriteria, stopEditingCriteria } from "../component-actions/list-criteria-actions";
+import { ShortlistItTooltip } from "../shortlist-it-tooltip";
+import { BootstrapIcon } from "../bootstrap-icon";
+import { getList, updateList } from "../../component-actions/list-actions";
+import { CriteriaRefContainer } from "../../types/criteria/criteria-ref-container";
+import { CriteriaType, CriteriaTypeArray } from "../../types/criteria/criteria-type";
+import { store } from "../../utilities/storage";
+import { getCriteria, stopEditingCriteria } from "../../component-actions/list-criteria-actions";
 
 function getCriteriaModalElement(criteria: Criteria): HTMLDivElement {
     return document.getElementById(criteria.id) as HTMLDivElement;

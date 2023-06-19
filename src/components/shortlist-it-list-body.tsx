@@ -1,15 +1,14 @@
 import React, { useState } from "react";
-import { ShortlistItListBodyProps } from "../compact/shortlist-it-list-body-compact";
-import ShortlistItListEntryWide from "./shortlist-it-list-entry-wide";
-import { BootstrapIcon } from "../bootstrap-icon";
+import ShortlistItListEntry from "./shortlist-it-list-entry";
+import { BootstrapIcon } from "./bootstrap-icon";
 import { Button } from "react-bootstrap";
-import { Criteria } from "../../types/criteria/criteria";
-import { Shortlist } from "../../types/shortlist";
-import { ShortlistItStateManager } from "../../types/shortlist-it-state-manager";
-import { ShortlistItTooltip } from "../shortlist-it-tooltip";
-import ShortlistItListCriteriaAddNewDropdown from "../shortlist-it-list-criteria-add-new-dropdown";
-import { startEditingCriteria } from "../../component-actions/list-criteria-actions";
-import { addNewEntry } from "../../component-actions/list-entry-actions";
+import { Criteria } from "../types/criteria/criteria";
+import { Shortlist } from "../types/shortlist";
+import { ShortlistItStateManager } from "../types/shortlist-it-state-manager";
+import { ShortlistItTooltip } from "./shortlist-it-tooltip";
+import ShortlistItListCriteriaAddNewDropdown from "./shortlist-it-list-criteria-add-new-dropdown";
+import { startEditingCriteria } from "../component-actions/list-criteria-actions";
+import { addNewEntry } from "../component-actions/list-entry-actions";
 
 function AddEntryButton(props: ShortlistItListBodyProps) {
     return (
@@ -49,7 +48,12 @@ function ShortlistItListCriteria(props: ShortlistItListCriteriaProps) {
     )
 }
 
-export default function ShortlistItListBodyWide(props: ShortlistItListBodyProps) {
+type ShortlistItListBodyProps = {
+    list: Shortlist;
+    stateMgr: ShortlistItStateManager;
+}
+
+export default function ShortlistItListBody(props: ShortlistItListBodyProps) {
     const variant = (props.list.archived) ? 'table-secondary' : 'table-dark';
     return (
         <div className="table-responsive">
@@ -69,7 +73,7 @@ export default function ShortlistItListBodyWide(props: ShortlistItListBodyProps)
                 <tbody>
                     {props.list.entries.map(e => {
                         return (
-                            <ShortlistItListEntryWide
+                            <ShortlistItListEntry
                                 key={e.id}
                                 stateMgr={props.stateMgr}
                                 list={props.list}
