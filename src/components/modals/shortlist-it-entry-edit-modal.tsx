@@ -182,7 +182,7 @@ export default function ShortlistItEntryEditModal(props: ShortlistItEntryEditMod
         >
             <div ref={entryRef} className="d-flex flex-row justify-content-between" style={{minWidth: "70vw"}}>
                 <div className="d-flex flex-column justify-content-evently flex-grow-1 pe-1">
-                    <Alert variant="danger" dismissible show={showSaveError}>
+                    <Alert variant="danger" dismissible show={showSaveError} onClose={() => setShowSaveError(false)}>
                         Entry must have all values set to valid values in order to be Saved
                     </Alert>
                     <FloatingLabel controlId={`description-${entry?.id}`} label="Description">

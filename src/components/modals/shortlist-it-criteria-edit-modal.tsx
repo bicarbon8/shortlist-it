@@ -168,10 +168,10 @@ export default function ShortlistItCriteriaEditModal(props: ShortlistItCriteriaE
     const onTemplateExists = () => {
         setShowSaveTemplateExists(true);
     }
-    const [showSaveError, setShowSaveTemplateError] = useState(false);
+    const [showSaveError, setShowSaveError] = useState(false);
     const onSaveError = () => {
-        setShowSaveTemplateError(true);
-        window.setTimeout(() => setShowSaveTemplateError(false), 5000);
+        setShowSaveError(true);
+        window.setTimeout(() => setShowSaveError(false), 5000);
     }
 
     const [criteriaNameValid, setCriteriaNameValid] = useState(isCriteriaNameValid(criteria, list));
@@ -200,7 +200,7 @@ export default function ShortlistItCriteriaEditModal(props: ShortlistItCriteriaE
         >
             <div id={criteria?.id} className="d-flex flex-row justify-content-between criteria-list-item">
                 <div className="d-flex flex-column justify-content-evently flex-grow-1 pe-1">
-                    <Alert variant="danger" dismissible show={showSaveError}>
+                    <Alert variant="danger" dismissible show={showSaveError} onClose={() => setShowSaveError(false)}>
                         Criteria must have all values set to valid values in order to be Saved or used as a Template
                     </Alert>
                     <Alert variant="warning" dismissible show={showSaveTemplateExists} onClose={() => setShowSaveTemplateExists(false)}>
@@ -211,13 +211,12 @@ export default function ShortlistItCriteriaEditModal(props: ShortlistItCriteriaE
                                 onClick={() => {
                                     setShowSaveTemplateExists(false);
                                     saveAsTemplate(criteriaRef, props.stateMgr, onSaveTemplateSuccess, onTemplateExists, onSaveError, true);
-                                }}
-                            >
+                                }}>
                                 Overwrite
                             </Button>
                         </div>
                     </Alert>
-                    <Alert variant="success" dismissible show={showSaveTemplateSuccess}>
+                    <Alert variant="success" dismissible show={showSaveTemplateSuccess} onClose={() => setShowSaveTemplateSuccess(false)}>
                         Criteria successfully saved as Template
                     </Alert>
                     <FloatingLabel controlId="criteriaName" label="Criteria Name">
