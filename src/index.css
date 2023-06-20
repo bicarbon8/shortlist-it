@@ -72,16 +72,14 @@ table tbody tr:last-child td:last-child {
   overflow: hidden;
   min-width: 50vw;
   max-width: 90vw;
-  min-height: 25vh;
-  max-height: 90vh;
 }
 .alert-body {
   overflow-y: auto;
   overflow-x: hidden;
-  max-height: 80vh;
+  max-height: 85vh;
   min-height: 20vh;
 }
 
 .text-truncate {
-  max-width: 400px;
+  max-width: 60vw;
 }
