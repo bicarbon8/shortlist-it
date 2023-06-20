@@ -85,6 +85,7 @@ function ShortlistItEntryValue(props: ShortlistItEntryValueProps) {
             }
             <div className="text-start">
                 <Anchor
+                    style={{display: "inline-block"}}
                     onClick={() => {
                         stopEditingEntry(props.stateMgr);
                         startEditingCriteria(props.criteria.id, props.stateMgr);
