@@ -33,14 +33,9 @@ function isCriteriaTypeValid(criteria: Criteria): boolean {
     return CriteriaTypeArray.includes(criteriaType);
 }
 
-function isCriteriaMultiselectAllowed(criteria: Criteria): boolean {
+function isYesNo(criteria: Criteria): boolean {
     const criteriaType = getCriteriaModalType(criteria);
-    return criteriaType !== 'yes-no';
-}
-
-function doesCriteriaAllowValues(criteria: Criteria): boolean {
-    const criteriaType = getCriteriaModalType(criteria);
-    return criteriaType !== 'yes-no';
+    return criteriaType === 'yes-no';
 }
 
 function isCriteriaNameValid(criteria: Criteria, list: Shortlist): boolean {
@@ -178,16 +173,14 @@ export default function ShortlistItCriteriaEditModal(props: ShortlistItCriteriaE
     const [criteriaTypeValid, setCriteriaTypeValid] = useState(isCriteriaTypeValid(criteria));
     const [criteriaValuesValid, setCriteriaValuesValid] = useState(areCritieriaValuesValid(criteria));
     const [criteriaWeightValid, setCriteriaWeightValid] = useState(isCritieraWeightValid(criteria));
-    const [criteriaMultiselectAllowed, setCriteriaMultiselectAllowed] = useState(isCriteriaMultiselectAllowed(criteria));
-    const [criteriaValuesAllowed, setCriteriaValuesAllowed] = useState(doesCriteriaAllowValues(criteria));
+    const [yesNo, setYesNo] = useState(isYesNo(criteria));
 
     useEffect(() => {
         setCriteriaNameValid(isCriteriaNameValid(criteria, list));
         setCriteriaTypeValid(isCriteriaTypeValid(criteria));
         setCriteriaValuesValid(areCritieriaValuesValid(criteria));
         setCriteriaWeightValid(isCritieraWeightValid(criteria));
-        setCriteriaMultiselectAllowed(isCriteriaMultiselectAllowed(criteria));
-        setCriteriaValuesAllowed(doesCriteriaAllowValues(criteria));
+        setYesNo(isYesNo(criteria));
     }, [props.stateMgr.state.editingCriteriaId]);
     
     return (
@@ -235,8 +228,12 @@ export default function ShortlistItCriteriaEditModal(props: ShortlistItCriteriaE
                             className={(!criteriaTypeValid) ? 'is-invalid' : ''}
                             onChange={() => {
                                 setCriteriaTypeValid(isCriteriaTypeValid(criteria));
-                                setCriteriaMultiselectAllowed(isCriteriaMultiselectAllowed(criteria));
-                                setCriteriaValuesAllowed(doesCriteriaAllowValues(criteria));
+                                const yn = isYesNo(criteria);
+                                setYesNo(yn);
+                                if (yn) {
+                                    criteriaRef.values.current.value = 'yes,no';
+                                    criteriaRef.multi.current.checked = false;
+                                }
                             }}>
                             <option value="worst-to-best">worst-to-best</option>
                             <option value="yes-no">yes-no</option>
@@ -249,8 +246,8 @@ export default function ShortlistItCriteriaEditModal(props: ShortlistItCriteriaE
                             ref={criteriaRef?.values}
                             type="text" 
                             placeholder="comma separated values" 
-                            defaultValue={(criteriaValuesAllowed) ? criteria?.values.join(',') : 'yes,no'} 
-                            disabled={!criteriaValuesAllowed} 
+                            defaultValue={(!yesNo) ? criteria?.values.join(',') : 'yes,no'} 
+                            disabled={yesNo} 
                             className={(!criteriaValuesValid) ? 'is-invalid' : ''}
                             onChange={() => setCriteriaValuesValid(areCritieriaValuesValid(criteria))} />
                     </FloatingLabel>
@@ -262,8 +259,8 @@ export default function ShortlistItCriteriaEditModal(props: ShortlistItCriteriaE
                                 ref={criteriaRef?.multi}
                                 type="switch" 
                                 aria-label="Allow Multiselect?" 
-                                defaultChecked={(criteriaMultiselectAllowed) ? criteria?.allowMultiple : false}
-                                disabled={!criteriaMultiselectAllowed}
+                                defaultChecked={(!yesNo) ? criteria?.allowMultiple : false}
+                                disabled={yesNo}
                             />
                         </div>
                         <FloatingLabel controlId="criteriaWeight" label="Weighting">
