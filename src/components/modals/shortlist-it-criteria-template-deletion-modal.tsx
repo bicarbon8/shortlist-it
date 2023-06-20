@@ -1,28 +1,24 @@
 import React from "react";
-import { ShortlistItStateManager } from "../types/shortlist-it-state-manager";
-import { ShortlistItModal } from "./shortlist-it-modal";
+import { ShortlistItStateManager } from "../../types/shortlist-it-state-manager";
+import { ShortlistItModal } from "../utilities/shortlist-it-modal";
 import { Button } from "react-bootstrap";
-import { store } from "../utilities/storage";
+import { store } from "../../utilities/storage";
 
 type ShortlistItCriteriaTemplateDeletionModalProps = {
     stateMgr: ShortlistItStateManager;
 };
 
 function hideDeleteConfirmation(stateMgr: ShortlistItStateManager) {
-    stateMgr.setState({
-        ...stateMgr.state,
-        criteriaTemplateToBeDeleted: null
-    });
+    stateMgr.state.criteriaTemplateToBeDeleted = null;
+    stateMgr.setState({...stateMgr.state});
 }
 
 function confirmDeletion(templateId: string, stateMgr: ShortlistItStateManager): void {
     if (stateMgr.state.criteriaTemplates.has(templateId)) {
         stateMgr.state.criteriaTemplates.delete(templateId);
         store.set('criteriaTemplates', stateMgr.state.criteriaTemplates);
-        stateMgr.setState({
-            ...stateMgr.state,
-            criteriaTemplateToBeDeleted: null
-        });
+        hideDeleteConfirmation(stateMgr);
+        stateMgr.setState({...stateMgr.state});
     }
 }
 

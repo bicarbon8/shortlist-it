@@ -4,7 +4,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import "./index.css";
 import "./.nojekyll";
-import { ShortlistIt } from "./components/shortlist-it";
+import ShortlistIt from "./components/shortlist-it";
 import "./favicon.ico";
 import {
     createBrowserRouter,

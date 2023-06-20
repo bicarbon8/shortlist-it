@@ -5,13 +5,16 @@ import { Entry } from "../types/entries/entry";
 import { Criteria } from "../types/criteria/criteria";
 import { CriteriaType } from "../types/criteria/criteria-type";
 import { store } from "../utilities/storage";
-import { ShortlistItList } from "./shortlist-it-list";
-import { ShortlistItNav } from "./shortlist-it-nav";
+import ShortlistItList from "./shortlist-it-list";
+import ShortlistItNav from "./shortlist-it-nav";
 import { ShortlistItState } from "../types/shortlist-it-state";
-import { ShortlistItListDeletionModal } from "./shortlist-it-list-deletion-modal";
-import { ShortlistItCriteriaDeletionModal } from "./shortlist-it-criteria-deletion-modal";
-import { ShortlistItEntryDeletionModal } from "./shortlist-it-entry-deletion-modal";
-import { ShortlistItCriteriaTemplateDeletionModal } from "./shortlist-it-criteria-template-deletion-modal";
+import { ShortlistItListDeletionModal } from "./modals/shortlist-it-list-deletion-modal";
+import { ShortlistItCriteriaDeletionModal } from "./modals/shortlist-it-criteria-deletion-modal";
+import { ShortlistItEntryDeletionModal } from "./modals/shortlist-it-entry-deletion-modal";
+import { ShortlistItCriteriaTemplateDeletionModal } from "./modals/shortlist-it-criteria-template-deletion-modal";
+import ShortlistItEntryEditModal from "./modals/shortlist-it-entry-edit-modal";
+import ShortlistItCriteriaEditModal from "./modals/shortlist-it-criteria-edit-modal";
+import ShortlistItAddCriteriaFromTemplateModal from "./modals/shortlist-it-add-criteria-from-template-modal";
 
 function getLists(state: ShortlistItState): Array<Shortlist> {
     let lists = state.lists;
@@ -144,13 +147,12 @@ const exampleLists: Array<Shortlist> = [
     }
 ];
 
-export function ShortlistIt() {
+export default function ShortlistIt() {
     const [state, setState] = useState<ShortlistItState>({
         showArchived: store.get('showArchived', false),
         lists: store.get('lists', new Array<Shortlist>(...exampleLists)),
         filterText: store.get('filterText', ''),
-        editingListMap: new Map<string, boolean>(),
-        editingListEntryMap: new Map<string, boolean>(),
+        editingListTitleMap: new Map<string, boolean>(),
         criteriaTemplates: store.get('criteriaTemplates', new Map<string, Omit<Criteria, 'id'>>())
     });
 
@@ -162,6 +164,9 @@ export function ShortlistIt() {
             <ShortlistItEntryDeletionModal stateMgr={{state, setState}} />
             <ShortlistItCriteriaDeletionModal stateMgr={{state, setState}} />
             <ShortlistItCriteriaTemplateDeletionModal stateMgr={{state, setState}} />
+            <ShortlistItCriteriaEditModal stateMgr={{state, setState}} />
+            <ShortlistItEntryEditModal stateMgr={{state, setState}} />
+            <ShortlistItAddCriteriaFromTemplateModal stateMgr={{state, setState}} />
             <ShortlistItNav stateMgr={{state, setState}} />
             <div className="d-flex justify-content-evenly align-items-start flex-wrap flex-sm-row flex-column">
                 {lists.map((list) => <ShortlistItList key={list.id} stateMgr={{state, setState}} list={list} />)}

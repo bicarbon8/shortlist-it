@@ -4,40 +4,84 @@ body {
   padding: 0px;
 }
 
-.min-width-300 {
-  min-width: 300px;
-}
-
-.min-width-200 {
-  min-width: 200px;
-}
-
-.min-width-150 {
-  min-width: 150px;
-}
-
-.max-width-700 {
-  max-width: 700px;
-}
-
 .clickable {
   cursor: pointer;
 }
 
 .overlay {
   z-index: 100000;
-  position: absolute;
+  position: fixed;
   top: 0px;
   left: 0px;
-  width: 100vw;
-  height: 100vh;
+  right: 0px;
+  bottom: 0px;
+  width: 100%;
+  height: 100%;
   justify-content: center;
-  align-items: center;
+  align-items: top;
   background: rgba(0, 0, 0, 0.5);
 }
 
-.sticky {
+.sticky-vertical {
   position: -webkit-sticky;
   position: sticky;
   top: 60px;
+}
+.sticky-horizontal {
+  position: -webkit-sticky;
+  position: sticky;
+  left: 0px;
+}
+
+table {
+  border-collapse: separate;
+  border-spacing: 0px;
+}
+table thead tr:first-child th:first-child {
+  border-top-left-radius: 6px;
+}
+table thead tr:first-child th:last-child {
+  border-top-right-radius: 6px;
+}
+table tbody tr:last-child td:first-child {
+  border-bottom-left-radius: 6px;
+}
+table tbody tr:last-child td:last-child {
+  border-bottom-right-radius: 6px;
+}
+.table-fixed-2-cols td:first-child, th:first-child {
+  position: -webkit-sticky;
+  position: sticky;
+  left: 0px;
+  width: 50px;
+}
+.table-fixed-2-cols td:nth-child(2), th:nth-child(2) {
+  position: -webkit-sticky;
+  position: sticky;
+  left: 50px;
+  border-right: 1px dashed dimgray;
+}
+.table-fixed-right-col {
+  position: -webkit-sticky;
+  position: sticky;
+  right: 0px;
+  border-left: 1px dashed dimgray;
+}
+
+.alert {
+  overflow: hidden;
+  min-width: 50vw;
+  max-width: 90vw;
+  min-height: 25vh;
+  max-height: 90vh;
+}
+.alert-body {
+  overflow-y: auto;
+  overflow-x: hidden;
+  max-height: 80vh;
+  min-height: 20vh;
+}
+
+.text-truncate {
+  max-width: 400px;
 }

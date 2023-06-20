@@ -1,32 +1,26 @@
 import React from "react";
-import { ShortlistItStateManager } from "../types/shortlist-it-state-manager";
-import { ShortlistItModal } from "./shortlist-it-modal";
+import { ShortlistItStateManager } from "../../types/shortlist-it-state-manager";
+import { ShortlistItModal } from "../utilities/shortlist-it-modal";
 import { Button } from "react-bootstrap";
-import { store } from "../utilities/storage";
-import { archiveList } from "../component-actions/list-actions";
+import { store } from "../../utilities/storage";
+import { archiveList } from "../../component-actions/list-actions";
 
 type ShortlistItListDeletionModalProps = {
     stateMgr: ShortlistItStateManager;
 };
 
 function hideDeleteConfirmation(stateMgr: ShortlistItStateManager) {
-    stateMgr.setState({
-        ...stateMgr.state,
-        listToBeDeleted: null
-    });
+    stateMgr.state.listToBeDeleted = null;
+    stateMgr.setState({...stateMgr.state});
 }
 
 function confirmDeletion(listId: string, stateMgr: ShortlistItStateManager): void {
     const listIndex = stateMgr.state.lists.findIndex(l => l.id === listId);
     if (listIndex >= 0) {
-        const tmp = stateMgr.state.lists;
-        tmp.splice(listIndex, 1);
-        store.set('lists', tmp);
-        stateMgr.setState({
-            ...stateMgr.state,
-            lists: tmp,
-            listToBeDeleted: null
-        });
+        stateMgr.state.lists.splice(listIndex, 1);
+        store.set('lists', stateMgr.state.lists);
+        hideDeleteConfirmation(stateMgr);
+        stateMgr.setState({...stateMgr.state});
     }
 }
 

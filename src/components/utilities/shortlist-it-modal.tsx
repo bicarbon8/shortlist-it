@@ -2,23 +2,23 @@ import React, { createRef, useEffect } from "react";
 import { Alert } from "react-bootstrap";
 
 type ShortlistItModalProps = JSX.ElementChildrenAttribute & {
-    id: string;
+    id?: string;
     variant?: string;
     dismissible?: boolean;
     show?: boolean;
-    heading: string;
+    heading: string | (() => {});
     onClose: () => void;
 };
 
 function preventScrolling(): void {
-    const html = document.querySelector("html");
+    const html = document.querySelector<HTMLElement>("html");
     if (html) {
         html.style.overflow = "hidden";
     }
 }
 
 function restoreScrolling(): void {
-    const html = document.querySelector("html");
+    const html = document.querySelector<HTMLElement>("html");
     if (html) {
         html.style.overflow = "auto";
     }
@@ -45,10 +45,9 @@ export function ShortlistItModal(props: ShortlistItModalProps) {
                     id={props.id}
                     variant={props.variant}
                     dismissible={props.dismissible}
-                    onClose={() => props.onClose()}
-                >
-                    <Alert.Heading>{props.heading}</Alert.Heading>
-                    {props.children}
+                    onClose={() => props.onClose()}>
+                    <Alert.Heading>{(typeof props.heading === 'string') ? props.heading : props.heading()}</Alert.Heading>
+                    <div className="alert-body">{props.children}</div>
                 </Alert>
             </div>
         );
