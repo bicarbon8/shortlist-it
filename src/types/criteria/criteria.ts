@@ -1,3 +1,4 @@
+import { ElementHelper } from "../../utilities/element-helper";
 import { CriteriaType } from "./criteria-type";
 
 export type Criteria = {
@@ -12,7 +13,7 @@ export type Criteria = {
 
 export module Criteria {
     export function nameToElementId(name: string): string {
-        const formatted = name?.replace(/(\s)/g, '-') ?? 'unknown';
+        const formatted = ElementHelper.idEncode(name) ?? 'unknown';
         return `criteria-name-${formatted}`;
     }
 }

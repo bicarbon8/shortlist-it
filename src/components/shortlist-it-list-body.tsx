@@ -60,7 +60,7 @@ function ShortlistItListCriteria(props: ShortlistItListCriteriaProps) {
                             }
                         }} />
                 </ShortlistItTooltip>}
-                <ShortlistItTooltip id={`criteria-name-${props.criteria.id}`} text={props.criteria.name}>
+                <ShortlistItTooltip id={`criteria-${props.criteria.id}`} text={props.criteria.name}>
                     <p className="text-nowrap mb-0 ps-1 text-truncate" aria-label={props.criteria.name}>{props.criteria.name}</p>
                 </ShortlistItTooltip>
             </div>
