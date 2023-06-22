@@ -1,5 +1,6 @@
 import React, { createRef, useEffect } from "react";
 import { Alert } from "react-bootstrap";
+import { createPortal } from "react-dom";
 
 type ShortlistItModalProps = JSX.ElementChildrenAttribute & {
     id?: string;
@@ -37,7 +38,7 @@ export function ShortlistItModal(props: ShortlistItModalProps) {
     }, [props.show]);
     
     if (props.show) {
-        return (
+        return createPortal(
             <div className="overlay w-100 d-flex justify-content-center align-content-start">
                 <Alert
                     ref={overlayRef}
@@ -50,7 +51,7 @@ export function ShortlistItModal(props: ShortlistItModalProps) {
                     <div className="alert-body">{props.children}</div>
                 </Alert>
             </div>
-        );
+        , document.body);
     } else {
         return <></>;
     }

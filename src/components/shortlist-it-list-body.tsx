@@ -28,7 +28,7 @@ function ShortlistItListBodyFinalRow(props: ShortlistItListBodyProps) {
                         aria-label="Add New Criteria"
                         className="text-nowrap"
                         onClick={() => {
-                            props.stateMgr.state.addCriteriaFromTemplateToList = props.list.id;
+                            props.stateMgr.state.showAddCriteriaModalForList = props.list.id;
                             props.stateMgr.setState({...props.stateMgr.state});
                         }}>
                         <BootstrapIcon icon="plus-lg" />

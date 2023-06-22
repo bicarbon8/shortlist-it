@@ -13,5 +13,5 @@ export type ShortlistItState = {
     editingEntryId?: string;
     editingCriteriaId?: string;
     criteriaTemplates: Map<string, Omit<Criteria, 'id'>>;
-    addCriteriaFromTemplateToList?: string;
+    showAddCriteriaModalForList?: string;
 };

@@ -11,9 +11,9 @@ type ShortlistItAddCriteriaFromTemplateModalProps = {
 }
 
 export default function ShortlistItAddCriteriaFromTemplateModal(props: ShortlistItAddCriteriaFromTemplateModalProps) {
-    const list = getList(props.stateMgr.state.addCriteriaFromTemplateToList, props.stateMgr);
+    const list = getList(props.stateMgr.state.showAddCriteriaModalForList, props.stateMgr);
     const closeModal = () => {
-        props.stateMgr.state.addCriteriaFromTemplateToList = null;
+        props.stateMgr.state.showAddCriteriaModalForList = null;
         props.stateMgr.setState({...props.stateMgr.state});
     };
     useEffect(() => {

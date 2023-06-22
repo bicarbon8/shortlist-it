@@ -38,7 +38,7 @@ function ShortlistItListHeaderMenu(props: {list: Shortlist, titleRefObject: Reac
         } else {
             items.push({text: 'edit list title', icon: 'pencil-square', action: () => startEditingList(props.list.id, props.stateMgr)});
             items.push({text: 'add criteria', icon: 'clipboard-plus', action: () => {
-                props.stateMgr.state.addCriteriaFromTemplateToList = props.list.id;
+                props.stateMgr.state.showAddCriteriaModalForList = props.list.id;
                 props.stateMgr.setState({...props.stateMgr.state});
             }})
             items.push({text: 'add entry', icon: 'plus-square', action: () => addNewEntry(props.list.id, props.stateMgr)});
