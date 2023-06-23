@@ -25,7 +25,7 @@ export default function ShortlistItList(props: ShortlistItListProps) {
     });
 
     return (
-        <Card id={props.list.id} className={`m-1 w-100 ${bgColor}`}>
+        <Card id={props.list.id} className={`m-1 ${bgColor}`}>
             <Card.Body className="d-flex flex-column justify-content-center align-content-center">
                 <ShortlistItListHeader stateMgr={props.stateMgr} list={props.list} />
                 <ShortlistItListBody stateMgr={props.stateMgr} list={props.list} />

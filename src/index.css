@@ -70,18 +70,22 @@ table tbody tr:last-child td:last-child {
 
 .alert {
   overflow: hidden;
-  min-width: 50vw;
-  max-width: 90vw;
-  min-height: 25vh;
-  max-height: 90vh;
+  min-width: 50dvw;
+  max-width: 90dvw;
+  min-height: 25dvh;
+  max-height: 90dvh;
 }
 .alert-body {
   overflow-y: auto;
   overflow-x: hidden;
-  max-height: 80vh;
-  min-height: 20vh;
+  max-height: 80dvh;
+  min-height: 20dvh;
 }
 
 .text-truncate {
-  max-width: 60vw;
+  max-width: 60dvw;
+}
+
+.card {
+  width: 98dvw;
 }
