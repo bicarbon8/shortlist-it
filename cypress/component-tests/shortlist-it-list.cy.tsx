@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import ShortlistItList from '../../src/components/shortlist-it-list'
 import { Shortlist } from '../../src/types/shortlist'
 import { Criteria } from '../../src/types/criteria/criteria'
@@ -23,7 +23,26 @@ describe('<ShortlistItList />', () => {
 
     cy.get('.bi-list').click();
     cy.get('.list-group-item:nth-child(2)').click();
-    cy.get('.overlay').get('.alert-heading').should('contain.text', 'Edit Criteria');
+    cy.get('.overlay').get('.alert-heading').should('contain.text', 'Edit Criteria')
+      .get('input#criteriaName').should('have.value', '');
+  })
+
+  it('displays existing criteria', () => {
+    cy.mount(<ShortlistItList
+      list={{...testList, criteria: [testCriteria]}}
+      stateMgr={testStateMgr} />);
+
+    cy.get('thead th').should('contain.text', testCriteria.name);
+  })
+
+  it('allows editing existing criteria', () => {
+    cy.mount(<ShortlistItList
+      list={{...testList, criteria: [testCriteria]}}
+      stateMgr={testStateMgr} />);
+    
+    cy.get('thead th .bi-pencil-square').click();
+    cy.get('.overlay').get('.alert-heading').should('contain.text', 'Edit Criteria')
+      .get('input#criteriaName').should('have.value', testCriteria.name);
   })
 })
 
