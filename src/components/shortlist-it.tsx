@@ -164,7 +164,6 @@ export default function ShortlistIt() {
             <ShortlistItEntryDeletionModal stateMgr={{state, setState}} />
             <ShortlistItCriteriaDeletionModal stateMgr={{state, setState}} />
             <ShortlistItCriteriaTemplateDeletionModal stateMgr={{state, setState}} />
-            <ShortlistItCriteriaEditModal stateMgr={{state, setState}} />
             <ShortlistItEntryEditModal stateMgr={{state, setState}} />
             <ShortlistItAddCriteriaFromTemplateModal stateMgr={{state, setState}} />
             <ShortlistItNav stateMgr={{state, setState}} />

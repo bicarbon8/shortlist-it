@@ -147,11 +147,16 @@ function confirmDeleteCriteria(criteriaId: string, stateMgr: ShortlistItStateMan
 
 type ShortlistItCriteriaEditModalProps = {
     stateMgr: ShortlistItStateManager;
+    criteria: Criteria;
+    show: boolean;
+    onClose: () => void;
+    onSave: () => void;
+    onDelete: () => void;
 };
 
 export default function ShortlistItCriteriaEditModal(props: ShortlistItCriteriaEditModalProps) {
-    const criteria = (props.stateMgr.state.editingCriteriaId) ? getCriteria(props.stateMgr.state.editingCriteriaId, props.stateMgr) : null;
-    const list = (criteria) ? getList(criteria.listId, props.stateMgr) : null;
+    const criteria = getCriteria(props.criteria.id, props.stateMgr);
+    const list = getList(criteria.listId, props.stateMgr);
     const criteriaRef = (criteria) ? createCriteriaRef(criteria) : null;
 
     const [showSaveTemplateSuccess, setShowSaveTemplateSuccess] = useState(false);
@@ -187,9 +192,9 @@ export default function ShortlistItCriteriaEditModal(props: ShortlistItCriteriaE
         <ShortlistItModal
             variant="light"
             dismissible={true}
-            onClose={() => stopEditingCriteria(props.stateMgr)}
+            onClose={() => props.onClose()}
             heading="Edit Critieria"
-            show={criteria != null}
+            show={props.show}
         >
             <div id={criteria?.id} className="d-flex flex-row justify-content-between criteria-list-item">
                 <div className="d-flex flex-column justify-content-evently flex-grow-1 pe-1">
@@ -278,7 +283,8 @@ export default function ShortlistItCriteriaEditModal(props: ShortlistItCriteriaE
                     <ShortlistItTooltip id={`save-criteria-${criteria?.id}`} text="Save Criteria">
                         <Button variant="success" aria-label="Save Criteria" onClick={() => {
                             if (saveCriteria(list?.id, criteria?.id, criteriaRef, props.stateMgr)) {
-                                stopEditingCriteria(props.stateMgr);
+                                props.onClose();
+                                props.onSave();
                             } else {
                                 onSaveError();
                             }
@@ -293,7 +299,8 @@ export default function ShortlistItCriteriaEditModal(props: ShortlistItCriteriaE
                     </ShortlistItTooltip>
                     <ShortlistItTooltip id={`delete-criteria-${criteria?.id}`} text="Delete Criteria">
                         <Button variant="danger" aria-label="Delete Criteria" onClick={() => {
-                            stopEditingCriteria(props.stateMgr);
+                            props.onClose();
+                            props.onDelete();
                             confirmDeleteCriteria(criteria?.id, props.stateMgr); // ...and open confirmation modal
                         }}>
                             <BootstrapIcon icon="trash" />

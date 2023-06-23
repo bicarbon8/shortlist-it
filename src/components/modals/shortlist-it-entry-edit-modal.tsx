@@ -9,6 +9,7 @@ import { getList, updateList } from "../../component-actions/list-actions";
 import { Entry } from "../../types/entries/entry";
 import { getEntry, stopEditingEntry } from "../../component-actions/list-entry-actions";
 import { startEditingCriteria } from "../../component-actions/list-criteria-actions";
+import ShortlistItCriteriaEditModal from "./shortlist-it-criteria-edit-modal";
 
 function Multiselect(props: {id: string, label: string, selectedValues: Array<string>, allValues: Array<string>}) {
     return (
@@ -69,6 +70,7 @@ type ShortlistItEntryValueProps = {
 function ShortlistItEntryValue(props: ShortlistItEntryValueProps) {
     const id = `${Criteria.nameToElementId(props.criteria.name)}-${props.entryId}`;
     const allValues = props.criteria.values || new Array<string>();
+    const [showEditCriteriaModal, setShowEditCriteriaModal] = useState(false);
     return (
         <>
             {(props.criteria.allowMultiple)
@@ -87,11 +89,17 @@ function ShortlistItEntryValue(props: ShortlistItEntryValueProps) {
                 <Anchor
                     style={{display: "inline-block"}}
                     onClick={() => {
-                        stopEditingEntry(props.stateMgr);
-                        startEditingCriteria(props.criteria.id, props.stateMgr);
+                        setShowEditCriteriaModal(true);
                     }}>
                     <p className="text-muted text-truncate" style={{fontSize: '0.65em'}}>edit Criteria: "<em>{props.criteria.name}</em>" instead</p>
                 </Anchor>
+                <ShortlistItCriteriaEditModal
+                    stateMgr={props.stateMgr}
+                    criteria={props.criteria}
+                    show={showEditCriteriaModal}
+                    onClose={() => setShowEditCriteriaModal(false)}
+                    onSave={() => null}
+                    onDelete={() => null} />
             </div>
         </>
     );

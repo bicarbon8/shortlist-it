@@ -9,6 +9,7 @@ import { ShortlistItTooltip } from "./utilities/shortlist-it-tooltip";
 import ShortlistItListCriteriaAddNewDropdown from "./shortlist-it-list-criteria-add-new-dropdown";
 import { startEditingCriteria } from "../component-actions/list-criteria-actions";
 import { addNewEntry } from "../component-actions/list-entry-actions";
+import ShortlistItCriteriaEditModal from "./modals/shortlist-it-criteria-edit-modal";
 
 function ShortlistItListBodyFinalRow(props: ShortlistItListBodyProps) {
     return (
@@ -48,17 +49,24 @@ type ShortlistItListCriteriaProps = {
 
 function ShortlistItListCriteria(props: ShortlistItListCriteriaProps) {
     const [editIcon, setEditIcon] = useState('pencil-square');
+    const [showEditModal, setShowEditModal] = useState(false);
     return (
         <th scope="col" className="d-none d-sm-table-cell">
+            <ShortlistItCriteriaEditModal
+                stateMgr={props.stateMgr}
+                show={showEditModal}
+                criteria={props.criteria}
+                onClose={() => setShowEditModal(false)}
+                onSave={() => {
+                    setEditIcon('check-circle');
+                    setTimeout(() => setEditIcon('pencil-square'), 2000);
+                }}
+                onDelete={() => null} />
             <div className="d-flex flex-nowrap align-items-end">
                 {(!props.list.archived) && <ShortlistItTooltip id={`edit-criteria-${props.criteria.id}`} text="Edit Criteria">
                     <BootstrapIcon
                         icon={editIcon}
-                        onClick={() => {
-                            if (props.stateMgr.state.editingCriteriaId == null) {
-                                startEditingCriteria(props.criteria.id, props.stateMgr);
-                            }
-                        }} />
+                        onClick={() => setShowEditModal(true)} />
                 </ShortlistItTooltip>}
                 <ShortlistItTooltip id={`criteria-${props.criteria.id}`} text={props.criteria.name}>
                     <p className="text-nowrap mb-0 ps-1 text-truncate" aria-label={props.criteria.name}>{props.criteria.name}</p>
