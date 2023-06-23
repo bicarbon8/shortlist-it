@@ -2,14 +2,16 @@ import { Badge, Button, ListGroupItem } from "react-bootstrap";
 import { Criteria } from "../types/criteria/criteria";
 import { ShortlistItStateManager } from "../types/shortlist-it-state-manager";
 import { BootstrapIcon } from "./utilities/bootstrap-icon";
-import React from "react";
+import React, { useState } from "react";
 import { Shortlist } from "../types/shortlist";
-import { addNewCriteria } from "../component-actions/list-criteria-actions";
+import { generateCriteriaFromTemplate } from "../component-actions/list-criteria-actions";
+import ShortlistItCriteriaEditModal from "./modals/shortlist-it-criteria-edit-modal";
 
 type ShortlistItCriteriaTemplateItemProps = {
     stateMgr: ShortlistItStateManager;
     list: Shortlist;
     template?: Omit<Criteria, 'id'>;
+    onClose: () => void;
 };
 
 export default function ShortlistItCriteriaTemplateItem(props: ShortlistItCriteriaTemplateItemProps) {
@@ -20,11 +22,15 @@ export default function ShortlistItCriteriaTemplateItem(props: ShortlistItCriter
 
     const name = (props.template) ? props.template.name : 'New Blank Criteria';
     const cType = (props.template) ? props.template.type : '';
+    const [criteria, setCriteria] = useState(null);
     
     return (
         <ListGroupItem>
             <div className="d-flex flex-row justify-content-between">
-                <Button className="flex-col pe-1 flex-grow-1" variant="outline-primary" onClick={() => addNewCriteria(props.list.id, props.stateMgr, props.template?.name)}>
+                <Button
+                    className="flex-col pe-1 flex-grow-1"
+                    variant="outline-primary"
+                    onClick={() => setCriteria(generateCriteriaFromTemplate(props.list.id, props.stateMgr, props.template?.name))}>
                     <p className="mb-0">{name}</p>
                     <p className="mb-0 text-muted" style={{fontSize: '0.65em'}}>{cType}</p>
                 </Button>
@@ -35,6 +41,17 @@ export default function ShortlistItCriteriaTemplateItem(props: ShortlistItCriter
                     </Badge>}
                     <div className="flex-grow-1"> </div>
                 </div>
+                <ShortlistItCriteriaEditModal
+                    show={criteria != null}
+                    criteria={criteria}
+                    listId={props.list.id}
+                    stateMgr={props.stateMgr}
+                    onClose={() => {
+                        props.onClose();
+                        setCriteria(null);
+                    }}
+                    onSave={() => null}
+                    onDelete={() => null} />
             </div>
         </ListGroupItem>
     );

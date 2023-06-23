@@ -13,8 +13,6 @@ import { ShortlistItCriteriaDeletionModal } from "./modals/shortlist-it-criteria
 import { ShortlistItEntryDeletionModal } from "./modals/shortlist-it-entry-deletion-modal";
 import { ShortlistItCriteriaTemplateDeletionModal } from "./modals/shortlist-it-criteria-template-deletion-modal";
 import ShortlistItEntryEditModal from "./modals/shortlist-it-entry-edit-modal";
-import ShortlistItCriteriaEditModal from "./modals/shortlist-it-criteria-edit-modal";
-import ShortlistItAddCriteriaFromTemplateModal from "./modals/shortlist-it-add-criteria-from-template-modal";
 
 function getLists(state: ShortlistItState): Array<Shortlist> {
     let lists = state.lists;
@@ -165,7 +163,6 @@ export default function ShortlistIt() {
             <ShortlistItCriteriaDeletionModal stateMgr={{state, setState}} />
             <ShortlistItCriteriaTemplateDeletionModal stateMgr={{state, setState}} />
             <ShortlistItEntryEditModal stateMgr={{state, setState}} />
-            <ShortlistItAddCriteriaFromTemplateModal stateMgr={{state, setState}} />
             <ShortlistItNav stateMgr={{state, setState}} />
             <div className="d-flex justify-content-evenly align-items-start flex-wrap flex-sm-row flex-column">
                 {lists.map((list) => <ShortlistItList key={list.id} stateMgr={{state, setState}} list={list} />)}

@@ -6,15 +6,22 @@ import { Criteria } from "../types/criteria/criteria";
 import { Shortlist } from "../types/shortlist";
 import { ShortlistItStateManager } from "../types/shortlist-it-state-manager";
 import { ShortlistItTooltip } from "./utilities/shortlist-it-tooltip";
-import ShortlistItListCriteriaAddNewDropdown from "./shortlist-it-list-criteria-add-new-dropdown";
-import { startEditingCriteria } from "../component-actions/list-criteria-actions";
 import { addNewEntry } from "../component-actions/list-entry-actions";
 import ShortlistItCriteriaEditModal from "./modals/shortlist-it-criteria-edit-modal";
+import ShortlistItAddCriteriaFromTemplateModal from "./modals/shortlist-it-add-criteria-from-template-modal";
 
 function ShortlistItListBodyFinalRow(props: ShortlistItListBodyProps) {
+    const [showAddCriteriaModal, setShowAddCriteriaModal] = useState(false);
+
     return (
         <tr className="table-secondary">
-            <td> &nbsp; </td>
+            <td>
+                <ShortlistItAddCriteriaFromTemplateModal
+                    show={showAddCriteriaModal}
+                    stateMgr={props.stateMgr}
+                    onClose={() => setShowAddCriteriaModal(false)}
+                    list={props.list} />
+            </td>
             <td>
                 <Button size="sm" variant="outline-secondary" className="sticky-horizontal text-nowrap" onClick={() => addNewEntry(props.list.id, props.stateMgr)}>
                     <BootstrapIcon icon="plus-lg" /> 
@@ -28,10 +35,7 @@ function ShortlistItListBodyFinalRow(props: ShortlistItListBodyProps) {
                         size="sm"
                         aria-label="Add New Criteria"
                         className="text-nowrap"
-                        onClick={() => {
-                            props.stateMgr.state.showAddCriteriaModalForList = props.list.id;
-                            props.stateMgr.setState({...props.stateMgr.state});
-                        }}>
+                        onClick={() => setShowAddCriteriaModal(true)}>
                         <BootstrapIcon icon="plus-lg" />
                         Add New Criteria
                     </Button>
@@ -56,6 +60,7 @@ function ShortlistItListCriteria(props: ShortlistItListCriteriaProps) {
                 stateMgr={props.stateMgr}
                 show={showEditModal}
                 criteria={props.criteria}
+                listId={props.list.id}
                 onClose={() => setShowEditModal(false)}
                 onSave={() => {
                     setEditIcon('check-circle');

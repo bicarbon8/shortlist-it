@@ -8,7 +8,6 @@ import { BootstrapIcon } from "../utilities/bootstrap-icon";
 import { getList, updateList } from "../../component-actions/list-actions";
 import { Entry } from "../../types/entries/entry";
 import { getEntry, stopEditingEntry } from "../../component-actions/list-entry-actions";
-import { startEditingCriteria } from "../../component-actions/list-criteria-actions";
 import ShortlistItCriteriaEditModal from "./shortlist-it-criteria-edit-modal";
 
 function Multiselect(props: {id: string, label: string, selectedValues: Array<string>, allValues: Array<string>}) {
@@ -61,6 +60,7 @@ function ValueOptionNode(props: {val: string, selectedValues: Array<string>}) {
 }
 
 type ShortlistItEntryValueProps = {
+    listId: string;
     entryId: string;
     criteria: Criteria;
     selectedValues: Array<string>;
@@ -96,6 +96,7 @@ function ShortlistItEntryValue(props: ShortlistItEntryValueProps) {
                 <ShortlistItCriteriaEditModal
                     stateMgr={props.stateMgr}
                     criteria={props.criteria}
+                    listId={props.listId}
                     show={showEditCriteriaModal}
                     onClose={() => setShowEditCriteriaModal(false)}
                     onSave={() => null}
@@ -206,6 +207,7 @@ export default function ShortlistItEntryEditModal(props: ShortlistItEntryEditMod
                                 key={key}
                                 criteria={c}
                                 entryId={entry?.id}
+                                listId={list.id}
                                 selectedValues={selectedValues}
                                 stateMgr={props.stateMgr} />
                         );

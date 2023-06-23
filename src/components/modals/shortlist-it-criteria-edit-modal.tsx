@@ -11,7 +11,6 @@ import { getList, updateList } from "../../component-actions/list-actions";
 import { CriteriaRefContainer } from "../../types/criteria/criteria-ref-container";
 import { CriteriaType, CriteriaTypeArray } from "../../types/criteria/criteria-type";
 import { store } from "../../utilities/storage";
-import { getCriteria, stopEditingCriteria } from "../../component-actions/list-criteria-actions";
 
 function getCriteriaModalElement(criteria: Criteria): HTMLDivElement {
     return document.getElementById(criteria?.id) as HTMLDivElement;
@@ -129,11 +128,8 @@ function saveCriteria(listId: string, criteriaId: string, criteriaRef: CriteriaR
     if (valid) {
         const list = getList(listId, stateMgr);
         if (list) {
-            const cIndex = list.criteria.findIndex(c => c.id === criteriaId);
-            if (cIndex >= 0) {
-                list.criteria.splice(cIndex, 1, {...valid, id: criteriaId});
-                updateList(list.id, list, stateMgr);
-            }
+            list.criteria.push({...valid, id: criteriaId});
+            updateList(list.id, list, stateMgr);
         }
         return true;
     }
@@ -147,16 +143,17 @@ function confirmDeleteCriteria(criteriaId: string, stateMgr: ShortlistItStateMan
 
 type ShortlistItCriteriaEditModalProps = {
     stateMgr: ShortlistItStateManager;
-    criteria: Criteria;
     show: boolean;
+    criteria: Criteria;
+    listId?: string;
     onClose: () => void;
     onSave: () => void;
     onDelete: () => void;
 };
 
 export default function ShortlistItCriteriaEditModal(props: ShortlistItCriteriaEditModalProps) {
-    const criteria = getCriteria(props.criteria.id, props.stateMgr);
-    const list = getList(criteria.listId, props.stateMgr);
+    const criteria = props.criteria;
+    const list = getList(criteria?.listId ?? props.listId, props.stateMgr);
     const criteriaRef = (criteria) ? createCriteriaRef(criteria) : null;
 
     const [showSaveTemplateSuccess, setShowSaveTemplateSuccess] = useState(false);
@@ -194,7 +191,7 @@ export default function ShortlistItCriteriaEditModal(props: ShortlistItCriteriaE
             dismissible={true}
             onClose={() => props.onClose()}
             heading="Edit Critieria"
-            show={props.show}
+            show={props.show && criteria != null}
         >
             <div id={criteria?.id} className="d-flex flex-row justify-content-between criteria-list-item">
                 <div className="d-flex flex-column justify-content-evently flex-grow-1 pe-1">

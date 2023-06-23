@@ -5,10 +5,6 @@ import { Button } from "react-bootstrap";
 import { store } from "../../utilities/storage";
 import { Shortlist } from "../../types/shortlist";
 
-type ShortlistItCriteriaDeletionModalProps = {
-    stateMgr: ShortlistItStateManager;
-};
-
 function hideDeleteConfirmation(stateMgr: ShortlistItStateManager) {
     stateMgr.state.criteriaToBeDeleted = null;
     stateMgr.setState({...stateMgr.state});
@@ -27,33 +23,40 @@ function confirmDeletion(criteriaId: string, stateMgr: ShortlistItStateManager):
     }
 }
 
+type ShortlistItCriteriaDeletionModalProps = {
+    stateMgr: ShortlistItStateManager;
+};
+
 export function ShortlistItCriteriaDeletionModal(props: ShortlistItCriteriaDeletionModalProps) {
     const criteriaId = props.stateMgr.state.criteriaToBeDeleted;
     let list: Shortlist;
     let criteriaName: string;
     if (criteriaId) {
         list = props.stateMgr.state.lists.find(l => l.criteria.find(c => c.id === criteriaId) != null);
-        criteriaName = list.criteria.find(l => l.id === criteriaId)?.name;
+        criteriaName = list?.criteria.find(l => l.id === criteriaId)?.name;
     }
-    return (
-        <ShortlistItModal 
-            id={`delete-${criteriaId}`}
-            variant="danger"
-            heading="Warning!"
-            dismissible={true}
-            show={!!(criteriaId && list)}
-            onClose={() => hideDeleteConfirmation(props.stateMgr)}>
-            <p>
-            are you certain you want to delete Criteria named: '<em>{criteriaName}</em>' from list titled: '<em>{list?.title}</em>'? once deleted it can not be recovered.
-            </p>
-            <hr />
-            <div className="d-flex justify-content-end">
-                <Button onClick={() => {
-                    confirmDeletion(criteriaId, props.stateMgr);
-                }} variant="outline-danger">
-                    DELETE
-                </Button>
-            </div>
-        </ShortlistItModal>
-    );
+    if (list) {
+        return (
+            <ShortlistItModal 
+                id={`delete-${criteriaId}`}
+                variant="danger"
+                heading="Warning!"
+                dismissible={true}
+                show={!!(criteriaId)}
+                onClose={() => hideDeleteConfirmation(props.stateMgr)}>
+                <p>
+                are you certain you want to delete Criteria named: '<em>{criteriaName}</em>' from list titled: '<em>{list.title}</em>'? once deleted it can not be recovered.
+                </p>
+                <hr />
+                <div className="d-flex justify-content-end">
+                    <Button onClick={() => {
+                        confirmDeletion(criteriaId, props.stateMgr);
+                    }} variant="outline-danger">
+                        DELETE
+                    </Button>
+                </div>
+            </ShortlistItModal>
+        );
+    }
+    return <></>;
 }
