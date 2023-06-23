@@ -190,7 +190,7 @@ export default function ShortlistItCriteriaEditModal(props: ShortlistItCriteriaE
             variant="light"
             dismissible={true}
             onClose={() => props.onClose()}
-            heading="Edit Critieria"
+            heading="Edit Criteria"
             show={props.show && criteria != null}
         >
             <div id={criteria?.id} className="d-flex flex-row justify-content-between criteria-list-item">

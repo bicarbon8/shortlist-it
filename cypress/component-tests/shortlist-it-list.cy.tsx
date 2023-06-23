@@ -22,9 +22,8 @@ describe('<ShortlistItList />', () => {
     expect(testStateMgr.state.showAddCriteriaModalForList).to.be.undefined;
 
     cy.get('.bi-list').click();
-    cy.get('.list-group-item:nth-child(2)').click().then(e => {
-      expect(testStateMgr.state.showAddCriteriaModalForList).not.to.be.undefined;
-    });
+    cy.get('.list-group-item:nth-child(2)').click();
+    cy.get('.overlay').get('.alert-heading').should('contain.text', 'Edit Criteria');
   })
 })
 
