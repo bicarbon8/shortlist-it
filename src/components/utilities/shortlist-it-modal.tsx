@@ -26,10 +26,6 @@ function restoreScrolling(): void {
 }
 
 export function ShortlistItModal(props: ShortlistItModalProps) {
-    if (!props.show) {
-        return <></>;
-    }
-    
     const overlayRef = createRef<HTMLDivElement>();
 
     useEffect(() => {
@@ -40,6 +36,10 @@ export function ShortlistItModal(props: ShortlistItModalProps) {
             restoreScrolling();
         }
     }, [props.show]);
+    
+    if (!props.show) {
+        return <></>;
+    }
     
     return createPortal(
         <div className="overlay w-100 d-flex justify-content-center align-content-start">
