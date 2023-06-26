@@ -6,6 +6,7 @@ import React, { useState } from "react";
 import { Shortlist } from "../types/shortlist";
 import { generateCriteriaFromTemplate } from "../component-actions/list-criteria-actions";
 import ShortlistItCriteriaEditModal from "./modals/shortlist-it-criteria-edit-modal";
+import { ShortlistItCriteriaTemplateDeletionModal } from "./modals/shortlist-it-criteria-template-deletion-modal";
 
 type ShortlistItCriteriaTemplateItemProps = {
     stateMgr: ShortlistItStateManager;
@@ -15,14 +16,10 @@ type ShortlistItCriteriaTemplateItemProps = {
 };
 
 export default function ShortlistItCriteriaTemplateItem(props: ShortlistItCriteriaTemplateItemProps) {
-    const deleteCriteriaTemplate = (templateId: string, stateMgr: ShortlistItStateManager): void => {
-        stateMgr.state.criteriaTemplateToBeDeleted = templateId;
-        stateMgr.setState({...stateMgr.state});
-    };
-
     const name = (props.template) ? props.template.name : 'New Blank Criteria';
     const cType = (props.template) ? props.template.type : '';
     const [criteria, setCriteria] = useState(null);
+    const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
     
     return (
         <ListGroupItem>
@@ -36,7 +33,7 @@ export default function ShortlistItCriteriaTemplateItem(props: ShortlistItCriter
                 </Button>
                 <div> &nbsp; </div>
                 <div className="flex-col">
-                    {(props.template) && <Badge pill bg="danger" onClick={() => deleteCriteriaTemplate(props.template?.name, props.stateMgr)}>
+                    {(props.template) && <Badge pill bg="danger" onClick={() => setShowDeleteConfirmation(true)}>
                         <BootstrapIcon icon="trash" />
                     </Badge>}
                     <div className="flex-grow-1"> </div>
@@ -52,6 +49,11 @@ export default function ShortlistItCriteriaTemplateItem(props: ShortlistItCriter
                     }}
                     onSave={() => null}
                     onDelete={() => null} />
+                <ShortlistItCriteriaTemplateDeletionModal
+                    show={showDeleteConfirmation}
+                    stateMgr={props.stateMgr}
+                    template={props.template}
+                    onClose={() => setShowDeleteConfirmation(false)} />
             </div>
         </ListGroupItem>
     );

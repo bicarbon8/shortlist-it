@@ -48,3 +48,12 @@ export function deleteCriteria(listId: string, criteriaId: string, stateMgr: Sho
     }
     return criteria;
 }
+
+export function deleteCriteriaTemplate(templateName: string, stateMgr: ShortlistItStateManager): Omit<Criteria, 'id'> {
+    const template = stateMgr.state.criteriaTemplates.get(templateName);
+    if (template) {
+        stateMgr.state.criteriaTemplates.delete(templateName);
+        stateMgr.setState({...stateMgr.state});
+    }
+    return template;
+}
