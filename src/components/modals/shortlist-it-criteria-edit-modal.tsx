@@ -149,6 +149,10 @@ type ShortlistItCriteriaEditModalProps = {
 };
 
 export default function ShortlistItCriteriaEditModal(props: ShortlistItCriteriaEditModalProps) {
+    if (!props.show || !props.criteria) {
+        return <></>;
+    }
+    
     const criteria = props.criteria;
     const list = getList(criteria?.listId ?? props.listId, props.stateMgr);
     const criteriaRef = (criteria) ? createCriteriaRef(criteria) : null;

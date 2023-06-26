@@ -24,6 +24,10 @@ function confirmDeletion(templateId: string, stateMgr: ShortlistItStateManager):
 
 export function ShortlistItCriteriaTemplateDeletionModal(props: ShortlistItCriteriaTemplateDeletionModalProps) {
     const templateId = props.stateMgr.state.criteriaTemplateToBeDeleted;
+    if (!templateId) {
+        return <></>;
+    }
+    
     return (
         <ShortlistItModal 
             id={`delete-${templateId}`}

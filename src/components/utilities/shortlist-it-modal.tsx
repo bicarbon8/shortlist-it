@@ -26,6 +26,10 @@ function restoreScrolling(): void {
 }
 
 export function ShortlistItModal(props: ShortlistItModalProps) {
+    if (!props.show) {
+        return <></>;
+    }
+    
     const overlayRef = createRef<HTMLDivElement>();
 
     useEffect(() => {
@@ -37,22 +41,18 @@ export function ShortlistItModal(props: ShortlistItModalProps) {
         }
     }, [props.show]);
     
-    if (props.show) {
-        return createPortal(
-            <div className="overlay w-100 d-flex justify-content-center align-content-start">
-                <Alert
-                    ref={overlayRef}
-                    className="m-3"
-                    id={props.id}
-                    variant={props.variant}
-                    dismissible={props.dismissible}
-                    onClose={() => props.onClose()}>
-                    <Alert.Heading>{(typeof props.heading === 'string') ? props.heading : props.heading()}</Alert.Heading>
-                    <div className="alert-body">{props.children}</div>
-                </Alert>
-            </div>
-        , document.body);
-    } else {
-        return <></>;
-    }
+    return createPortal(
+        <div className="overlay w-100 d-flex justify-content-center align-content-start">
+            <Alert
+                ref={overlayRef}
+                className="m-3"
+                id={props.id}
+                variant={props.variant}
+                dismissible={props.dismissible}
+                onClose={() => props.onClose()}>
+                <Alert.Heading>{(typeof props.heading === 'string') ? props.heading : props.heading()}</Alert.Heading>
+                <div className="alert-body">{props.children}</div>
+            </Alert>
+        </div>
+    , document.body);
 }
