@@ -159,7 +159,6 @@ export default function ShortlistIt() {
     return (
         <>
             <ShortlistItListDeletionModal stateMgr={{state, setState}} />
-            <ShortlistItCriteriaDeletionModal stateMgr={{state, setState}} />
             <ShortlistItCriteriaTemplateDeletionModal stateMgr={{state, setState}} />
             <ShortlistItNav stateMgr={{state, setState}} />
             <div className="d-flex justify-content-evenly align-items-start flex-wrap flex-sm-row flex-column">

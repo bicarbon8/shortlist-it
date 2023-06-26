@@ -1,10 +1,10 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { ShortlistItStateManager } from "../../types/shortlist-it-state-manager";
 import { ShortlistItModal } from "../utilities/shortlist-it-modal";
 import { Button } from "react-bootstrap";
 import { store } from "../../utilities/storage";
 import { Entry } from "../../types/entries/entry";
-import { deleteEntry } from "../../component-actions/list-entry-actions";
+import { deleteEntry, getEntry } from "../../component-actions/list-entry-actions";
 
 type ShortlistItEntryDeletionModalProps = {
     stateMgr: ShortlistItStateManager;
@@ -15,11 +15,11 @@ type ShortlistItEntryDeletionModalProps = {
 };
 
 export function ShortlistItEntryDeletionModal(props: ShortlistItEntryDeletionModalProps) {
-    if (!props.show || !props.entry) {
+    const entry = getEntry(props.entry?.id, props.stateMgr);
+    if (!props.show || !entry) {
         return <></>;
     }
 
-    const entry = props.entry;
     let list = props.stateMgr.state.lists.find(l => l.entries.find(c => c.id === entry.id) != null);
     let entryDesc = entry.description;
     return (

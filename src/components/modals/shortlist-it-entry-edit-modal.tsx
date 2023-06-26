@@ -10,6 +10,7 @@ import { Entry } from "../../types/entries/entry";
 import ShortlistItCriteriaEditModal from "./shortlist-it-criteria-edit-modal";
 import { ShortlistItEntryDeletionModal } from "./shortlist-it-entry-deletion-modal";
 import { getEntry } from "../../component-actions/list-entry-actions";
+import ShortlistItAddCriteriaFromTemplateModal from "./shortlist-it-add-criteria-from-template-modal";
 
 function Multiselect(props: {id: string, label: string, selectedValues: Array<string>, allValues: Array<string>}) {
     return (
@@ -107,6 +108,18 @@ function ShortlistItEntryValue(props: ShortlistItEntryValueProps) {
     );
 }
 
+function isEntryDescValid(entry: Entry): boolean {
+    const entryEl = document.getElementById(`description-${entry?.id}`) as HTMLInputElement;
+    let desc: string;
+    if (entryEl) {
+        desc = entryEl.value;
+    } else {
+        desc = entry?.description ?? '';
+    }
+    const invalid: boolean = (!desc || desc.match(/^[\s]+$/) !== null);
+    return !invalid;
+}
+
 type ShortlistItEntryEditModalProps = {
     stateMgr: ShortlistItStateManager;
     entry: Entry;
@@ -123,6 +136,8 @@ export default function ShortlistItEntryEditModal(props: ShortlistItEntryEditMod
     const list = getList(entry.listId, props.stateMgr);
     const [showSaveError, setShowSaveError] = useState(false);
     const [showConfirmDelete, setShowConfirmDelete] = useState(false);
+    const [showAddCriteria, setShowAddCriteria] = useState(false);
+    const [entryDescValid, setEntryDescValid] = useState(isEntryDescValid(entry));
     const entryRef = createRef<HTMLDivElement>();
     const onSaveError = () => {
         setShowSaveError(true);
@@ -151,13 +166,16 @@ export default function ShortlistItEntryEditModal(props: ShortlistItEntryEditMod
             const cIndex = list.entries.findIndex(e => e.id === entry?.id);
             if (cIndex >= 0) {
                 list.entries.splice(cIndex, 1, entry);
-                updateList(list?.id, list, props.stateMgr);
-                return true;
+            } else {
+                list.entries.push(entry);
             }
+            updateList(list?.id, list, props.stateMgr);
+            return true;
         }
         return false;
     };
     const modalHeader = () => {
+        const exists = getEntry(entry?.id, props.stateMgr);
         return (
             <div className="d-flex flex-row ps-1">
                 <p className="flex-grow-1">Edit Entry</p>
@@ -175,59 +193,72 @@ export default function ShortlistItEntryEditModal(props: ShortlistItEntryEditMod
                         <BootstrapIcon icon="check" />
                     </Button>
                 </ShortlistItTooltip>
-                <ShortlistItTooltip id={`delete-entry-${entry?.id}`} text="Delete Entry">
-                    <Button variant="danger" aria-label="Delete Entry" onClick={() => {
-                        setShowConfirmDelete(true);
-                    }}>
-                        <BootstrapIcon icon="trash" />
+                <ShortlistItTooltip id={`add-criteria-${list.id}`} className="pe-1" text="Add Criteria">
+                    <Button
+                        variant="secondary"
+                        aria-label="Add Criteria"
+                        onClick={() => setShowAddCriteria(true)}>
+                        <BootstrapIcon icon="plus" />
                     </Button>
                 </ShortlistItTooltip>
+                {(exists) && <ShortlistItTooltip id={`delete-entry-${entry?.id}`} text="Delete Entry">
+                    <Button variant="danger" aria-label="Delete Entry" onClick={() => setShowConfirmDelete(true)}>
+                        <BootstrapIcon icon="trash" />
+                    </Button>
+                </ShortlistItTooltip>}
+                <ShortlistItEntryDeletionModal
+                    stateMgr={props.stateMgr}
+                    entry={props.entry}
+                    onClose={() => setShowConfirmDelete(false)}
+                    onConfirmed={() => {
+                        setShowConfirmDelete(false);
+                        props.onClose?.();
+                    }}
+                    show={showConfirmDelete} />
+                <ShortlistItAddCriteriaFromTemplateModal
+                    stateMgr={props.stateMgr}
+                    list={list}
+                    show={showAddCriteria}
+                    onClose={() => setShowAddCriteria(false)} />
             </div>
         );
     }
     
     return (
-        <>
-            <ShortlistItModal
-                variant="light"
-                dismissible={true}
-                onClose={() => props.onClose?.()}
-                show={props.show && entry != null}
-                heading={() => modalHeader()}>
-                <div ref={entryRef} className="d-flex flex-row justify-content-between" style={{minWidth: "70dvw"}}>
-                    <div className="d-flex flex-column justify-content-evently flex-grow-1 pe-1">
-                        <Alert variant="danger" dismissible show={showSaveError} onClose={() => setShowSaveError(false)}>
-                            Entry must have all values set to valid values in order to be Saved
-                        </Alert>
-                        <FloatingLabel controlId={`description-${entry?.id}`} label="Description">
-                            <Form.Control type="text" defaultValue={entry?.description} />
-                        </FloatingLabel>
-                        <hr />
-                        {list?.criteria.map(c => {
-                            const selectedValues = entry?.values.get(c.name) ?? new Array<string>();
-                            const key = `${Criteria.nameToElementId(c.name)}-${entry?.id}`;
-                            return (
-                                <ShortlistItEntryValue
-                                    key={key}
-                                    criteria={c}
-                                    entryId={entry?.id}
-                                    listId={list.id}
-                                    selectedValues={selectedValues}
-                                    stateMgr={props.stateMgr} />
-                            );
-                        })}
-                    </div>
+        <ShortlistItModal
+            variant="light"
+            dismissible={true}
+            onClose={() => props.onClose?.()}
+            show={props.show && entry != null}
+            heading={() => modalHeader()}>
+            <div ref={entryRef} className="d-flex flex-row justify-content-between" style={{minWidth: "70dvw"}}>
+                <div className="d-flex flex-column justify-content-evently flex-grow-1 pe-1">
+                    <Alert variant="danger" dismissible show={showSaveError} onClose={() => setShowSaveError(false)}>
+                        Entry must have all values set to valid values in order to be Saved
+                    </Alert>
+                    <FloatingLabel controlId={`description-${entry?.id}`} label="Description">
+                        <Form.Control
+                            type="text"
+                            defaultValue={entry?.description}
+                            className={(!entryDescValid) ? 'is-invalid' : ''} 
+                            onChange={() => setEntryDescValid(isEntryDescValid(entry))} />
+                    </FloatingLabel>
+                    <hr />
+                    {list?.criteria.map(c => {
+                        const selectedValues = entry?.values.get(c.name) ?? new Array<string>();
+                        const key = `${Criteria.nameToElementId(c.name)}-${entry?.id}`;
+                        return (
+                            <ShortlistItEntryValue
+                                key={key}
+                                criteria={c}
+                                entryId={entry?.id}
+                                listId={list.id}
+                                selectedValues={selectedValues}
+                                stateMgr={props.stateMgr} />
+                        );
+                    })}
                 </div>
-            </ShortlistItModal>
-            <ShortlistItEntryDeletionModal
-                stateMgr={props.stateMgr}
-                entry={props.entry}
-                onClose={() => setShowConfirmDelete(false)}
-                onConfirmed={() => {
-                    setShowConfirmDelete(false);
-                    props.onClose?.();
-                }}
-                show={showConfirmDelete} />
-        </>
+            </div>
+        </ShortlistItModal>
     );
 }

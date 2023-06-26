@@ -9,8 +9,9 @@ import { ShortlistItMenu, ShortlistItMenuItem } from "./utilities/shortlist-it-m
 import { ShortlistItTooltip } from "./utilities/shortlist-it-tooltip";
 import { ShortlistItStateManager } from "../types/shortlist-it-state-manager";
 import { archiveList, setEditingListState, startEditingList, unarchiveList, updateList } from "../component-actions/list-actions";
-import { addNewEntry } from "../component-actions/list-entry-actions";
+import { generateNewEntry } from "../component-actions/list-entry-actions";
 import ShortlistItAddCriteriaFromTemplateModal from "./modals/shortlist-it-add-criteria-from-template-modal";
+import ShortlistItEntryEditModal from "./modals/shortlist-it-entry-edit-modal";
 
 function ShortlistItHeaderTitle(props: {list: Shortlist, titleRefObject: React.RefObject<HTMLInputElement>, stateMgr: ShortlistItStateManager}) {
     if (isEditingList(props.list.id, props.stateMgr)) {
@@ -31,15 +32,15 @@ function ShortlistItHeaderTitle(props: {list: Shortlist, titleRefObject: React.R
     }
 }
 
-function ShortlistItListHeaderMenu(props: {list: Shortlist, titleRefObject: React.RefObject<HTMLInputElement>, stateMgr: ShortlistItStateManager, showCriteriaModal: () => void}) {
-    const getMenuItems = (props: {list: Shortlist, showCriteriaModal: () => void, stateMgr: ShortlistItStateManager}): Array<ShortlistItMenuItem> => {
+function ShortlistItListHeaderMenu(props: {list: Shortlist, titleRefObject: React.RefObject<HTMLInputElement>, stateMgr: ShortlistItStateManager, showCriteriaModal: () => void, showEntryModal: () => void}) {
+    const getMenuItems = (props: {list: Shortlist, showCriteriaModal: () => void, showEntryModal: () => void, stateMgr: ShortlistItStateManager}): Array<ShortlistItMenuItem> => {
         const items = new Array<ShortlistItMenuItem>();
         if (props.list.archived) {
             items.push({text: 'restore', icon: 'arrow-counterclockwise', action: () => unarchiveList(props.list.id, props.stateMgr)});
         } else {
             items.push({text: 'edit list title', icon: 'pencil-square', action: () => startEditingList(props.list.id, props.stateMgr)});
             items.push({text: 'add criteria', icon: 'clipboard-plus', action: () => props.showCriteriaModal()})
-            items.push({text: 'add entry', icon: 'plus-square', action: () => addNewEntry(props.list.id, props.stateMgr)});
+            items.push({text: 'add entry', icon: 'plus-square', action: () => props.showEntryModal()});
             items.push({text: 'archive', icon: 'archive', action: () => archiveList(props.list.id, props.stateMgr)});
         }
         items.push(
@@ -144,6 +145,7 @@ type ShortlistItListHeaderProps = {
 export function ShortlistItListHeader(props: ShortlistItListHeaderProps) {
     const titleRefObject = React.createRef<HTMLInputElement>();
     const [showAddCriteriaModal, setShowAddCriteriaModal] = useState(false);
+    const [showAddEntryModal, setShowAddEntryModal] = useState(false);
 
     return (
         <div className="d-flex flex-row justify-content-between">
@@ -151,12 +153,22 @@ export function ShortlistItListHeader(props: ShortlistItListHeaderProps) {
                 <ShortlistItHeaderTitle list={props.list} titleRefObject={titleRefObject} stateMgr={props.stateMgr} />
             </div>
             <div className="text-center ps-1">
-                <ShortlistItListHeaderMenu list={props.list} titleRefObject={titleRefObject} stateMgr={props.stateMgr} showCriteriaModal={() => setShowAddCriteriaModal(true)} />
+                <ShortlistItListHeaderMenu
+                    list={props.list}
+                    titleRefObject={titleRefObject}
+                    stateMgr={props.stateMgr}
+                    showCriteriaModal={() => setShowAddCriteriaModal(true)}
+                    showEntryModal={() => setShowAddEntryModal(true)} />
                 <ShortlistItAddCriteriaFromTemplateModal
                     show={showAddCriteriaModal}
                     stateMgr={props.stateMgr}
                     onClose={() => setShowAddCriteriaModal(false)}
                     list={props.list} />
+                <ShortlistItEntryEditModal
+                    stateMgr={props.stateMgr}
+                    entry={generateNewEntry(props.list.id, props.stateMgr)}
+                    show={showAddEntryModal}
+                    onClose={() => setShowAddEntryModal(false)} />
             </div>
         </div>
     );

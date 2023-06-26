@@ -6,40 +6,50 @@ import { Criteria } from "../types/criteria/criteria";
 import { Shortlist } from "../types/shortlist";
 import { ShortlistItStateManager } from "../types/shortlist-it-state-manager";
 import { ShortlistItTooltip } from "./utilities/shortlist-it-tooltip";
-import { addNewEntry } from "../component-actions/list-entry-actions";
+import { generateNewEntry } from "../component-actions/list-entry-actions";
 import ShortlistItCriteriaEditModal from "./modals/shortlist-it-criteria-edit-modal";
 import ShortlistItAddCriteriaFromTemplateModal from "./modals/shortlist-it-add-criteria-from-template-modal";
+import ShortlistItEntryEditModal from "./modals/shortlist-it-entry-edit-modal";
 
 function ShortlistItListBodyFinalRow(props: ShortlistItListBodyProps) {
+    const [showAddEntryModal, setShowAddEntryModal] = useState(false);
     const [showAddCriteriaModal, setShowAddCriteriaModal] = useState(false);
 
     return (
         <tr className="table-secondary">
+            <td> </td>
             <td>
-                <ShortlistItAddCriteriaFromTemplateModal
-                    show={showAddCriteriaModal}
-                    stateMgr={props.stateMgr}
-                    onClose={() => setShowAddCriteriaModal(false)}
-                    list={props.list} />
-            </td>
-            <td>
-                <Button size="sm" variant="outline-secondary" className="sticky-horizontal text-nowrap" onClick={() => addNewEntry(props.list.id, props.stateMgr)}>
+                <Button size="sm" variant="outline-secondary" className="sticky-horizontal text-nowrap" onClick={() => setShowAddEntryModal(true)}>
                     <BootstrapIcon icon="plus-lg" /> 
-                    Add New Entry
+                    Add Entry
                 </Button>
+                <ShortlistItEntryEditModal
+                    stateMgr={props.stateMgr}
+                    entry={generateNewEntry(props.list.id, props.stateMgr)}
+                    show={showAddEntryModal}
+                    onClose={() => setShowAddEntryModal(false)} />
             </td>
             {(props.list.criteria.length > 0) 
-                && <td colSpan={props.list.criteria.length} className="d-none d-sm-table-cell">
-                    <Button
-                        variant="outline-secondary"
-                        size="sm"
-                        aria-label="Add New Criteria"
-                        className="text-nowrap"
-                        onClick={() => setShowAddCriteriaModal(true)}>
-                        <BootstrapIcon icon="plus-lg" />
-                        Add New Criteria
-                    </Button>
-                </td>}
+                && (
+                    <td colSpan={props.list.criteria.length} className="d-none d-sm-table-cell">
+                        <ShortlistItTooltip id={`add-new-criteria-${props.list.id}`} text="Add Criteria">
+                            <Button
+                                variant="outline-secondary"
+                                size="sm"
+                                aria-label="Add Criteria"
+                                className="text-nowrap"
+                                onClick={() => setShowAddCriteriaModal(true)}>
+                                <BootstrapIcon icon="plus-lg" />
+                                Add Criteria
+                            </Button>
+                        </ShortlistItTooltip>
+                        <ShortlistItAddCriteriaFromTemplateModal
+                            show={showAddCriteriaModal}
+                            stateMgr={props.stateMgr}
+                            onClose={() => setShowAddCriteriaModal(false)}
+                            list={props.list} />
+                    </td>
+                )}
             <td className="table-fixed-right-col"> &nbsp; </td>
         </tr>
     );

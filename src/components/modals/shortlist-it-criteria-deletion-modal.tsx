@@ -2,55 +2,45 @@ import React from "react";
 import { ShortlistItStateManager } from "../../types/shortlist-it-state-manager";
 import { ShortlistItModal } from "../utilities/shortlist-it-modal";
 import { Button } from "react-bootstrap";
-import { store } from "../../utilities/storage";
 import { Shortlist } from "../../types/shortlist";
-
-function hideDeleteConfirmation(stateMgr: ShortlistItStateManager) {
-    stateMgr.state.criteriaToBeDeleted = null;
-    stateMgr.setState({...stateMgr.state});
-}
-
-function confirmDeletion(criteriaId: string, stateMgr: ShortlistItStateManager): void {
-    const listIndex = stateMgr.state.lists.findIndex(l => l.criteria.find(c => c.id === criteriaId));
-    if (listIndex >= 0) {
-        const criteriaIndex = stateMgr.state.lists[listIndex].criteria.findIndex(c => c.id === criteriaId);
-        if (criteriaIndex >= 0) {
-            stateMgr.state.lists[listIndex].criteria.splice(criteriaIndex, 1);
-            store.set('lists', stateMgr.state.lists);
-            hideDeleteConfirmation(stateMgr);
-            stateMgr.setState({...stateMgr.state});
-        }
-    }
-}
+import { Criteria } from "../../types/criteria/criteria";
+import { deleteCriteria } from "../../component-actions/list-criteria-actions";
 
 type ShortlistItCriteriaDeletionModalProps = {
     stateMgr: ShortlistItStateManager;
+    criteria: Criteria;
+    show: boolean;
+    onClose?: () => void;
+    onDeleted?: () => void;
 };
 
 export function ShortlistItCriteriaDeletionModal(props: ShortlistItCriteriaDeletionModalProps) {
-    const criteriaId = props.stateMgr.state.criteriaToBeDeleted;
+    if (!props.show || !props.criteria) {
+        return <></>;
+    }
+
     let list: Shortlist;
-    let criteriaName: string;
-    if (criteriaId) {
-        list = props.stateMgr.state.lists.find(l => l.criteria.find(c => c.id === criteriaId) != null);
-        criteriaName = list?.criteria.find(l => l.id === criteriaId)?.name;
+    if (props.criteria.id) {
+        list = props.stateMgr.state.lists.find(l => l.criteria.find(c => c.id === props.criteria.id) != null);
     }
     if (list) {
         return (
             <ShortlistItModal 
-                id={`delete-${criteriaId}`}
+                id={`delete-${props.criteria.id}`}
                 variant="danger"
                 heading="Warning!"
                 dismissible={true}
-                show={!!(criteriaId)}
-                onClose={() => hideDeleteConfirmation(props.stateMgr)}>
+                show={props.show}
+                onClose={() => props.onClose?.()}>
                 <p>
-                are you certain you want to delete Criteria named: '<em>{criteriaName}</em>' from list titled: '<em>{list.title}</em>'? once deleted it can not be recovered.
+                are you certain you want to delete Criteria named: '<em>{props.criteria.name}</em>' from list titled: '<em>{list.title}</em>'? once deleted it can not be recovered.
                 </p>
                 <hr />
                 <div className="d-flex justify-content-end">
                     <Button onClick={() => {
-                        confirmDeletion(criteriaId, props.stateMgr);
+                        deleteCriteria(list.id, props.criteria.id, props.stateMgr);
+                        props.onClose?.();
+                        props.onDeleted?.();
                     }} variant="outline-danger">
                         DELETE
                     </Button>

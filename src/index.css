@@ -22,6 +22,10 @@ body {
   background: rgba(0, 0, 0, 0.5);
 }
 
+.tooltip {
+  z-index: 200000;
+}
+
 .sticky-vertical {
   position: -webkit-sticky;
   position: sticky;
@@ -72,13 +76,12 @@ table tbody tr:last-child td:last-child {
   overflow: hidden;
   min-width: 50dvw;
   max-width: 90dvw;
-  min-height: 25dvh;
   max-height: 90dvh;
 }
 .alert-body {
   overflow-y: auto;
   overflow-x: hidden;
-  max-height: 80dvh;
+  max-height: 75dvh;
   min-height: 20dvh;
 }
 

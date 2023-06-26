@@ -1,7 +1,7 @@
 import { v4 } from "uuid";
 import { Criteria } from "../types/criteria/criteria";
 import { ShortlistItStateManager } from "../types/shortlist-it-state-manager";
-import { getList } from "./list-actions";
+import { getList, updateList } from "./list-actions";
 
 export function getExistingCriteria(criteriaId: string, stateMgr: ShortlistItStateManager): Criteria {
     let criteria: Criteria;
@@ -34,4 +34,17 @@ export function generateCriteriaFromTemplate(listId: string, stateMgr: Shortlist
         };
     }
     return null;
+}
+
+export function deleteCriteria(listId: string, criteriaId: string, stateMgr: ShortlistItStateManager): Criteria {
+    let criteria: Criteria;
+    const list = getList(listId, stateMgr);
+    if (list) {
+        const index = list.criteria.findIndex(c => c.id === criteriaId);
+        if (index >= 0) {
+            criteria = list.criteria.splice(index, 1)?.[0];
+            updateList(list.id, list, stateMgr);
+        }
+    }
+    return criteria;
 }

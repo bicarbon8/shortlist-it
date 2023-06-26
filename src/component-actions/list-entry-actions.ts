@@ -17,16 +17,24 @@ export function getEntry(entryId: string, stateMgr: ShortlistItStateManager): En
     return entry;
 }
 
-export function addNewEntry(listId: string, stateMgr: ShortlistItStateManager): void {
-    let updated = getList(listId, stateMgr);
-    if (updated) {
+export function generateNewEntry(listId: string, stateMgr: ShortlistItStateManager): Entry {
+    const list = getList(listId, stateMgr);
+    if (list) {
         const entry: Entry = {
             id: v4(),
             values: new Map<string, Array<string>>(),
             listId: listId
         }
-        updated.entries.push(entry);
-        updateList(listId, updated, stateMgr);
+        return entry;
+    }
+    return null;
+}
+
+export function saveEntry(entry: Entry, stateMgr: ShortlistItStateManager): void {
+    const list = getList(entry.listId, stateMgr);
+    if (list) {
+        list.entries.push(entry);
+        updateList(list.id, list, stateMgr);
     }
 }
 
