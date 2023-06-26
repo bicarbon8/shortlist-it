@@ -10,8 +10,6 @@ export type ShortlistItState = {
     entryToBeDeleted?: string;
     filterText: string;
     editingListTitleMap: Map<string, boolean>;
-    editingEntryId?: string;
-    editingCriteriaId?: string;
     criteriaTemplates: Map<string, Omit<Criteria, 'id'>>;
     showAddCriteriaModalForList?: string;
 };

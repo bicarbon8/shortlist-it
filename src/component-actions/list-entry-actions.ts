@@ -3,16 +3,6 @@ import { Entry } from "../types/entries/entry";
 import { ShortlistItStateManager } from "../types/shortlist-it-state-manager";
 import { getList, updateList } from "./list-actions";
 
-export function startEditingEntry(entryId: string, stateMgr: ShortlistItStateManager): void {
-    stateMgr.state.editingEntryId = entryId;
-    stateMgr.setState({...stateMgr.state});
-}
-
-export function stopEditingEntry(stateMgr: ShortlistItStateManager): void {
-    stateMgr.state.editingEntryId = null;
-    stateMgr.setState({...stateMgr.state});
-}
-
 export function getEntry(entryId: string, stateMgr: ShortlistItStateManager): Entry {
     let entry: Entry;
     const list = stateMgr.state.lists.find(l => l.entries.find(e => {
@@ -37,6 +27,18 @@ export function addNewEntry(listId: string, stateMgr: ShortlistItStateManager): 
         }
         updated.entries.push(entry);
         updateList(listId, updated, stateMgr);
-        startEditingEntry(entry.id, stateMgr);
     }
+}
+
+export function deleteEntry(listId: string, entryId: string, stateMgr: ShortlistItStateManager): Entry {
+    let entry: Entry;
+    const list = getList(listId, stateMgr);
+    if (list) {
+        const index = list.entries.findIndex(e => e.id === entryId);
+        if (index >= 0) {
+            entry = list.entries.splice(index, 1)?.[0];
+            updateList(list.id, list, stateMgr);
+        }
+    }
+    return entry;
 }

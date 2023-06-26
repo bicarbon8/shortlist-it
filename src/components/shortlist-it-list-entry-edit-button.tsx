@@ -1,10 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import { Shortlist } from "../types/shortlist";
 import { Entry } from "../types/entries/entry";
 import { ShortlistItStateManager } from "../types/shortlist-it-state-manager";
 import { ShortlistItTooltip } from "./utilities/shortlist-it-tooltip";
 import { BootstrapIcon } from "./utilities/bootstrap-icon";
-import { startEditingEntry } from "../component-actions/list-entry-actions";
+import ShortlistItEntryEditModal from "./modals/shortlist-it-entry-edit-modal";
 
 type ShortlistItListEntryEditButtonProps = {
     list: Shortlist;
@@ -41,11 +41,19 @@ export default function ShortlistItListEntryEditButton(props: ShortlistItListEnt
         tooltip = 'Edit Entry';
         iconBackground = '';
     }
+    const [showEditModal, setShowEditModal] = useState(false);
     return (
-        <ShortlistItTooltip id={`edit-entry-${props.entry.id}`} text={tooltip}>
-            <div className="clickable" onClick={() => startEditingEntry(props.entry.id, props.stateMgr)}>
-                <BootstrapIcon className={iconBackground} icon={icon} />
-            </div>
-        </ShortlistItTooltip>
+        <>
+            <ShortlistItTooltip id={`edit-entry-${props.entry.id}`} text={tooltip}>
+                <div className="clickable" onClick={() => setShowEditModal(true)}>
+                    <BootstrapIcon className={iconBackground} icon={icon} />
+                </div>
+            </ShortlistItTooltip>
+            <ShortlistItEntryEditModal
+                stateMgr={props.stateMgr}
+                entry={props.entry}
+                show={showEditModal}
+                onClose={() => setShowEditModal(false)} />
+        </>
     );
 }

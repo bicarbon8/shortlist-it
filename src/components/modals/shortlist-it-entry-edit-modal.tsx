@@ -7,8 +7,9 @@ import { ShortlistItTooltip } from "../utilities/shortlist-it-tooltip";
 import { BootstrapIcon } from "../utilities/bootstrap-icon";
 import { getList, updateList } from "../../component-actions/list-actions";
 import { Entry } from "../../types/entries/entry";
-import { getEntry, stopEditingEntry } from "../../component-actions/list-entry-actions";
 import ShortlistItCriteriaEditModal from "./shortlist-it-criteria-edit-modal";
+import { ShortlistItEntryDeletionModal } from "./shortlist-it-entry-deletion-modal";
+import { getEntry } from "../../component-actions/list-entry-actions";
 
 function Multiselect(props: {id: string, label: string, selectedValues: Array<string>, allValues: Array<string>}) {
     return (
@@ -108,12 +109,20 @@ function ShortlistItEntryValue(props: ShortlistItEntryValueProps) {
 
 type ShortlistItEntryEditModalProps = {
     stateMgr: ShortlistItStateManager;
+    entry: Entry;
+    show: boolean;
+    onClose?: () => void;
 };
 
 export default function ShortlistItEntryEditModal(props: ShortlistItEntryEditModalProps) {
-    const entry = (props.stateMgr.state.editingEntryId) ? getEntry(props.stateMgr.state.editingEntryId, props.stateMgr) : null;
-    const list = (entry) ? getList(entry.listId, props.stateMgr) : null;
+    if (!props.show || !props.entry) {
+        return <></>;
+    }
+
+    const entry = (props.entry.listId) ? props.entry : getEntry(props.entry.id, props.stateMgr);
+    const list = getList(entry.listId, props.stateMgr);
     const [showSaveError, setShowSaveError] = useState(false);
+    const [showConfirmDelete, setShowConfirmDelete] = useState(false);
     const entryRef = createRef<HTMLDivElement>();
     const onSaveError = () => {
         setShowSaveError(true);
@@ -136,11 +145,6 @@ export default function ShortlistItEntryEditModal(props: ShortlistItEntryEditMod
             listId: list?.id
         };
     };
-    const confirmDeleteEntry = (entryId: string, stateMgr: ShortlistItStateManager): void => {
-        stopEditingEntry(stateMgr);
-        stateMgr.state.entryToBeDeleted = entryId;
-        stateMgr.setState({...stateMgr.state});
-    };
     const saveEntry = (): boolean => {
         const entry = isEntryValid(entryRef);
         if (entry) {
@@ -153,67 +157,77 @@ export default function ShortlistItEntryEditModal(props: ShortlistItEntryEditMod
         }
         return false;
     };
+    const modalHeader = () => {
+        return (
+            <div className="d-flex flex-row ps-1">
+                <p className="flex-grow-1">Edit Entry</p>
+                <ShortlistItTooltip id={`save-entry-${entry?.id}`} className="pe-1" text="Save Entry">
+                    <Button
+                        variant="success"
+                        aria-label="Save Entry"
+                        onClick={() => {
+                            if (saveEntry()) {
+                                props.onClose?.();
+                            } else {
+                                onSaveError();
+                            }
+                        }}>
+                        <BootstrapIcon icon="check" />
+                    </Button>
+                </ShortlistItTooltip>
+                <ShortlistItTooltip id={`delete-entry-${entry?.id}`} text="Delete Entry">
+                    <Button variant="danger" aria-label="Delete Entry" onClick={() => {
+                        setShowConfirmDelete(true);
+                    }}>
+                        <BootstrapIcon icon="trash" />
+                    </Button>
+                </ShortlistItTooltip>
+            </div>
+        );
+    }
     
     return (
-        <ShortlistItModal
-            variant="light"
-            dismissible={true}
-            onClose={() => stopEditingEntry(props.stateMgr)}
-            show={entry != null}
-            heading={() => {
-                return (
-                    <div className="d-flex flex-row ps-1">
-                        <p className="flex-grow-1">Edit Entry</p>
-                        <ShortlistItTooltip id={`save-entry-${entry?.id}`} className="pe-1" text="Save Entry">
-                            <Button
-                                variant="success"
-                                aria-label="Save Entry"
-                                onClick={() => {
-                                    if (saveEntry()) {
-                                        stopEditingEntry(props.stateMgr);
-                                    } else {
-                                        onSaveError();
-                                    }
-                                }}>
-                                <BootstrapIcon icon="check" />
-                            </Button>
-                        </ShortlistItTooltip>
-                        <ShortlistItTooltip id={`delete-entry-${entry?.id}`} text="Delete Entry">
-                            <Button variant="danger" aria-label="Delete Entry" onClick={() => {
-                                stopEditingEntry(props.stateMgr);
-                                confirmDeleteEntry(entry?.id, props.stateMgr); // ...and open confirmation modal
-                            }}>
-                                <BootstrapIcon icon="trash" />
-                            </Button>
-                        </ShortlistItTooltip>
+        <>
+            <ShortlistItModal
+                variant="light"
+                dismissible={true}
+                onClose={() => props.onClose?.()}
+                show={props.show && entry != null}
+                heading={() => modalHeader()}>
+                <div ref={entryRef} className="d-flex flex-row justify-content-between" style={{minWidth: "70dvw"}}>
+                    <div className="d-flex flex-column justify-content-evently flex-grow-1 pe-1">
+                        <Alert variant="danger" dismissible show={showSaveError} onClose={() => setShowSaveError(false)}>
+                            Entry must have all values set to valid values in order to be Saved
+                        </Alert>
+                        <FloatingLabel controlId={`description-${entry?.id}`} label="Description">
+                            <Form.Control type="text" defaultValue={entry?.description} />
+                        </FloatingLabel>
+                        <hr />
+                        {list?.criteria.map(c => {
+                            const selectedValues = entry?.values.get(c.name) ?? new Array<string>();
+                            const key = `${Criteria.nameToElementId(c.name)}-${entry?.id}`;
+                            return (
+                                <ShortlistItEntryValue
+                                    key={key}
+                                    criteria={c}
+                                    entryId={entry?.id}
+                                    listId={list.id}
+                                    selectedValues={selectedValues}
+                                    stateMgr={props.stateMgr} />
+                            );
+                        })}
                     </div>
-                )
-            }}
-        >
-            <div ref={entryRef} className="d-flex flex-row justify-content-between" style={{minWidth: "70dvw"}}>
-                <div className="d-flex flex-column justify-content-evently flex-grow-1 pe-1">
-                    <Alert variant="danger" dismissible show={showSaveError} onClose={() => setShowSaveError(false)}>
-                        Entry must have all values set to valid values in order to be Saved
-                    </Alert>
-                    <FloatingLabel controlId={`description-${entry?.id}`} label="Description">
-                        <Form.Control type="text" defaultValue={entry?.description} />
-                    </FloatingLabel>
-                    <hr />
-                    {list?.criteria.map(c => {
-                        const selectedValues = entry?.values.get(c.name) ?? new Array<string>();
-                        const key = `${Criteria.nameToElementId(c.name)}-${entry?.id}`;
-                        return (
-                            <ShortlistItEntryValue
-                                key={key}
-                                criteria={c}
-                                entryId={entry?.id}
-                                listId={list.id}
-                                selectedValues={selectedValues}
-                                stateMgr={props.stateMgr} />
-                        );
-                    })}
                 </div>
-            </div>
-        </ShortlistItModal>
+            </ShortlistItModal>
+            <ShortlistItEntryDeletionModal
+                stateMgr={props.stateMgr}
+                entry={props.entry}
+                onClose={() => setShowConfirmDelete(false)}
+                onConfirmed={() => {
+                    setShowConfirmDelete(false);
+                    props.onClose?.();
+                }}
+                show={showConfirmDelete} />
+        </>
     );
 }

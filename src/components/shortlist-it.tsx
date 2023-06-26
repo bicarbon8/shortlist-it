@@ -159,10 +159,8 @@ export default function ShortlistIt() {
     return (
         <>
             <ShortlistItListDeletionModal stateMgr={{state, setState}} />
-            <ShortlistItEntryDeletionModal stateMgr={{state, setState}} />
             <ShortlistItCriteriaDeletionModal stateMgr={{state, setState}} />
             <ShortlistItCriteriaTemplateDeletionModal stateMgr={{state, setState}} />
-            <ShortlistItEntryEditModal stateMgr={{state, setState}} />
             <ShortlistItNav stateMgr={{state, setState}} />
             <div className="d-flex justify-content-evenly align-items-start flex-wrap flex-sm-row flex-column">
                 {lists.map((list) => <ShortlistItList key={list.id} stateMgr={{state, setState}} list={list} />)}
