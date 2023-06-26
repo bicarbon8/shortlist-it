@@ -17,6 +17,8 @@ const router = createBrowserRouter([
 ]);
 
 ReactDOM.render(
-    <RouterProvider router={router} />,
+    <React.StrictMode>
+        <RouterProvider router={router} />
+    </React.StrictMode>,
     document.getElementById("shortlist-it")
 );
