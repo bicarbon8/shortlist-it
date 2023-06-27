@@ -2,63 +2,82 @@ import React, { useState } from "react";
 import { Button, FloatingLabel, Form } from "react-bootstrap";
 import { Criteria } from "../types/criteria/criteria";
 import { CriteriaRefContainer } from "../types/criteria/criteria-ref-container";
-import { CriteriaType } from "../types/criteria/criteria-type";
 import { Shortlist } from "../types/shortlist";
 import { BootstrapIcon } from "./utilities/bootstrap-icon";
 import { ShortlistItMenu, ShortlistItMenuItem } from "./utilities/shortlist-it-menu";
 import { ShortlistItTooltip } from "./utilities/shortlist-it-tooltip";
 import { ShortlistItStateManager } from "../types/shortlist-it-state-manager";
-import { archiveList, setEditingListState, startEditingList, unarchiveList, updateList } from "../component-actions/list-actions";
+import { archiveList, getList, unarchiveList, updateList } from "../component-actions/list-actions";
 import { generateNewEntry } from "../component-actions/list-entry-actions";
 import ShortlistItAddCriteriaFromTemplateModal from "./modals/shortlist-it-add-criteria-from-template-modal";
 import ShortlistItEntryEditModal from "./modals/shortlist-it-entry-edit-modal";
+import { ShortlistItListDeletionModal } from "./modals/shortlist-it-list-deletion-modal";
+import { store } from "../utilities/storage";
 
-function ShortlistItHeaderTitle(props: {list: Shortlist, titleRefObject: React.RefObject<HTMLInputElement>, stateMgr: ShortlistItStateManager}) {
-    if (isEditingList(props.list.id, props.stateMgr)) {
-        return (
-            <>
-                <FloatingLabel controlId={`title-input-${props.list.id}`} label="List Title">
-                    <Form.Control 
-                        ref={props.titleRefObject}
-                        type="text" 
-                        placeholder="enter title or description" 
-                        defaultValue={props.list.title}
-                        className="list-header-title-input" />
-                </FloatingLabel>
-            </>
-        );
-    } else {
-        return <>{props.list.title}</>;
+function isTitleInvalid(title: string): boolean {
+    if (title.match(/^[\s]+$/) == null) {
+        return false;
     }
+    return true;
 }
 
-function ShortlistItListHeaderMenu(props: {list: Shortlist, titleRefObject: React.RefObject<HTMLInputElement>, stateMgr: ShortlistItStateManager, showCriteriaModal: () => void, showEntryModal: () => void}) {
-    const getMenuItems = (props: {list: Shortlist, showCriteriaModal: () => void, showEntryModal: () => void, stateMgr: ShortlistItStateManager}): Array<ShortlistItMenuItem> => {
+function saveListTitle(listId: string, titleRefObject: React.RefObject<HTMLInputElement>, stateMgr: ShortlistItStateManager): boolean {
+    const title = titleRefObject.current.value;
+    if (isTitleInvalid(title)) {
+        return false;
+    }
+    const list = getList(listId, stateMgr);
+    list.title = title;
+    updateList(listId, list, stateMgr);
+    return true;
+}
+
+type ShortlistItHeaderMenuProps = {
+    editing: boolean;
+    list: Shortlist;
+    titleRefObject: React.RefObject<HTMLInputElement>;
+    stateMgr: ShortlistItStateManager;
+    onAddCriteria: () => void;
+    onAddEntry: () => void;
+    onTryDelete: () => void;
+    onStartEditing: () => void;
+    onStopEditing: () => void;
+    onTitleInvalid: () => void;
+};
+
+function ShortlistItListHeaderMenu(props: ShortlistItHeaderMenuProps) {
+    const getMenuItems = (): Array<ShortlistItMenuItem> => {
         const items = new Array<ShortlistItMenuItem>();
         if (props.list.archived) {
             items.push({text: 'restore', icon: 'arrow-counterclockwise', action: () => unarchiveList(props.list.id, props.stateMgr)});
         } else {
-            items.push({text: 'edit list title', icon: 'pencil-square', action: () => startEditingList(props.list.id, props.stateMgr)});
-            items.push({text: 'add criteria', icon: 'clipboard-plus', action: () => props.showCriteriaModal()})
-            items.push({text: 'add entry', icon: 'plus-square', action: () => props.showEntryModal()});
+            items.push({text: 'edit list title', icon: 'pencil-square', action: () => props.onStartEditing()});
+            items.push({text: 'add criteria', icon: 'clipboard-plus', action: () => props.onAddCriteria()});
+            items.push({text: 'add entry', icon: 'plus-square', action: () => props.onAddEntry()});
             items.push({text: 'archive', icon: 'archive', action: () => archiveList(props.list.id, props.stateMgr)});
         }
-        items.push(
-            {text: 'delete', icon: 'trash', action: () => deleteList(props.list.id, props.stateMgr)}
-        );
+        items.push({text: 'delete', icon: 'trash', action: () => props.onTryDelete()});
         return items;
     };
 
-    if (isEditingList(props.list.id, props.stateMgr)) {
+    if (props.editing) {
         return (
             <div className="d-flex flex-column justify-content-evenly align-content-start sticky-vertical">
                 <ShortlistItTooltip id={`save-list-edits-${props.list.id}`} text="Save Changes" className="mb-2">
-                    <Button variant="success" onClick={() => saveChanges(props, props.titleRefObject)}>
+                    <Button
+                        variant="success"
+                        onClick={() => {
+                            if (saveListTitle(props.list.id, props.titleRefObject, props.stateMgr)) {
+                                props.onStopEditing();
+                            } else {
+                                props.onTitleInvalid();
+                            }
+                        }}>
                         <BootstrapIcon icon="check" />
                     </Button>
                 </ShortlistItTooltip>
                 <ShortlistItTooltip id={`cancel-list-edits-${props.list.id}`} text="Cancel Edits" className="mt-2">
-                    <Button variant="warning" onClick={() => cancelListEdits(props.list.id, props.stateMgr)}>
+                    <Button variant="warning" onClick={() => props.onStopEditing()}>
                         <BootstrapIcon icon="x-circle" />
                     </Button>
                 </ShortlistItTooltip>
@@ -69,7 +88,7 @@ function ShortlistItListHeaderMenu(props: {list: Shortlist, titleRefObject: Reac
             <ShortlistItMenu 
                 id={`menu-${props.list.id}`}
                 headerText="List Menu"
-                menuItems={getMenuItems(props)}>
+                menuItems={getMenuItems()}>
                 <BootstrapIcon icon="list" style={{ fontSize: '14pt' }} />
             </ShortlistItMenu>
         );
@@ -87,54 +106,9 @@ export function createCriteriaRef(criteria: Criteria): CriteriaRefContainer {
     };
 }
 
-function saveChanges(props: ShortlistItListHeaderProps, titleRefObject: React.RefObject<HTMLInputElement>, criteriaRefs?: Array<CriteriaRefContainer>): void {
-    const title: string = titleRefObject.current.value;
-    const criteria = new Array<Criteria>();
-    if (criteriaRefs) {
-        criteriaRefs.forEach(r => {
-            const name: string = r.name.current.value;
-            const type: CriteriaType = r.type.current.value as CriteriaType || 'worst-to-best';
-            const values: Array<string> = r.values.current.value.split(',');
-            const multi: boolean = r.multi.current.checked || false;
-            const weight: number = (r.weight.current.value != null) ? Number(r.weight.current.value) : 1;
-            criteria.push({
-                id: r.id,
-                name: name,
-                type: type,
-                values: values,
-                allowMultiple: multi,
-                weight: weight
-            });
-        });
-    } else {
-        criteria.push(...props.list.criteria);
-    }
-    saveListEdits(props.list.id, {
-        title: title,
-        criteria: criteria
-    }, props.stateMgr);
-}
-
-function saveListEdits(listId: string, updated: Pick<Shortlist, 'title' | 'criteria'>, stateMgr: ShortlistItStateManager): void {
-    let valid: boolean = true;
-    // TODO validate values
-    if (valid) {
-        updateList(listId, updated, stateMgr);
-        setEditingListState(listId, false, stateMgr);
-    }
-}
-
-function cancelListEdits(listId: string, stateMgr: ShortlistItStateManager): void {
-    setEditingListState(listId, false, stateMgr);
-}
-
-function isEditingList(listId: string, stateMgr: ShortlistItStateManager): boolean {
-    return stateMgr.state.editingListTitleMap.get(listId) || false;
-}
-
-function deleteList(listId: string, stateMgr: ShortlistItStateManager): void {
-    stateMgr.state.listToBeDeleted = listId;
-    stateMgr.setState({...stateMgr.state});
+function isUnsaved(listId: string): boolean {
+    const lists = store.get('lists', []);
+    return lists.find(l => l.id === listId) == null;
 }
 
 type ShortlistItListHeaderProps = {
@@ -146,19 +120,37 @@ export function ShortlistItListHeader(props: ShortlistItListHeaderProps) {
     const titleRefObject = React.createRef<HTMLInputElement>();
     const [showAddCriteriaModal, setShowAddCriteriaModal] = useState(false);
     const [showAddEntryModal, setShowAddEntryModal] = useState(false);
+    const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+    const [editing, setEditing] = useState(false);
+    const [titleInvalid, setTitleInvalid] = useState(isTitleInvalid(props.list.title));
 
     return (
         <div className="d-flex flex-row justify-content-between">
             <div className="flex-grow-1 pe-1">
-                <ShortlistItHeaderTitle list={props.list} titleRefObject={titleRefObject} stateMgr={props.stateMgr} />
+                {(editing) ? (
+                    <FloatingLabel controlId={`title-input-${props.list.id}`} label="List Title">
+                        <Form.Control 
+                            ref={titleRefObject}
+                            type="text" 
+                            placeholder="enter title or description" 
+                            defaultValue={props.list.title}
+                            className={`list-header-title-input${(titleInvalid) ? ' is-invalid' : ''}`}
+                            onChange={() => setTitleInvalid(isTitleInvalid(titleRefObject.current.value))} />
+                    </FloatingLabel>
+                ) : props.list.title}
             </div>
             <div className="text-center ps-1">
                 <ShortlistItListHeaderMenu
                     list={props.list}
                     titleRefObject={titleRefObject}
                     stateMgr={props.stateMgr}
-                    showCriteriaModal={() => setShowAddCriteriaModal(true)}
-                    showEntryModal={() => setShowAddEntryModal(true)} />
+                    onAddCriteria={() => setShowAddCriteriaModal(true)}
+                    onAddEntry={() => setShowAddEntryModal(true)}
+                    onTryDelete={() => setShowDeleteConfirmation(true)}
+                    editing={editing}
+                    onStartEditing={() => setEditing(true)}
+                    onStopEditing={() => setEditing(false)}
+                    onTitleInvalid={() => setTitleInvalid(true)} />
                 <ShortlistItAddCriteriaFromTemplateModal
                     show={showAddCriteriaModal}
                     stateMgr={props.stateMgr}
@@ -169,6 +161,11 @@ export function ShortlistItListHeader(props: ShortlistItListHeaderProps) {
                     entry={generateNewEntry(props.list.id, props.stateMgr)}
                     show={showAddEntryModal}
                     onClose={() => setShowAddEntryModal(false)} />
+                <ShortlistItListDeletionModal
+                    stateMgr={props.stateMgr}
+                    list={props.list}
+                    show={showDeleteConfirmation}
+                    onClose={() => setShowDeleteConfirmation(false)} />
             </div>
         </div>
     );

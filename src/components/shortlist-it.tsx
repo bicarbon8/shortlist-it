@@ -150,7 +150,6 @@ export default function ShortlistIt() {
         showArchived: store.get('showArchived', false),
         lists: store.get('lists', new Array<Shortlist>(...exampleLists)),
         filterText: store.get('filterText', ''),
-        editingListTitleMap: new Map<string, boolean>(),
         criteriaTemplates: store.get('criteriaTemplates', new Map<string, Omit<Criteria, 'id'>>())
     });
 
@@ -158,7 +157,6 @@ export default function ShortlistIt() {
 
     return (
         <>
-            <ShortlistItListDeletionModal stateMgr={{state, setState}} />
             <ShortlistItNav stateMgr={{state, setState}} />
             <div className="d-flex justify-content-evenly align-items-start flex-wrap flex-sm-row flex-column">
                 {lists.map((list) => <ShortlistItList key={list.id} stateMgr={{state, setState}} list={list} />)}

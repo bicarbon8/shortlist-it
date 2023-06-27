@@ -71,7 +71,6 @@ const testEntry: Entry = {
 var testState: ShortlistItState = {
   criteriaTemplates: new Map<string, Omit<Criteria, 'id'>>(),
   lists: new Array<Shortlist>(testList),
-  editingListTitleMap: new Map<string, boolean>()
 } as ShortlistItState;
 
 const testStateMgr: ShortlistItStateManager = {

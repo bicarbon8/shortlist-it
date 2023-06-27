@@ -2,52 +2,46 @@ import React from "react";
 import { ShortlistItStateManager } from "../../types/shortlist-it-state-manager";
 import { ShortlistItModal } from "../utilities/shortlist-it-modal";
 import { Button } from "react-bootstrap";
-import { store } from "../../utilities/storage";
-import { archiveList } from "../../component-actions/list-actions";
+import { archiveList, deleteList } from "../../component-actions/list-actions";
+import { Shortlist } from "../../types/shortlist";
 
 type ShortlistItListDeletionModalProps = {
     stateMgr: ShortlistItStateManager;
+    show: boolean;
+    list: Shortlist;
+    onClose?: () => void;
+    onDeleted?: () => void;
+    onArchived?: () => void;
 };
 
-function hideDeleteConfirmation(stateMgr: ShortlistItStateManager) {
-    stateMgr.state.listToBeDeleted = null;
-    stateMgr.setState({...stateMgr.state});
-}
-
-function confirmDeletion(listId: string, stateMgr: ShortlistItStateManager): void {
-    const listIndex = stateMgr.state.lists.findIndex(l => l.id === listId);
-    if (listIndex >= 0) {
-        stateMgr.state.lists.splice(listIndex, 1);
-        store.set('lists', stateMgr.state.lists);
-        hideDeleteConfirmation(stateMgr);
-        stateMgr.setState({...stateMgr.state});
-    }
-}
-
 export function ShortlistItListDeletionModal(props: ShortlistItListDeletionModalProps) {
-    const listId = props.stateMgr.state.listToBeDeleted;
-    const listTitle = props.stateMgr.state.lists.find(l => l.id === listId)?.title;
+    if (!props.show || !props.list) {
+        return <></>;
+    }
+
     return (
         <ShortlistItModal 
-            id={`delete-${listId}`}
+            id={`delete-${props.list.id}`}
             variant="danger"
             heading="Warning!"
             dismissible={true}
-            show={!!(listId && listTitle)}
-            onClose={() => hideDeleteConfirmation(props.stateMgr)}>
+            show={props.show}
+            onClose={() => props.onClose?.()}>
             <p>
-            are you certain you want to delete list titled: <i>{listTitle}</i>? a deleted list can not be recovered. 
+            are you certain you want to delete list titled: <i>{props.list.title}</i>? a deleted list can not be recovered. 
             would you rather archive this list instead?
             </p>
             <hr />
             <div className="d-flex justify-content-between">
                 <Button onClick={() => {
-                    archiveList(listId, props.stateMgr);
+                    archiveList(props.list.id, props.stateMgr);
+                    props.onArchived?.();
                 }} variant="outline-dark">
                     Archive
                 </Button>
                 <Button onClick={() => {
-                    confirmDeletion(listId, props.stateMgr);
+                    deleteList(props.list.id, props.stateMgr);
+                    props.onDeleted?.();
                 }} variant="outline-danger">
                     DELETE
                 </Button>
