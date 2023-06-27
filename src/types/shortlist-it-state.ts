@@ -6,5 +6,4 @@ export type ShortlistItState = {
     showArchived: boolean;
     filterText: string;
     criteriaTemplates: Map<string, Omit<Criteria, 'id'>>;
-    showAddCriteriaModalForList?: string;
 };
