@@ -49,6 +49,19 @@ export function deleteCriteria(listId: string, criteriaId: string, stateMgr: Sho
     return criteria;
 }
 
+export function saveCriteria(criteria: Criteria, stateMgr: ShortlistItStateManager): void {
+    const list = getList(criteria.listId, stateMgr);
+    if (list) {
+        const index = list.criteria.findIndex(c => c.id === criteria.id);
+        if (index >= 0) {
+            list.criteria.splice(index, 1, criteria);
+        } else {
+            list.criteria.push(criteria);
+        }
+        updateList(list.id, list, stateMgr);
+    }
+}
+
 export function deleteCriteriaTemplate(templateName: string, stateMgr: ShortlistItStateManager): Omit<Criteria, 'id'> {
     const template = stateMgr.state.criteriaTemplates.get(templateName);
     if (template) {

@@ -12,7 +12,7 @@ import { CriteriaRefContainer } from "../../types/criteria/criteria-ref-containe
 import { CriteriaType, CriteriaTypeArray } from "../../types/criteria/criteria-type";
 import { store } from "../../utilities/storage";
 import { ShortlistItCriteriaDeletionModal } from "./shortlist-it-criteria-deletion-modal";
-import { getExistingCriteria } from "../../component-actions/list-criteria-actions";
+import { getExistingCriteria, saveCriteria } from "../../component-actions/list-criteria-actions";
 
 function getCriteriaModalElement(criteria: Criteria): HTMLDivElement {
     return document.getElementById(criteria?.id) as HTMLDivElement;
@@ -125,14 +125,10 @@ function validateCriteriaTemplateValues(criteriaRef: CriteriaRefContainer): Omit
     };
 }
 
-function saveCriteria(listId: string, criteriaId: string, criteriaRef: CriteriaRefContainer, stateMgr: ShortlistItStateManager): boolean {
+function validateAndSaveCriteria(listId: string, criteriaId: string, criteriaRef: CriteriaRefContainer, stateMgr: ShortlistItStateManager): boolean {
     const valid = validateCriteriaTemplateValues(criteriaRef);
     if (valid) {
-        const list = getList(listId, stateMgr);
-        if (list) {
-            list.criteria.push({...valid, id: criteriaId});
-            updateList(list.id, list, stateMgr);
-        }
+        saveCriteria({...valid, id: criteriaId, listId: listId}, stateMgr);
         return true;
     }
     return false;
@@ -196,7 +192,7 @@ export default function ShortlistItCriteriaEditModal(props: ShortlistItCriteriaE
                 <div className="w-100 d-flex flex-wrap justify-content-between">
                     <ShortlistItTooltip id={`save-criteria-${criteria?.id}`} className="pe-1 mb-1" text="Save Criteria">
                         <Button variant="success" className="d-flex flex-nowrap text-nowrap" aria-label="Save Criteria" onClick={() => {
-                            if (saveCriteria(list?.id, criteria?.id, criteriaRef, props.stateMgr)) {
+                            if (validateAndSaveCriteria(list?.id, criteria?.id, criteriaRef, props.stateMgr)) {
                                 props.onClose();
                                 props.onSave();
                             } else {
