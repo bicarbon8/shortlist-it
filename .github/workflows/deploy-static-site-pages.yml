@@ -36,7 +36,8 @@ jobs:
           node-version: '16'
       - name: Setup Cypress
         uses: cypress-io/github-action@v5
-        with: 
+        with:
+          component: true
           install: npm ci
       - name: Install Dependencies
         run: npm ci
