@@ -33,7 +33,12 @@ export function generateNewEntry(listId: string, stateMgr: ShortlistItStateManag
 export function saveEntry(entry: Entry, stateMgr: ShortlistItStateManager): void {
     const list = getList(entry.listId, stateMgr);
     if (list) {
-        list.entries.push(entry);
+        const index = list.entries.findIndex(e => e.id === entry.id);
+        if (index >= 0) {
+            list.entries.splice(index, 1, entry);
+        } else {
+            list.entries.push(entry);
+        }
         updateList(list.id, list, stateMgr);
     }
 }

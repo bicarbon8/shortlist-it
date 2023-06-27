@@ -9,13 +9,13 @@ import { getList, updateList } from "../../component-actions/list-actions";
 import { Entry } from "../../types/entries/entry";
 import ShortlistItCriteriaEditModal from "./shortlist-it-criteria-edit-modal";
 import { ShortlistItEntryDeletionModal } from "./shortlist-it-entry-deletion-modal";
-import { getEntry } from "../../component-actions/list-entry-actions";
+import { getEntry, saveEntry } from "../../component-actions/list-entry-actions";
 import ShortlistItAddCriteriaFromTemplateModal from "./shortlist-it-add-criteria-from-template-modal";
 import { ElementHelper } from "../../utilities/element-helper";
 
 function Multiselect(props: {label: string, selectedValues: Array<string>, allValues: Array<string>}) {
     return (
-        <Form.Group as={Col} controlId={`values-multi-${ElementHelper.idEncode(props.label)}`}>
+        <Form.Group as={Col} controlId={`values-select-${ElementHelper.idEncode(props.label)}`}>
             <Form.Label column="sm" className="text-truncate">{props.label}</Form.Label>
             <Form.Control
                 as="select"
@@ -147,7 +147,7 @@ export default function ShortlistItEntryEditModal(props: ShortlistItEntryEditMod
         }
         const values = new Map<string, string[]>();
         list.criteria.forEach(c => {
-            const options = Array.from(entryRef.current?.querySelectorAll<HTMLOptionElement>(`#${Criteria.nameToElementId(c.name)}-${entry.id} option`)?.values());
+            const options = Array.from(entryRef.current?.querySelectorAll<HTMLOptionElement>(`#values-select-${ElementHelper.idEncode(c.name)} option`)?.values());
             values.set(c.name, options?.filter(o => o.selected).map(o => o.value));
         });
         return {
@@ -157,16 +157,10 @@ export default function ShortlistItEntryEditModal(props: ShortlistItEntryEditMod
             listId: list?.id
         };
     };
-    const saveEntry = (): boolean => {
+    const saveEntryChanges = (): boolean => {
         const entry = isEntryValid();
         if (entry) {
-            const cIndex = list.entries.findIndex(e => e.id === entry?.id);
-            if (cIndex >= 0) {
-                list.entries.splice(cIndex, 1, entry);
-            } else {
-                list.entries.push(entry);
-            }
-            updateList(list?.id, list, props.stateMgr);
+            saveEntry(entry, props.stateMgr)
             return true;
         }
         return false;
@@ -181,7 +175,7 @@ export default function ShortlistItEntryEditModal(props: ShortlistItEntryEditMod
                         variant="success"
                         aria-label="Save Entry"
                         onClick={() => {
-                            if (saveEntry()) {
+                            if (saveEntryChanges()) {
                                 props.onClose?.();
                             } else {
                                 onSaveError();
@@ -243,10 +237,9 @@ export default function ShortlistItEntryEditModal(props: ShortlistItEntryEditMod
                     <hr />
                     {list?.criteria.map(c => {
                         const selectedValues = entry?.values.get(c.name) ?? new Array<string>();
-                        const key = `${Criteria.nameToElementId(c.name)}-${entry?.id}`;
                         return (
                             <ShortlistItEntryValue
-                                key={key}
+                                key={ElementHelper.idEncode(c.name)}
                                 criteria={c}
                                 entryId={entry?.id}
                                 listId={list.id}
