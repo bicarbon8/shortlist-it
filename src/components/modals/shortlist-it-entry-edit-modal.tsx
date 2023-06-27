@@ -11,10 +11,11 @@ import ShortlistItCriteriaEditModal from "./shortlist-it-criteria-edit-modal";
 import { ShortlistItEntryDeletionModal } from "./shortlist-it-entry-deletion-modal";
 import { getEntry } from "../../component-actions/list-entry-actions";
 import ShortlistItAddCriteriaFromTemplateModal from "./shortlist-it-add-criteria-from-template-modal";
+import { ElementHelper } from "../../utilities/element-helper";
 
-function Multiselect(props: {id: string, label: string, selectedValues: Array<string>, allValues: Array<string>}) {
+function Multiselect(props: {label: string, selectedValues: Array<string>, allValues: Array<string>}) {
     return (
-        <Form.Group as={Col} controlId={props.id}>
+        <Form.Group as={Col} controlId={`values-multi-${ElementHelper.idEncode(props.label)}`}>
             <Form.Label column="sm" className="text-truncate">{props.label}</Form.Label>
             <Form.Control
                 as="select"
@@ -26,7 +27,7 @@ function Multiselect(props: {id: string, label: string, selectedValues: Array<st
     );
 }
 
-function Dropdown(props: {id: string, label: string, selectedValues: Array<string>, allValues: Array<string>}) {
+function Dropdown(props: {label: string, selectedValues: Array<string>, allValues: Array<string>}) {
     const validateSelection = (target: HTMLSelectElement) => {
         if (target.value !== '') {
             target.className = [...target.classList].filter(c => c !== 'is-invalid').join(' ');
@@ -42,9 +43,8 @@ function Dropdown(props: {id: string, label: string, selectedValues: Array<strin
         invalid = '';
     }
     return (
-        <FloatingLabel className="w-100 pb-1" controlId={`values-select-${props.label}`} label={props.label}>
+        <FloatingLabel className="w-100 pb-1" controlId={`values-select-${ElementHelper.idEncode(props.label)}`} label={props.label}>
             <Form.Select
-                id={props.id}
                 aria-label={`Values Select for ${props.label}`}
                 defaultValue={selected}
                 className={invalid}
@@ -70,19 +70,16 @@ type ShortlistItEntryValueProps = {
 }
 
 function ShortlistItEntryValue(props: ShortlistItEntryValueProps) {
-    const id = `${Criteria.nameToElementId(props.criteria.name)}-${props.entryId}`;
     const allValues = props.criteria.values || new Array<string>();
     const [showEditCriteriaModal, setShowEditCriteriaModal] = useState(false);
     return (
         <>
             {(props.criteria.allowMultiple)
                 ? <Multiselect
-                    id={id}
                     label={props.criteria.name}
                     selectedValues={props.selectedValues}
                     allValues={allValues}/>
                 : <Dropdown 
-                    id={id}
                     label={props.criteria.name}
                     selectedValues={props.selectedValues}
                     allValues={allValues} />
@@ -108,13 +105,13 @@ function ShortlistItEntryValue(props: ShortlistItEntryValueProps) {
     );
 }
 
-function isEntryDescValid(entry: Entry): boolean {
-    const entryEl = document.getElementById(`description-${entry?.id}`) as HTMLInputElement;
+function isEntryDescValid(description: string, ref?: React.RefObject<HTMLDivElement>): boolean {
+    const entryEl = ref?.current?.querySelector<HTMLInputElement>("#entry-description-input");
     let desc: string;
     if (entryEl) {
         desc = entryEl.value;
     } else {
-        desc = entry?.description ?? '';
+        desc = description ?? '';
     }
     const invalid: boolean = (!desc || desc.match(/^[\s]+$/) !== null);
     return !invalid;
@@ -134,23 +131,23 @@ export default function ShortlistItEntryEditModal(props: ShortlistItEntryEditMod
 
     const entry = (props.entry.listId) ? props.entry : getEntry(props.entry.id, props.stateMgr);
     const list = getList(entry.listId, props.stateMgr);
+    const entryRef = createRef<HTMLDivElement>();
     const [showSaveError, setShowSaveError] = useState(false);
     const [showConfirmDelete, setShowConfirmDelete] = useState(false);
     const [showAddCriteria, setShowAddCriteria] = useState(false);
-    const [entryDescValid, setEntryDescValid] = useState(isEntryDescValid(entry));
-    const entryRef = createRef<HTMLDivElement>();
+    const [entryDescValid, setEntryDescValid] = useState(isEntryDescValid(entry.description, entryRef));
     const onSaveError = () => {
         setShowSaveError(true);
         window.setTimeout(() => setShowSaveError(false), 5000);
     }
-    const isEntryValid = (ref: React.RefObject<HTMLDivElement>): Entry => {
-        const desc = ref.current?.querySelector<HTMLInputElement>(`#description-${entry?.id}`)?.value;
-        if (desc == null || desc == '') {
+    const isEntryValid = (): Entry => {
+        const desc = entryRef.current?.querySelector<HTMLInputElement>('#entry-description-input')?.value;
+        if (!isEntryDescValid(desc, entryRef)) {
             return null;
         }
         const values = new Map<string, string[]>();
         list.criteria.forEach(c => {
-            const options = Array.from(ref.current?.querySelectorAll<HTMLOptionElement>(`#${Criteria.nameToElementId(c.name)}-${entry.id} option`)?.values());
+            const options = Array.from(entryRef.current?.querySelectorAll<HTMLOptionElement>(`#${Criteria.nameToElementId(c.name)}-${entry.id} option`)?.values());
             values.set(c.name, options?.filter(o => o.selected).map(o => o.value));
         });
         return {
@@ -161,7 +158,7 @@ export default function ShortlistItEntryEditModal(props: ShortlistItEntryEditMod
         };
     };
     const saveEntry = (): boolean => {
-        const entry = isEntryValid(entryRef);
+        const entry = isEntryValid();
         if (entry) {
             const cIndex = list.entries.findIndex(e => e.id === entry?.id);
             if (cIndex >= 0) {
@@ -179,7 +176,7 @@ export default function ShortlistItEntryEditModal(props: ShortlistItEntryEditMod
         return (
             <div className="d-flex flex-row ps-1">
                 <p className="flex-grow-1">Edit Entry</p>
-                <ShortlistItTooltip id={`save-entry-${entry?.id}`} className="pe-1" text="Save Entry">
+                <ShortlistItTooltip id="save-entry" className="pe-1" text="Save Entry">
                     <Button
                         variant="success"
                         aria-label="Save Entry"
@@ -193,7 +190,7 @@ export default function ShortlistItEntryEditModal(props: ShortlistItEntryEditMod
                         <BootstrapIcon icon="check" />
                     </Button>
                 </ShortlistItTooltip>
-                <ShortlistItTooltip id={`add-criteria-${list.id}`} className="pe-1" text="Add Criteria">
+                <ShortlistItTooltip id="add-criteria" className="pe-1" text="Add Criteria">
                     <Button
                         variant="secondary"
                         aria-label="Add Criteria"
@@ -201,7 +198,7 @@ export default function ShortlistItEntryEditModal(props: ShortlistItEntryEditMod
                         <BootstrapIcon icon="plus" />
                     </Button>
                 </ShortlistItTooltip>
-                {(exists) && <ShortlistItTooltip id={`delete-entry-${entry?.id}`} text="Delete Entry">
+                {(exists) && <ShortlistItTooltip id="delete-entry" text="Delete Entry">
                     <Button variant="danger" aria-label="Delete Entry" onClick={() => setShowConfirmDelete(true)}>
                         <BootstrapIcon icon="trash" />
                     </Button>
@@ -236,12 +233,12 @@ export default function ShortlistItEntryEditModal(props: ShortlistItEntryEditMod
                     <Alert variant="danger" dismissible show={showSaveError} onClose={() => setShowSaveError(false)}>
                         Entry must have all values set to valid values in order to be Saved
                     </Alert>
-                    <FloatingLabel controlId={`description-${entry?.id}`} label="Description">
+                    <FloatingLabel controlId={`entry-description-input`} label="Description">
                         <Form.Control
                             type="text"
                             defaultValue={entry?.description}
                             className={(!entryDescValid) ? 'is-invalid' : ''} 
-                            onChange={() => setEntryDescValid(isEntryDescValid(entry))} />
+                            onChange={() => setEntryDescValid(isEntryDescValid(entry.description, entryRef))} />
                     </FloatingLabel>
                     <hr />
                     {list?.criteria.map(c => {

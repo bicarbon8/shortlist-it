@@ -6,6 +6,7 @@ import { Entry } from '../../src/types/entries/entry'
 import { v4 } from 'uuid'
 import { ShortlistItState } from '../../src/types/shortlist-it-state'
 import { ShortlistItStateManager } from '../../src/types/shortlist-it-state-manager'
+import { ElementHelper } from '../../src/utilities/element-helper'
 
 describe('<ShortlistItList />', () => {
   it('can display empty list', () => {
@@ -44,28 +45,49 @@ describe('<ShortlistItList />', () => {
     cy.get('.overlay').get('.alert-heading').should('contain.text', 'Edit Criteria')
       .get('input#criteriaName').should('have.value', testCriteria.name);
   })
+
+  it('can add entry', () => {
+    const list = {...testList, criteria: [testCriteria], entries: [testEntry]};
+    const stateMgr: ShortlistItStateManager = {...testStateMgr, state: {...testStateMgr.state, lists: [list]}};
+    cy.mount(<ShortlistItList
+      list={list}
+      stateMgr={stateMgr} />);
+
+    cy.get('table td #add-entry-table-button').click();
+    cy.get('.overlay').get('.alert-heading').should('contain.text', 'Edit Entry')
+      .get('input#entry-description-input').should('have.value', '')
+      .should('have.class', 'is-invalid');
+    cy.get('input#entry-description-input').type(v4());
+    cy.get(`#values-select-${ElementHelper.idEncode(testCriteria.name)}`).select(testCriteria.values[0]);
+    cy.get('.overlay').get('.alert-heading').get('#save-entry button').click();
+    cy.get('.overlay').should('not.exist');
+  })
 })
 
+const listId = v4();
 const testList: Shortlist = {
   criteria: new Array<Criteria>(),
   entries: new Array<Entry>(),
-  id: v4(),
+  id: listId,
   archived: false,
-  title: v4()
+  title: listId
 };
 
 const testCriteria: Criteria = {
   id: v4(),
   name: 'size',
   values: new Array<string>('S','M','L'),
-  weight: 1
+  weight: 1,
+  listId: listId
 };
 
+const entryId = v4();
 const testEntry: Entry = {
-  id: v4(),
-  description: v4(),
+  id: entryId,
+  description: entryId,
   values: new Map<string, Array<string>>([['size', ['M']]]),
-  ranking: 1
+  ranking: 1,
+  listId: listId
 };
 
 var testState: ShortlistItState = {
@@ -76,4 +98,4 @@ var testState: ShortlistItState = {
 const testStateMgr: ShortlistItStateManager = {
   state: testState,
   setState: (state: ShortlistItState) => { testState = {...testState, ...state}}
-} as ShortlistItStateManager
+} as ShortlistItStateManager;

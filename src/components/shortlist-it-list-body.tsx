@@ -19,7 +19,13 @@ function ShortlistItListBodyFinalRow(props: ShortlistItListBodyProps) {
         <tr className="table-secondary">
             <td> </td>
             <td>
-                <Button size="sm" variant="outline-secondary" className="sticky-horizontal text-nowrap" onClick={() => setShowAddEntryModal(true)}>
+                <Button
+                    size="sm"
+                    variant="outline-secondary"
+                    className="sticky-horizontal text-nowrap"
+                    aria-label="Add Entry"
+                    onClick={() => setShowAddEntryModal(true)}
+                    id="add-entry-table-button">
                     <BootstrapIcon icon="plus-lg" /> 
                     Add Entry
                 </Button>
@@ -38,7 +44,8 @@ function ShortlistItListBodyFinalRow(props: ShortlistItListBodyProps) {
                                 size="sm"
                                 aria-label="Add Criteria"
                                 className="text-nowrap"
-                                onClick={() => setShowAddCriteriaModal(true)}>
+                                onClick={() => setShowAddCriteriaModal(true)}
+                                id="add-criteria-table-button">
                                 <BootstrapIcon icon="plus-lg" />
                                 Add Criteria
                             </Button>
