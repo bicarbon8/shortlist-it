@@ -2,6 +2,9 @@
 name: Deploy static content to Pages
 
 on:
+  # Runs on PR opened or reopened
+  pull_request:
+    types: [opened, reopened]
   # Runs on pushes targeting the default branch
   push:
     branches: ["main"]
