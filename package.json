@@ -7,7 +7,8 @@
     "build:dev": "npm run clean && webpack -c ./webpack.config.cjs",
     "start": "ASSET_PATH=http://localhost:4800/ webpack serve -c ./webpack.config.cjs --open",
     "start:prod": "ASSET_PATH=http://localhost:4800/ webpack serve -c ./webpack.prod.config.cjs --open",
-    "start:live": "ASSET_PATH=http://localhost:4800/ webpack serve -c ./webpack.config.cjs --open --live-reload --hot"
+    "start:live": "ASSET_PATH=http://localhost:4800/ webpack serve -c ./webpack.config.cjs --open --live-reload --hot",
+    "test:component": "npx cypress run --component"
   },
   "license": "MIT",
   "author": {
