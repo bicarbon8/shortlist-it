@@ -81,7 +81,6 @@ table tbody tr:last-child td:last-child {
 .alert-body {
   overflow-y: auto;
   overflow-x: hidden;
-  max-height: 60dvh;
   min-height: 20dvh;
 }
 
