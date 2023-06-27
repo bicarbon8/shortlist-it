@@ -10,6 +10,7 @@ import { Criteria } from "../types/criteria/criteria";
 import { ShortlistItStateManager } from "../types/shortlist-it-state-manager";
 import { store } from "../utilities/storage";
 import { addNewList } from "../component-actions/list-actions";
+import { ShortlistItTooltip } from "./utilities/shortlist-it-tooltip";
 
 export type ShortlistItNavProps = {
     stateMgr: ShortlistItStateManager;
@@ -106,10 +107,12 @@ export default function ShortlistItNav(props: ShortlistItNavProps) {
                 <Navbar.Collapse id="navbarScroll" className="justify-content-end">
                     <Nav>
                         <Nav.Item className="p-1">
-                            <Button variant="outline-success" onClick={() => addNewList(props.stateMgr)}>
-                                <BootstrapIcon icon="plus-lg" />
-                                <span className="ps-2">Add New List</span>
-                            </Button>
+                            <ShortlistItTooltip id="add-new-list" text="Add New List">
+                                <Button variant="outline-success" onClick={() => addNewList(props.stateMgr)}>
+                                    <BootstrapIcon icon="plus-lg" />
+                                    <span className="ps-2">Add New List</span>
+                                </Button>
+                            </ShortlistItTooltip>
                         </Nav.Item>
                         <Nav.Item className="p-1">
                             <ButtonGroup>
@@ -133,7 +136,7 @@ export default function ShortlistItNav(props: ShortlistItNavProps) {
                         <Form.Check
                             type="switch"
                             id="display-archived"
-                            label="View Archived Lists"
+                            label="View Archived"
                             checked={props.stateMgr.state.showArchived}
                             onChange={e => {
                                 props.stateMgr.state.showArchived = e.target.checked;
