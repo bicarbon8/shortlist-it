@@ -168,35 +168,46 @@ export default function ShortlistItEntryEditModal(props: ShortlistItEntryEditMod
     const modalHeader = () => {
         const exists = getEntry(entry?.id, props.stateMgr);
         return (
-            <div className="d-flex flex-row ps-1">
-                <p className="flex-grow-1">Edit Entry</p>
-                <ShortlistItTooltip id="save-entry" className="pe-1" text="Save Entry">
-                    <Button
-                        variant="success"
-                        aria-label="Save Entry"
-                        onClick={() => {
-                            if (saveEntryChanges()) {
-                                props.onClose?.();
-                            } else {
-                                onSaveError();
-                            }
-                        }}>
-                        <BootstrapIcon icon="check" />
-                    </Button>
-                </ShortlistItTooltip>
-                <ShortlistItTooltip id="add-criteria" className="pe-1" text="Add Criteria">
-                    <Button
-                        variant="secondary"
-                        aria-label="Add Criteria"
-                        onClick={() => setShowAddCriteria(true)}>
-                        <BootstrapIcon icon="plus" />
-                    </Button>
-                </ShortlistItTooltip>
-                {(exists) && <ShortlistItTooltip id="delete-entry" text="Delete Entry">
-                    <Button variant="danger" aria-label="Delete Entry" onClick={() => setShowConfirmDelete(true)}>
-                        <BootstrapIcon icon="trash" />
-                    </Button>
-                </ShortlistItTooltip>}
+            <div className="d-flex flex-column ps-1">
+                <p className="pb-1 w-100 d-flex justify-content-start">Edit Entry</p>
+                <div className="w-100 d-flex flex-wrap justify-content-between">
+                    <ShortlistItTooltip id="save-entry" className="pe-1 mb-1" text="Save Entry">
+                        <Button
+                            variant="success"
+                            aria-label="Save Entry"
+                            className="d-flex flex-nowrap text-nowrap"
+                            onClick={() => {
+                                if (saveEntryChanges()) {
+                                    props.onClose?.();
+                                } else {
+                                    onSaveError();
+                                }
+                            }}>
+                            <BootstrapIcon icon="check" />
+                            <p className="ps-1 mb-0">Save</p>
+                        </Button>
+                    </ShortlistItTooltip>
+                    {(exists) && <ShortlistItTooltip id="delete-entry" className="pe-1 mb-1" text="Delete Entry">
+                        <Button
+                            variant="danger"
+                            aria-label="Delete Entry"
+                            className="d-flex flex-nowrap text-nowrap"
+                            onClick={() => setShowConfirmDelete(true)}>
+                            <BootstrapIcon icon="trash" />
+                            <p className="ps-1 mb-0">Delete</p>
+                        </Button>
+                    </ShortlistItTooltip>}
+                    <ShortlistItTooltip id="add-criteria" className="pe-1 mb-1 flex-grow-1" text="Add Criteria">
+                        <Button
+                            variant="secondary"
+                            aria-label="Add Criteria"
+                            className="d-flex flex-nowrap text-nowrap w-100"
+                            onClick={() => setShowAddCriteria(true)}>
+                            <BootstrapIcon icon="plus" />
+                            <p className="ps-1 mb-0">Add Criteria</p>
+                        </Button>
+                    </ShortlistItTooltip>
+                </div>
                 <ShortlistItEntryDeletionModal
                     stateMgr={props.stateMgr}
                     entry={props.entry}
