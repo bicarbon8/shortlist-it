@@ -1,0 +1,30 @@
+# workflow to run Cypress Tests on Pull Requests and merges to main
+name: Run Cypress Tests
+
+on:
+  # Runs on PR opened or reopened
+  pull_request:
+    types: [opened, reopened]
+  # Runs on pushes targeting the default branch
+  push:
+    branches: ["main"]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  # Single deploy job since we're just running tests
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+      - name: Setup Cypress
+        uses: cypress-io/github-action@v5
+        with:
+          component: true
+          install: npm ci

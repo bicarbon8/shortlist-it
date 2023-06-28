@@ -26,12 +26,16 @@
       "rootDir": "./",
       "downlevelIteration": true,
       "typeRoots": [
+        "node_modules/@types",
         "src/types.d.ts"
-      ]
+      ],
+      "types": ["cypress"],
     },
     "include": [
       "./package.json",
       "src/**/*.tsx",
-      "src/**/*.ts"
+      "src/**/*.ts",
+      "cypress/**/*.ts",
+      "cypress/**/*.tsx",
     ]
 }

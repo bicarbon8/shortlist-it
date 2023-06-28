@@ -11,7 +11,8 @@ import { getList, updateList } from "../../component-actions/list-actions";
 import { CriteriaRefContainer } from "../../types/criteria/criteria-ref-container";
 import { CriteriaType, CriteriaTypeArray } from "../../types/criteria/criteria-type";
 import { store } from "../../utilities/storage";
-import { getCriteria, stopEditingCriteria } from "../../component-actions/list-criteria-actions";
+import { ShortlistItCriteriaDeletionModal } from "./shortlist-it-criteria-deletion-modal";
+import { getExistingCriteria, saveCriteria } from "../../component-actions/list-criteria-actions";
 
 function getCriteriaModalElement(criteria: Criteria): HTMLDivElement {
     return document.getElementById(criteria?.id) as HTMLDivElement;
@@ -124,36 +125,34 @@ function validateCriteriaTemplateValues(criteriaRef: CriteriaRefContainer): Omit
     };
 }
 
-function saveCriteria(listId: string, criteriaId: string, criteriaRef: CriteriaRefContainer, stateMgr: ShortlistItStateManager): boolean {
+function validateAndSaveCriteria(listId: string, criteriaId: string, criteriaRef: CriteriaRefContainer, stateMgr: ShortlistItStateManager): boolean {
     const valid = validateCriteriaTemplateValues(criteriaRef);
     if (valid) {
-        const list = getList(listId, stateMgr);
-        if (list) {
-            const cIndex = list.criteria.findIndex(c => c.id === criteriaId);
-            if (cIndex >= 0) {
-                list.criteria.splice(cIndex, 1, {...valid, id: criteriaId});
-                updateList(list.id, list, stateMgr);
-            }
-        }
+        saveCriteria({...valid, id: criteriaId, listId: listId}, stateMgr);
         return true;
     }
     return false;
 }
 
-function confirmDeleteCriteria(criteriaId: string, stateMgr: ShortlistItStateManager): void {
-    stateMgr.state.criteriaToBeDeleted = criteriaId;
-    stateMgr.setState({...stateMgr.state});
-}
-
 type ShortlistItCriteriaEditModalProps = {
     stateMgr: ShortlistItStateManager;
+    show: boolean;
+    criteria: Criteria;
+    listId?: string;
+    onClose: () => void;
+    onSave: () => void;
+    onDelete: () => void;
 };
 
 export default function ShortlistItCriteriaEditModal(props: ShortlistItCriteriaEditModalProps) {
-    const criteria = (props.stateMgr.state.editingCriteriaId) ? getCriteria(props.stateMgr.state.editingCriteriaId, props.stateMgr) : null;
-    const list = (criteria) ? getList(criteria.listId, props.stateMgr) : null;
+    if (!props.show || !props.criteria) {
+        return <></>;
+    }
+    
+    const criteria = props.criteria;
+    const list = getList(criteria?.listId ?? props.listId, props.stateMgr);
     const criteriaRef = (criteria) ? createCriteriaRef(criteria) : null;
-
+    
     const [showSaveTemplateSuccess, setShowSaveTemplateSuccess] = useState(false);
     const onSaveTemplateSuccess = () => {
         setShowSaveTemplateSuccess(true);
@@ -168,6 +167,7 @@ export default function ShortlistItCriteriaEditModal(props: ShortlistItCriteriaE
         setShowSaveError(true);
         window.setTimeout(() => setShowSaveError(false), 5000);
     }
+    const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
 
     const [criteriaNameValid, setCriteriaNameValid] = useState(isCriteriaNameValid(criteria, list));
     const [criteriaTypeValid, setCriteriaTypeValid] = useState(isCriteriaTypeValid(criteria));
@@ -181,15 +181,55 @@ export default function ShortlistItCriteriaEditModal(props: ShortlistItCriteriaE
         setCriteriaValuesValid(areCritieriaValuesValid(criteria));
         setCriteriaWeightValid(isCritieraWeightValid(criteria));
         setYesNo(isYesNo(criteria));
-    }, [props.stateMgr.state.editingCriteriaId]);
+    }, []);
+
+    const modalHeader = () => {
+        const exists = getExistingCriteria(criteria?.id, props.stateMgr);
+
+        return (
+            <div className="d-flex flex-column ps-1">
+                <p className="pb-1 w-100 d-flex justify-content-start">Edit Criteria</p>
+                <div className="w-100 d-flex flex-wrap justify-content-end">
+                    {(exists) && <ShortlistItTooltip id={`delete-criteria-${criteria?.id}`} className="pe-1 mb-1" text="Delete Criteria">
+                        <Button variant="danger" className="d-flex flex-nowrap text-nowrap" aria-label="Delete Criteria" onClick={() => setShowDeleteConfirmation(true)}>
+                            <BootstrapIcon icon="trash" /><p className="ps-1 mb-0">Delete</p>
+                        </Button>
+                    </ShortlistItTooltip>}
+                    <ShortlistItTooltip id={`save-criteria-template-${criteria?.id}`} className="pe-1 mb-1 flex-grow-1" text="Save as Template">
+                        <Button variant="info" className="d-flex flex-nowrap text-nowrap w-100" aria-label="Save as Template" onClick={() => saveAsTemplate(criteriaRef, props.stateMgr, onSaveTemplateSuccess, onTemplateExists, onSaveError)}>
+                            <BootstrapIcon icon="file-earmark-arrow-down" /><p className="ps-1 mb-0">Save as Template</p>
+                        </Button>
+                    </ShortlistItTooltip>
+                    <ShortlistItTooltip id={`save-criteria-${criteria?.id}`} className="pe-1 mb-1" text="Save Criteria">
+                        <Button variant="success" className="d-flex flex-nowrap text-nowrap" aria-label="Save Criteria" onClick={() => {
+                            if (validateAndSaveCriteria(list?.id, criteria?.id, criteriaRef, props.stateMgr)) {
+                                props.onClose();
+                                props.onSave();
+                            } else {
+                                onSaveError();
+                            }
+                        }}>
+                            <BootstrapIcon icon="check" /><p className="ps-1 mb-0">Save</p>
+                        </Button>
+                    </ShortlistItTooltip>
+                </div>
+                <ShortlistItCriteriaDeletionModal
+                    stateMgr={props.stateMgr}
+                    criteria={criteria}
+                    show={showDeleteConfirmation}
+                    onClose={() => setShowDeleteConfirmation(false)}
+                    onDeleted={() => props.onDelete?.()} />
+            </div>
+        );
+    }
     
     return (
         <ShortlistItModal
             variant="light"
             dismissible={true}
-            onClose={() => stopEditingCriteria(props.stateMgr)}
-            heading="Edit Critieria"
-            show={criteria != null}
+            onClose={() => props.onClose()}
+            heading={() => modalHeader()}
+            show={props.show && criteria != null}
         >
             <div id={criteria?.id} className="d-flex flex-row justify-content-between criteria-list-item">
                 <div className="d-flex flex-column justify-content-evently flex-grow-1 pe-1">
@@ -273,32 +313,6 @@ export default function ShortlistItCriteriaEditModal(props: ShortlistItCriteriaE
                                 onChange={() => setCriteriaWeightValid(isCritieraWeightValid(criteria))} />
                         </FloatingLabel>
                     </div>
-                </div>
-                <div className="d-flex flex-column justify-content-between ps-1">
-                    <ShortlistItTooltip id={`save-criteria-${criteria?.id}`} text="Save Criteria">
-                        <Button variant="success" aria-label="Save Criteria" onClick={() => {
-                            if (saveCriteria(list?.id, criteria?.id, criteriaRef, props.stateMgr)) {
-                                stopEditingCriteria(props.stateMgr);
-                            } else {
-                                onSaveError();
-                            }
-                        }}>
-                            <BootstrapIcon icon="check" />
-                        </Button>
-                    </ShortlistItTooltip>
-                    <ShortlistItTooltip id={`save-criteria-template-${criteria?.id}`} text="Save as Template">
-                        <Button variant="info" aria-label="Save as Template" onClick={() => saveAsTemplate(criteriaRef, props.stateMgr, onSaveTemplateSuccess, onTemplateExists, onSaveError)}>
-                            <BootstrapIcon icon="file-earmark-arrow-down" />
-                        </Button>
-                    </ShortlistItTooltip>
-                    <ShortlistItTooltip id={`delete-criteria-${criteria?.id}`} text="Delete Criteria">
-                        <Button variant="danger" aria-label="Delete Criteria" onClick={() => {
-                            stopEditingCriteria(props.stateMgr);
-                            confirmDeleteCriteria(criteria?.id, props.stateMgr); // ...and open confirmation modal
-                        }}>
-                            <BootstrapIcon icon="trash" />
-                        </Button>
-                    </ShortlistItTooltip>
                 </div>
             </div>
         </ShortlistItModal>

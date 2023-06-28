@@ -3,17 +3,7 @@ import { Criteria } from "../types/criteria/criteria";
 import { ShortlistItStateManager } from "../types/shortlist-it-state-manager";
 import { getList, updateList } from "./list-actions";
 
-export function startEditingCriteria(criteriaId: string, stateMgr: ShortlistItStateManager): void {
-    stateMgr.state.editingCriteriaId = criteriaId;
-    stateMgr.setState({...stateMgr.state});
-}
-
-export function stopEditingCriteria(stateMgr: ShortlistItStateManager): void {
-    stateMgr.state.editingCriteriaId = null;
-    stateMgr.setState({...stateMgr.state});
-}
-
-export function getCriteria(criteriaId: string, stateMgr: ShortlistItStateManager): Criteria {
+export function getExistingCriteria(criteriaId: string, stateMgr: ShortlistItStateManager): Criteria {
     let criteria: Criteria;
     const list = stateMgr.state.lists.find(l => l.criteria.find(c => {
         if (c.id === criteriaId) {
@@ -27,22 +17,56 @@ export function getCriteria(criteriaId: string, stateMgr: ShortlistItStateManage
     return criteria;
 }
 
-export function addNewCriteria(listId: string, stateMgr: ShortlistItStateManager, templateId?: string): void {
+export function generateCriteriaFromTemplate(listId: string, stateMgr: ShortlistItStateManager, templateId?: string): Criteria {
     const list = getList(listId, stateMgr);
     if (list) {
-        let criteria: Criteria;
+        let template: Omit<Criteria, 'id'>;
         if (templateId && stateMgr.state.criteriaTemplates.has(templateId)) {
-            criteria = {
-                ...stateMgr.state.criteriaTemplates.get(templateId),
-                id: v4(),
-                listId: listId
-            };
+            template = stateMgr.state.criteriaTemplates.get(templateId);
         }
-        if (!criteria) {
-            criteria = {id: v4(), values: new Array<string>(), weight: 1};
+        if (!template) {
+            template = {values: new Array<string>(), weight: 1};
         }
-        list.criteria.push(criteria);
-        updateList(listId, list, stateMgr);
-        startEditingCriteria(criteria.id, stateMgr);
+        return {
+            ...template,
+            id: v4(),
+            listId: listId
+        };
     }
+    return null;
+}
+
+export function deleteCriteria(listId: string, criteriaId: string, stateMgr: ShortlistItStateManager): Criteria {
+    let criteria: Criteria;
+    const list = getList(listId, stateMgr);
+    if (list) {
+        const index = list.criteria.findIndex(c => c.id === criteriaId);
+        if (index >= 0) {
+            criteria = list.criteria.splice(index, 1)?.[0];
+            updateList(list.id, list, stateMgr);
+        }
+    }
+    return criteria;
+}
+
+export function saveCriteria(criteria: Criteria, stateMgr: ShortlistItStateManager): void {
+    const list = getList(criteria.listId, stateMgr);
+    if (list) {
+        const index = list.criteria.findIndex(c => c.id === criteria.id);
+        if (index >= 0) {
+            list.criteria.splice(index, 1, criteria);
+        } else {
+            list.criteria.push(criteria);
+        }
+        updateList(list.id, list, stateMgr);
+    }
+}
+
+export function deleteCriteriaTemplate(templateName: string, stateMgr: ShortlistItStateManager): Omit<Criteria, 'id'> {
+    const template = stateMgr.state.criteriaTemplates.get(templateName);
+    if (template) {
+        stateMgr.state.criteriaTemplates.delete(templateName);
+        stateMgr.setState({...stateMgr.state});
+    }
+    return template;
 }

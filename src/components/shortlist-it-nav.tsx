@@ -9,7 +9,8 @@ import { Entry } from "../types/entries/entry";
 import { Criteria } from "../types/criteria/criteria";
 import { ShortlistItStateManager } from "../types/shortlist-it-state-manager";
 import { store } from "../utilities/storage";
-import { startEditingList } from "../component-actions/list-actions";
+import { addNewList } from "../component-actions/list-actions";
+import { ShortlistItTooltip } from "./utilities/shortlist-it-tooltip";
 
 export type ShortlistItNavProps = {
     stateMgr: ShortlistItStateManager;
@@ -98,19 +99,6 @@ async function saveToFile(data: ExternalFile): Promise<void> {
 }
 
 export default function ShortlistItNav(props: ShortlistItNavProps) {
-    const addNewList = (): void => {
-        const list: Shortlist = {
-            id: v4(),
-            title: `New Shortlist (${props.stateMgr.state.lists.length + 1})`,
-            entries: new Array<Entry>(),
-            criteria: new Array<Criteria>()
-        };
-        props.stateMgr.state.lists.unshift(list);
-        store.set('lists', props.stateMgr.state.lists);
-        props.stateMgr.setState({...props.stateMgr.state});
-        startEditingList(list.id, props.stateMgr);
-    };
-
     return (
         <Navbar sticky="top" collapseOnSelect expand="md" bg="dark" variant="dark">
             <Container fluid className="d-flex justify-content-between">
@@ -119,10 +107,12 @@ export default function ShortlistItNav(props: ShortlistItNavProps) {
                 <Navbar.Collapse id="navbarScroll" className="justify-content-end">
                     <Nav>
                         <Nav.Item className="p-1">
-                            <Button variant="outline-success" onClick={() => addNewList()}>
-                                <BootstrapIcon icon="plus-lg" />
-                                <span className="ps-2">Add New List</span>
-                            </Button>
+                            <ShortlistItTooltip id="add-new-list" text="Add New List">
+                                <Button variant="outline-success" onClick={() => addNewList(props.stateMgr)}>
+                                    <BootstrapIcon icon="plus-lg" />
+                                    <span className="ps-2">Add New List</span>
+                                </Button>
+                            </ShortlistItTooltip>
                         </Nav.Item>
                         <Nav.Item className="p-1">
                             <ButtonGroup>
@@ -146,7 +136,7 @@ export default function ShortlistItNav(props: ShortlistItNavProps) {
                         <Form.Check
                             type="switch"
                             id="display-archived"
-                            label="View Archived Lists"
+                            label="View Archived"
                             checked={props.stateMgr.state.showArchived}
                             onChange={e => {
                                 props.stateMgr.state.showArchived = e.target.checked;
