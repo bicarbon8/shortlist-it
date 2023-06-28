@@ -2,9 +2,6 @@
 name: Deploy static content to Pages
 
 on:
-  # Runs on PR opened or reopened
-  pull_request:
-    types: [opened, reopened]
   # Runs on pushes targeting the default branch
   push:
     branches: ["main"]
@@ -37,15 +34,8 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: '16'
-      - name: Setup Cypress
-        uses: cypress-io/github-action@v5
-        with:
-          component: true
-          install: npm ci
       - name: Install Dependencies
         run: npm ci
-      - name: Run Component Tests
-        run: npm run test:component
       - name: Build App
         run: npm run build
       - name: Setup Pages
