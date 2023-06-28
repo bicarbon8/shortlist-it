@@ -189,7 +189,17 @@ export default function ShortlistItCriteriaEditModal(props: ShortlistItCriteriaE
         return (
             <div className="d-flex flex-column ps-1">
                 <p className="pb-1 w-100 d-flex justify-content-start">Edit Criteria</p>
-                <div className="w-100 d-flex flex-wrap justify-content-between">
+                <div className="w-100 d-flex flex-wrap justify-content-end">
+                    {(exists) && <ShortlistItTooltip id={`delete-criteria-${criteria?.id}`} className="pe-1 mb-1" text="Delete Criteria">
+                        <Button variant="danger" className="d-flex flex-nowrap text-nowrap" aria-label="Delete Criteria" onClick={() => setShowDeleteConfirmation(true)}>
+                            <BootstrapIcon icon="trash" /><p className="ps-1 mb-0">Delete</p>
+                        </Button>
+                    </ShortlistItTooltip>}
+                    <ShortlistItTooltip id={`save-criteria-template-${criteria?.id}`} className="pe-1 mb-1 flex-grow-1" text="Save as Template">
+                        <Button variant="info" className="d-flex flex-nowrap text-nowrap w-100" aria-label="Save as Template" onClick={() => saveAsTemplate(criteriaRef, props.stateMgr, onSaveTemplateSuccess, onTemplateExists, onSaveError)}>
+                            <BootstrapIcon icon="file-earmark-arrow-down" /><p className="ps-1 mb-0">Save as Template</p>
+                        </Button>
+                    </ShortlistItTooltip>
                     <ShortlistItTooltip id={`save-criteria-${criteria?.id}`} className="pe-1 mb-1" text="Save Criteria">
                         <Button variant="success" className="d-flex flex-nowrap text-nowrap" aria-label="Save Criteria" onClick={() => {
                             if (validateAndSaveCriteria(list?.id, criteria?.id, criteriaRef, props.stateMgr)) {
@@ -200,16 +210,6 @@ export default function ShortlistItCriteriaEditModal(props: ShortlistItCriteriaE
                             }
                         }}>
                             <BootstrapIcon icon="check" /><p className="ps-1 mb-0">Save</p>
-                        </Button>
-                    </ShortlistItTooltip>
-                    {(exists) && <ShortlistItTooltip id={`delete-criteria-${criteria?.id}`} className="pe-1 mb-1" text="Delete Criteria">
-                        <Button variant="danger" className="d-flex flex-nowrap text-nowrap" aria-label="Delete Criteria" onClick={() => setShowDeleteConfirmation(true)}>
-                            <BootstrapIcon icon="trash" /><p className="ps-1 mb-0">Delete</p>
-                        </Button>
-                    </ShortlistItTooltip>}
-                    <ShortlistItTooltip id={`save-criteria-template-${criteria?.id}`} className="pe-1 mb-1 flex-grow-1" text="Save as Template">
-                        <Button variant="info" className="d-flex flex-nowrap text-nowrap w-100" aria-label="Save as Template" onClick={() => saveAsTemplate(criteriaRef, props.stateMgr, onSaveTemplateSuccess, onTemplateExists, onSaveError)}>
-                            <BootstrapIcon icon="file-earmark-arrow-down" /><p className="ps-1 mb-0">Save as Template</p>
                         </Button>
                     </ShortlistItTooltip>
                 </div>

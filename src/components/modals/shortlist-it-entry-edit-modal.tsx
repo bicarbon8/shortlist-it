@@ -170,23 +170,7 @@ export default function ShortlistItEntryEditModal(props: ShortlistItEntryEditMod
         return (
             <div className="d-flex flex-column ps-1">
                 <p className="pb-1 w-100 d-flex justify-content-start">Edit Entry</p>
-                <div className="w-100 d-flex flex-wrap justify-content-between">
-                    <ShortlistItTooltip id="save-entry" className="pe-1 mb-1" text="Save Entry">
-                        <Button
-                            variant="success"
-                            aria-label="Save Entry"
-                            className="d-flex flex-nowrap text-nowrap"
-                            onClick={() => {
-                                if (saveEntryChanges()) {
-                                    props.onClose?.();
-                                } else {
-                                    onSaveError();
-                                }
-                            }}>
-                            <BootstrapIcon icon="check" />
-                            <p className="ps-1 mb-0">Save</p>
-                        </Button>
-                    </ShortlistItTooltip>
+                <div className="w-100 d-flex flex-wrap justify-content-end">
                     {(exists) && <ShortlistItTooltip id="delete-entry" className="pe-1 mb-1" text="Delete Entry">
                         <Button
                             variant="danger"
@@ -205,6 +189,22 @@ export default function ShortlistItEntryEditModal(props: ShortlistItEntryEditMod
                             onClick={() => setShowAddCriteria(true)}>
                             <BootstrapIcon icon="plus" />
                             <p className="ps-1 mb-0">Add Criteria</p>
+                        </Button>
+                    </ShortlistItTooltip>
+                    <ShortlistItTooltip id="save-entry" className="pe-1 mb-1" text="Save Entry">
+                        <Button
+                            variant="success"
+                            aria-label="Save Entry"
+                            className="d-flex flex-nowrap text-nowrap"
+                            onClick={() => {
+                                if (saveEntryChanges()) {
+                                    props.onClose?.();
+                                } else {
+                                    onSaveError();
+                                }
+                            }}>
+                            <BootstrapIcon icon="check" />
+                            <p className="ps-1 mb-0">Save</p>
                         </Button>
                     </ShortlistItTooltip>
                 </div>
