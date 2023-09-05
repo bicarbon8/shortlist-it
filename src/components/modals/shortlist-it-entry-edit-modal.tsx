@@ -1,4 +1,4 @@
-import React, { createRef, useState } from "react";
+import React, { createRef, useEffect, useState } from "react";
 import { Criteria } from "../../types/criteria/criteria";
 import { ShortlistItStateManager } from "../../types/shortlist-it-state-manager";
 import { ShortlistItModal } from "../utilities/shortlist-it-modal";
@@ -12,6 +12,20 @@ import { ShortlistItEntryDeletionModal } from "./shortlist-it-entry-deletion-mod
 import { getEntry, saveEntry } from "../../component-actions/list-entry-actions";
 import ShortlistItAddCriteriaFromTemplateModal from "./shortlist-it-add-criteria-from-template-modal";
 import { ElementHelper } from "../../utilities/element-helper";
+import { ReactMarkdown } from "react-markdown/lib/react-markdown";
+
+function useDebounce<T>(value: T, delay: number = 250): T {
+    const [debouncedValue, setDebouncedValue] = useState<T>(value);
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            setDebouncedValue(value);
+        }, delay);
+        return () => {
+            clearTimeout(handler);
+        }
+    }, [value, delay]);
+    return debouncedValue;
+}
 
 function Multiselect(props: {label: string, selectedValues: Array<string>, allValues: Array<string>}) {
     return (
@@ -132,6 +146,8 @@ export default function ShortlistItEntryEditModal(props: ShortlistItEntryEditMod
     const entry = (props.entry.listId) ? props.entry : getEntry(props.entry.id, props.stateMgr);
     const list = getList(entry.listId, props.stateMgr);
     const entryRef = createRef<HTMLDivElement>();
+    const [description, setDescription] = useState(entry.description);
+    const debouncedDescription = useDebounce(description);
     const [showSaveError, setShowSaveError] = useState(false);
     const [showConfirmDelete, setShowConfirmDelete] = useState(false);
     const [showAddCriteria, setShowAddCriteria] = useState(false);
@@ -140,8 +156,12 @@ export default function ShortlistItEntryEditModal(props: ShortlistItEntryEditMod
         setShowSaveError(true);
         window.setTimeout(() => setShowSaveError(false), 5000);
     }
-    const isEntryValid = (): Entry => {
+    const currentDescriptionInputValue = (): string => {
         const desc = entryRef.current?.querySelector<HTMLInputElement>('#entry-description-input')?.value;
+        return desc;
+    };
+    const isEntryValid = (): Entry => {
+        const desc = currentDescriptionInputValue();
         if (!isEntryDescValid(desc, entryRef)) {
             return null;
         }
@@ -243,8 +263,15 @@ export default function ShortlistItEntryEditModal(props: ShortlistItEntryEditMod
                             type="text"
                             defaultValue={entry?.description}
                             className={(!entryDescValid) ? 'is-invalid' : ''} 
-                            onChange={() => setEntryDescValid(isEntryDescValid(entry.description, entryRef))} />
+                            onChange={(e) => {
+                                setEntryDescValid(isEntryDescValid(entry.description, entryRef));
+                                setDescription(e.target.value);
+                            }} />
                     </FloatingLabel>
+                    <div className="preview">
+                        <div>Markdown Preview:</div>
+                        <ReactMarkdown>{debouncedDescription}</ReactMarkdown>
+                    </div>
                     <hr />
                     {list?.criteria.map(c => {
                         const selectedValues = entry?.values.get(c.name) ?? new Array<string>();
