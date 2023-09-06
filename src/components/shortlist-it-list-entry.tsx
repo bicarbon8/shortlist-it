@@ -4,6 +4,7 @@ import ShortlistItListEntryEditButton from "./shortlist-it-list-entry-edit-butto
 import { Entry } from "../types/entries/entry";
 import { Shortlist } from "../types/shortlist";
 import { ShortlistItStateManager } from "../types/shortlist-it-state-manager";
+import { ReactMarkdown } from "react-markdown/lib/react-markdown";
 
 type ShortlistItListEntryProps = {
     list: Shortlist;
@@ -19,7 +20,7 @@ export default function ShortlistItListEntry(props: ShortlistItListEntryProps) {
     return (
         <tr className={variant}>
             <td><Badge pill={true} className={badgeColour}>{props.entry.ranking}</Badge></td>
-            <td><span className={textColour}>{props.entry.description}</span></td>
+            <td><span className={textColour}><ReactMarkdown>{props.entry.description}</ReactMarkdown></span></td>
             {props.list.criteria.map(c => {
                 const selectedVals: Array<string> = props.entry.values.get(c.name) ?? [];
                 return (

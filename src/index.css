@@ -91,3 +91,19 @@ table tbody tr:last-child td:last-child {
 .card {
   width: 98dvw;
 }
+
+.preview {
+  margin-top: 10px;
+  border-style: dashed;
+  border-radius: 10px;
+  padding: 10px;
+}
+.preview > div {
+  position: relative;
+  top: -23px;
+  background-color: var(--bs-light-bg-subtle);
+  margin: 0px;
+  padding-left: 5px;
+  padding-right: 5px;
+  display: inline-block;
+}
