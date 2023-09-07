@@ -4,7 +4,7 @@ import ShortlistItListEntryEditButton from "./shortlist-it-list-entry-edit-butto
 import { Entry } from "../types/entries/entry";
 import { Shortlist } from "../types/shortlist";
 import { ShortlistItStateManager } from "../types/shortlist-it-state-manager";
-import { ReactMarkdown } from "react-markdown/lib/react-markdown";
+import { ShortlistItMarkdown } from "./utilities/shortlist-it-markdown";
 
 type ShortlistItListEntryProps = {
     list: Shortlist;
@@ -19,12 +19,12 @@ export default function ShortlistItListEntry(props: ShortlistItListEntryProps) {
     
     return (
         <tr className={variant}>
-            <td><Badge pill={true} className={badgeColour}>{props.entry.ranking}</Badge></td>
-            <td><span className={textColour}><ReactMarkdown>{props.entry.description}</ReactMarkdown></span></td>
+            <td className="shortlist-it"><Badge pill={true} className={badgeColour}>{props.entry.ranking}</Badge></td>
+            <td className="shortlist-it"><span className={textColour}><ShortlistItMarkdown>{props.entry.description}</ShortlistItMarkdown></span></td>
             {props.list.criteria.map(c => {
                 const selectedVals: Array<string> = props.entry.values.get(c.name) ?? [];
                 return (
-                    <td key={c.id} className="d-none d-sm-table-cell">
+                    <td key={c.id} className="shortlist-it d-none d-sm-table-cell">
                         {selectedVals.map(v => {
                             return (
                                 <Badge key={v} className="me-1 bg-light">
@@ -35,7 +35,7 @@ export default function ShortlistItListEntry(props: ShortlistItListEntryProps) {
                     </td>
                 );
             })}
-            <td className="table-fixed-right-col text-end">
+            <td className="shortlist-it table-fixed-right-col text-end">
                 {(!props.list.archived) && (<ShortlistItListEntryEditButton
                         list={props.list}
                         entry={props.entry}

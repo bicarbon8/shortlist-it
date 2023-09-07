@@ -5,14 +5,14 @@ import { ShortlistItModal } from "../utilities/shortlist-it-modal";
 import { Alert, Anchor, Button, Col, FloatingLabel, Form } from "react-bootstrap";
 import { ShortlistItTooltip } from "../utilities/shortlist-it-tooltip";
 import { BootstrapIcon } from "../utilities/bootstrap-icon";
-import { getList, updateList } from "../../component-actions/list-actions";
+import { getList } from "../../component-actions/list-actions";
 import { Entry } from "../../types/entries/entry";
 import ShortlistItCriteriaEditModal from "./shortlist-it-criteria-edit-modal";
 import { ShortlistItEntryDeletionModal } from "./shortlist-it-entry-deletion-modal";
 import { getEntry, saveEntry } from "../../component-actions/list-entry-actions";
 import ShortlistItAddCriteriaFromTemplateModal from "./shortlist-it-add-criteria-from-template-modal";
 import { ElementHelper } from "../../utilities/element-helper";
-import { ReactMarkdown } from "react-markdown/lib/react-markdown";
+import { ShortlistItMarkdown } from "../utilities/shortlist-it-markdown";
 
 function useDebounce<T>(value: T, delay: number = 250): T {
     const [debouncedValue, setDebouncedValue] = useState<T>(value);
@@ -260,9 +260,9 @@ export default function ShortlistItEntryEditModal(props: ShortlistItEntryEditMod
                     </Alert>
                     <FloatingLabel controlId={`entry-description-input`} label="Description">
                         <Form.Control
-                            type="text"
+                            as="textarea"
                             defaultValue={entry?.description}
-                            className={(!entryDescValid) ? 'is-invalid' : ''} 
+                            className={(!entryDescValid) ? 'is-invalid' : ''}
                             onChange={(e) => {
                                 setEntryDescValid(isEntryDescValid(entry.description, entryRef));
                                 setDescription(e.target.value);
@@ -270,7 +270,9 @@ export default function ShortlistItEntryEditModal(props: ShortlistItEntryEditMod
                     </FloatingLabel>
                     <div className="preview">
                         <div>Markdown Preview:</div>
-                        <ReactMarkdown>{debouncedDescription}</ReactMarkdown>
+                        <table>
+                            <ShortlistItMarkdown>{debouncedDescription}</ShortlistItMarkdown>
+                        </table>
                     </div>
                     <hr />
                     {list?.criteria.map(c => {

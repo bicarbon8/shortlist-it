@@ -17,8 +17,8 @@ function ShortlistItListBodyFinalRow(props: ShortlistItListBodyProps) {
 
     return (
         <tr className="table-secondary">
-            <td> </td>
-            <td>
+            <td className="shortlist-it"> </td>
+            <td className="shortlist-it">
                 <Button
                     size="sm"
                     variant="outline-secondary"
@@ -37,7 +37,7 @@ function ShortlistItListBodyFinalRow(props: ShortlistItListBodyProps) {
             </td>
             {(props.list.criteria.length > 0) 
                 && (
-                    <td colSpan={props.list.criteria.length} className="d-none d-sm-table-cell">
+                    <td colSpan={props.list.criteria.length} className="shortlist-it d-none d-sm-table-cell">
                         <ShortlistItTooltip id={`add-new-criteria-${props.list.id}`} text="Add Criteria">
                             <Button
                                 variant="outline-secondary"
@@ -57,7 +57,7 @@ function ShortlistItListBodyFinalRow(props: ShortlistItListBodyProps) {
                             list={props.list} />
                     </td>
                 )}
-            <td className="table-fixed-right-col"> &nbsp; </td>
+            <td className="shortlist-it table-fixed-right-col"> &nbsp; </td>
         </tr>
     );
 }
@@ -107,13 +107,13 @@ export default function ShortlistItListBody(props: ShortlistItListBodyProps) {
     const variant = (props.list.archived) ? 'table-secondary' : 'table-dark';
     return (
         <div className="table-responsive">
-            <table className="table table-hover table-striped table-fixed-2-cols pb-0 mb-0">
+            <table className="shortlist-it table table-hover table-striped table-fixed-2-cols pb-0 mb-0">
                 <thead>
                     <tr className={variant}>
-                        <th scope="col">rank</th>
-                        <th scope="col">description</th>
+                        <th className="shortlist-it" scope="col">rank</th>
+                        <th className="shortlist-it" scope="col">description</th>
                         {props.list.criteria.map(c => <ShortlistItListCriteria key={c.id} criteria={c} list={props.list} stateMgr={props.stateMgr} />)}
-                        <th scope="col" className="table-fixed-right-col"> </th>
+                        <th scope="col" className="shortlist-it table-fixed-right-col"> </th>
                     </tr>
                 </thead>
                 <tbody>

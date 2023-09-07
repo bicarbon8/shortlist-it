@@ -53,9 +53,9 @@ describe('<ShortlistItList />', () => {
 
     cy.get('table td #add-entry-table-button').click();
     cy.get('.overlay').get('.alert-heading').should('contain.text', 'Edit Entry')
-      .get('input#entry-description-input').should('have.value', '')
+      .get('textarea#entry-description-input').should('have.value', '')
       .should('have.class', 'is-invalid');
-    cy.get('input#entry-description-input').type(v4());
+    cy.get('textarea#entry-description-input').type(v4());
     cy.get(`#values-select-${ElementHelper.idEncode(testCriteria.name)}`).select(testCriteria.values[0]);
     cy.get('.overlay').get('.alert-heading').get('#save-entry button').click();
     cy.get('.overlay').should('not.exist');

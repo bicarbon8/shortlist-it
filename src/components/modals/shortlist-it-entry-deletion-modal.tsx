@@ -1,11 +1,10 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { ShortlistItStateManager } from "../../types/shortlist-it-state-manager";
 import { ShortlistItModal } from "../utilities/shortlist-it-modal";
 import { Button } from "react-bootstrap";
-import { store } from "../../utilities/storage";
 import { Entry } from "../../types/entries/entry";
 import { deleteEntry, getEntry } from "../../component-actions/list-entry-actions";
-import { ReactMarkdown } from "react-markdown/lib/react-markdown";
+import { ShortlistItMarkdown } from "../utilities/shortlist-it-markdown";
 
 type ShortlistItEntryDeletionModalProps = {
     stateMgr: ShortlistItStateManager;
@@ -32,7 +31,7 @@ export function ShortlistItEntryDeletionModal(props: ShortlistItEntryDeletionMod
             show={props.show && entry != null}
             onClose={() => props.onClose?.()}>
             <p>
-            are you certain you want to delete Entry: <ReactMarkdown>{entryDesc ?? "''"}</ReactMarkdown> from list titled: <i>{list?.title}</i>? once deleted it can not be recovered.
+            are you certain you want to delete Entry: <table><ShortlistItMarkdown>{entryDesc ?? "''"}</ShortlistItMarkdown></table> from list titled: <i>{list?.title}</i>? once deleted it can not be recovered.
             </p>
             <hr />
             <div className="d-flex justify-content-end">
